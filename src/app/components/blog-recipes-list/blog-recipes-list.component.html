@@ -1,0 +1,52 @@
+@if (loading) {
+    <div class="loading-state">
+        <i class="fas fa-spinner fa-spin"></i>
+        <p>Cargando recetas...</p>
+    </div>
+} @else if (error) {
+    <div class="error-state">
+        <i class="fas fa-exclamation-triangle"></i>
+        <h2>Error al cargar las recetas</h2>
+        <p>Ha ocurrido un problema al obtener las recetas. Inténtalo de nuevo más tarde.</p>
+    </div>
+} @else if (blogRecipes.length < 1) {
+    <div class="empty-state">
+        <i class="fas fa-book"></i>
+        <h2>No hay recetas disponibles</h2>
+        <p>Vuelve más tarde para ver nuevas recetas</p>
+    </div>
+} @else {
+    <div class="blog-recipes-list">
+        @for (recipe of blogRecipes; track recipe.id){
+            <article class="recipe-card blog">
+                <div class="recipe-image">
+                    <img src="{{recipe.imageUrl}}" alt="{{recipe.alt}}">
+                    <div class="recipe-actions">
+                        <button class="save-btn"><i class="far fa-bookmark"></i></button>
+                    </div>
+                </div>
+                <div class="recipe-content">
+                    <h3>{{recipe.title}}</h3>
+                    <p>{{recipe.description}}</p>
+                    <div class="recipe-categories">
+                        @for(cat of recipe.categories; track cat){
+                            <span>{{cat}}</span>
+                        }
+                    </div>
+                    <div class="recipe-meta">
+                        <div class="properties">
+                            <div class="rating">
+                                {{recipe.rate}} <i class="fas fa-star"></i>
+                            </div>
+                            <div class="author">
+                                <img src="{{recipe.chefImage}}" alt="{{recipe.chefName}}">
+                                <span>{{recipe.chefName}}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <button class="recipe-button" [routerLink]="['/recipe', recipe.id]">Ver receta</button>
+                </div>
+            </article>
+        }
+    </div>
+}

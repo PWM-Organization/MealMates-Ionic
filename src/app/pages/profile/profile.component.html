@@ -1,0 +1,106 @@
+<main class="profile-container">
+    <aside class="sidebar">
+        <div class="user-info">
+            <i class="fas fa-user"></i>
+            <span *ngIf="currentUser; else loadingUserEmail">{{ currentUser.email }}</span>
+            <ng-template #loadingUserEmail><span>Cargando...</span></ng-template>
+        </div>
+        <nav class="sidebar-nav">
+            <ul>
+                <li class="active">
+                    <i class="fas fa-user-edit"></i>
+                    <span>Gestionar cuenta</span>
+                </li>
+            </ul>
+        </nav>
+    </aside>
+
+    <div class="content-panel">
+        <!-- Vista del perfil -->
+        <section class="profile-view" id="profile-view">
+            <h2>Perfil de Usuario</h2>
+            <ng-container *ngIf="{ profile: profile$ | async } as data">
+                <div *ngIf="data.profile !== undefined; else loadingProfile" class="profile-content">
+                    <div class="profile-image-section">
+                        <div class="profile-image">
+                            <img
+                                [src]="data.profile?.photoURL || '/android-icon-192x192.png'"
+                                alt="Foto de perfil"
+                                class="profile-picture"
+                            />
+                            <input
+                                type="file"
+                                #fileInput
+                                hidden
+                                (change)="onFileSelected($event)"
+                                accept="image/png, image/jpeg"
+                            />
+                            <button
+                                type="button"
+                                class="change-photo"
+                                (click)="fileInput.click()"
+                                [disabled]="uploadingImage"
+                            >
+                                <i class="fas fa-camera"></i>
+                                <span *ngIf="!uploadingImage">Cambiar Foto</span>
+                                <span *ngIf="uploadingImage">Subiendo...</span>
+                            </button>
+                        </div>
+                        <p *ngIf="uploadError" class="error-message">{{ uploadError }}</p>
+                    </div>
+
+                    <form class="profile-form" [formGroup]="profileForm" (ngSubmit)="saveProfile()">
+                        <div class="form-group">
+                            <label for="email">Email (No editable)</label>
+                            <input type="email" id="email" [value]="currentUser?.email || ''" readonly disabled />
+                        </div>
+                        <div class="form-group">
+                            <label for="displayName">Nombre</label>
+                            <input type="text" id="displayName" formControlName="displayName" />
+                            <div
+                                *ngIf="
+                                    profileForm.controls.displayName.invalid && profileForm.controls.displayName.touched
+                                "
+                                class="error-message"
+                            >
+                                <span *ngIf="profileForm.controls.displayName.errors?.['maxlength']"
+                                    >El nombre no puede exceder los 50 caracteres.</span
+                                >
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="description">Descripción</label>
+                            <textarea id="description" rows="4" formControlName="description"></textarea>
+                            <div
+                                *ngIf="
+                                    profileForm.controls.description.invalid && profileForm.controls.description.touched
+                                "
+                                class="error-message"
+                            >
+                                <span *ngIf="profileForm.controls.description.errors?.['maxlength']"
+                                    >La descripción no puede exceder los 200 caracteres.</span
+                                >
+                            </div>
+                        </div>
+                        <div class="form-actions">
+                            <button
+                                type="submit"
+                                class="save-button"
+                                [disabled]="profileForm.invalid || profileForm.pristine || isLoading"
+                            >
+                                <span *ngIf="!isLoading">Guardar cambios</span>
+                                <span *ngIf="isLoading">Guardando...</span>
+                            </button>
+                            <p *ngIf="saveSuccess" class="success-message">¡Perfil guardado con éxito!</p>
+                            <p *ngIf="saveError" class="error-message">{{ saveError }}</p>
+                        </div>
+                    </form>
+                </div>
+            </ng-container>
+
+            <ng-template #loadingProfile>
+                <div class="loading-indicator">Cargando perfil...</div>
+            </ng-template>
+        </section>
+    </div>
+</main>

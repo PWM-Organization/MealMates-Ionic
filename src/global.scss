@@ -1,37 +1,240 @@
-/*
- * App Global CSS
- * ----------------------------------------------------------------------------
- * Put style rules here that you want to apply globally. These styles are for
- * the entire app and not just one component. Additionally, this file can be
- * used as an entry point to import other CSS/Sass files to be included in the
- * output CSS.
- * For more information on global stylesheets, visit the documentation:
- * https://ionicframework.com/docs/layout/global-stylesheets
- */
+// Variables de color
+:root {
+    --primary-color: #f5f0dc;
+    --secondary-color: #333;
+    --accent-color: #e67e22;
+    --text-color: #2c3e50;
+    --white: #ffffff;
+    --black: #000;
+    --text-primary: #2c3e50;
+}
 
-/* Core CSS required for Ionic components to work properly */
-@import "@ionic/angular/css/core.css";
+// Reset de margenes y padding
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
 
-/* Basic CSS for apps built with Ionic */
-@import "@ionic/angular/css/normalize.css";
-@import "@ionic/angular/css/structure.css";
-@import "@ionic/angular/css/typography.css";
-@import "@ionic/angular/css/display.css";
+// Estilo base para el body
+body {
+    font-family: 'Arial', sans-serif;
+    line-height: 1.6;
+    color: var(--text-color);
+}
 
-/* Optional CSS utils that can be commented out */
-@import "@ionic/angular/css/padding.css";
-@import "@ionic/angular/css/float-elements.css";
-@import "@ionic/angular/css/text-alignment.css";
-@import "@ionic/angular/css/text-transformation.css";
-@import "@ionic/angular/css/flex-utils.css";
+// Sección de Featured Recipes
+.featured-recipes {
+    padding: 2rem 1rem;
+    text-align: center;
+    background-color: var(--primary-color);
 
-/**
- * Ionic Dark Mode
- * -----------------------------------------------------
- * For more info, please see:
- * https://ionicframework.com/docs/theming/dark-mode
- */
+    h2 {
+        margin-bottom: 2rem;
+    }
+}
 
-/* @import "@ionic/angular/css/palettes/dark.always.css"; */
-/* @import "@ionic/angular/css/palettes/dark.class.css"; */
-@import "@ionic/angular/css/palettes/dark.system.css";
+// Contenedor del carrusel
+.carousel-container {
+    position: relative;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 40px;
+}
+
+// Carrusel
+.carousel {
+    overflow: hidden;
+    padding: 5px;
+    align-items: center;
+    justify-content: center;
+}
+
+// Track del carrusel
+.carousel-track {
+    display: flex;
+    align-items: center;
+    justify-items: center;
+    gap: 2rem;
+}
+
+// Tarjeta de receta
+.recipe-blog-card {
+    flex: 0 0 300px;
+    background: var(--white);
+    border-radius: 10px;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+    padding: 1rem;
+    max-width: 400px;
+    margin: 0 auto;
+}
+
+// Imagen de la receta
+.recipe-image {
+    img {
+        width: 100%;
+        border-radius: 8px;
+        margin-bottom: 1rem;
+    }
+}
+
+// Estilos de rating
+.rating {
+    color: gold;
+    margin: 1rem 0;
+}
+
+// Estilos para el botón de receta
+.recipe-button {
+    background-color: var(--accent-color);
+    color: var(--white);
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+
+    &:hover {
+        background-color: darken(#e67e22, 10%);
+    }
+}
+
+// Grid de recetas
+.recipe-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+    padding: 1rem;
+}
+
+// Botones del carrusel
+.carousel-button {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: var(--white);
+    border: none;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    cursor: pointer;
+}
+
+// Botones de carrusel específicos
+.prev {
+    left: 0;
+}
+
+.next {
+    right: 0;
+}
+
+// Botón primario
+.primary-button {
+    margin-top: 2rem;
+    background-color: var(--accent-color);
+    color: var(--white);
+    border: none;
+    padding: 0.8rem 2rem;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1.1rem;
+    transition: background-color 0.3s ease;
+
+    &:hover {
+        background-color: var(--primary-color);
+    }
+}
+
+// Estilos para el estado vacío
+.empty-state {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: var(--text-color);
+
+    i {
+        font-size: 3rem;
+        color: var(--accent-color);
+        margin-bottom: 1rem;
+    }
+
+    h2 {
+        margin-bottom: 0.5rem;
+    }
+
+    p {
+        color: #666;
+    }
+}
+
+// Estilos responsive
+@media (max-width: 768px) {
+    .navigation {
+        display: none;
+    }
+
+    .recipe-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .mobile-menu {
+        display: block;
+    }
+
+    .footer-columns {
+        grid-template-columns: repeat(2, 1fr);
+        text-align: center;
+    }
+
+    .social-icons {
+        gap: 1.5rem;
+    }
+
+    .footer {
+        padding: 2rem 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .footer-columns {
+        grid-template-columns: 1fr;
+    }
+}
+
+// Estilos para Tabs
+.tab {
+    display: flex;
+    gap: 5px;
+    margin-bottom: 20px;
+
+    button {
+        padding: 10px 20px;
+        border: none;
+        background-color: var(--primary-color);
+        border-radius: 10px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+
+        &.active {
+            background-color: white;
+            color: var(--secondary-color);
+        }
+    }
+}
+
+.tab-content {
+    display: none;
+    padding: 20px;
+    border-radius: 10px;
+    opacity: 0;
+    visibility: hidden;
+    position: absolute;
+
+    &.active {
+        display: grid;
+        opacity: 1;
+        visibility: visible;
+        position: relative;
+    }
+}

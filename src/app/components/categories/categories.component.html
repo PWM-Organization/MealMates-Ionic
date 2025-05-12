@@ -1,0 +1,16 @@
+<aside class="categories-sidebar">
+    <h2>Categorías</h2>
+    @for(category of categories; track category.id){
+        <div class="category-item">
+            @if(category.isChecked) {
+                <input type="checkbox" id="{{category.id}}" checked/>
+            } @else {
+                <input type="checkbox" id="{{category.id}}"/>
+            }
+            <label for="{{category.id}}">
+                {{category.name}} ({{category.count}})
+            </label>
+        </div>
+    }
+    <p class="menu-description">Filtra las recetas por categorías para encontrar exactamente lo que buscas.</p>
+</aside>

@@ -1,0 +1,31 @@
+/* Estilos para tarjetas creadas */
+.created .recipe-actions {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    display: flex;
+    gap: 0.5rem;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.created:hover .recipe-actions {
+    opacity: 1;
+}
+
+.saved:hover .recipe-actions, .blog:hover .recipe-actions {
+    opacity: 1;
+}
+
+.edit-btn, .delete-btn, .save-btn, .bookmark-btn {
+    width: 35px;
+    height: 35px;
+    border: none;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    background-color: white;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}

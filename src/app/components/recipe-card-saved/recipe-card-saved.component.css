@@ -1,0 +1,10 @@
+/* Estilos para tarjetas guardadas */
+.saved .recipe-actions, .blog .recipe-actions {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    display: flex;
+    gap: 0.5rem;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}

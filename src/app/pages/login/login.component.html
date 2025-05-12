@@ -1,0 +1,71 @@
+<main class="login-container">
+    <div class="login-card">
+        <div class="login-header">
+            <h2>Iniciar Sesión</h2>
+            <p>¡Bienvenido de nuevo a MealMates!</p>
+        </div>
+
+        <form class="login-form" [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+            <div class="form-group">
+                <label for="email">Email</label>
+                <div class="input-with-icon">
+                    <i class="fas fa-envelope"></i>
+                    <input type="email" id="email" placeholder="tu@email.com" formControlName="email" required />
+                </div>
+                <div
+                    *ngIf="
+                        loginForm.controls.email.invalid &&
+                        (loginForm.controls.email.dirty || loginForm.controls.email.touched)
+                    "
+                    class="error-message"
+                >
+                    <span *ngIf="loginForm.controls.email.errors?.['required']">Email is required.</span>
+                    <span *ngIf="loginForm.controls.email.errors?.['email']">Please enter a valid email.</span>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="password">Contraseña</label>
+                <div class="input-with-icon">
+                    <i class="fas fa-lock"></i>
+                    <input type="password" id="password" placeholder="••••••••" formControlName="password" required />
+                </div>
+                <div
+                    *ngIf="
+                        loginForm.controls.password.invalid &&
+                        (loginForm.controls.password.dirty || loginForm.controls.password.touched)
+                    "
+                    class="error-message"
+                >
+                    <span *ngIf="loginForm.controls.password.errors?.['required']">Password is required.</span>
+                </div>
+            </div>
+
+            <div *ngIf="loginError" class="error-message firebase-error">
+                {{ loginError }}
+            </div>
+
+            <div class="form-options">
+                <a class="forgot-password" routerLink="/forgot-password">¿Olvidaste tu contraseña?</a>
+            </div>
+
+            <button type="submit" class="login-button" [disabled]="loginForm.invalid">Iniciar Sesión</button>
+        </form>
+
+        <div class="register-link">¿No tienes una cuenta? <a routerLink="/register">Regístrate aquí</a></div>
+
+        <div class="test-credentials">
+            <h3>Credenciales de prueba</h3>
+            <div class="credential-pair">
+                <p><strong>Usuario 1:</strong></p>
+                <p>Email: maria&#64;example.com</p>
+                <p>Contraseña: password123</p>
+            </div>
+            <div class="credential-pair">
+                <p><strong>Usuario 2:</strong></p>
+                <p>Email: juan&#64;example.com</p>
+                <p>Contraseña: password456</p>
+            </div>
+        </div>
+    </div>
+</main>

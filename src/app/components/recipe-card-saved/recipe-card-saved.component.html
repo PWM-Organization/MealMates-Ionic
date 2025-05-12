@@ -1,0 +1,22 @@
+<div class="recipe-card simple">
+    <div class="recipe-image">
+      <img [src]="recipe.image" [alt]="recipe.alt" />
+      <div class="recipe-actions">
+        <button class="bookmark-btn">
+          <i class="far fa-bookmark"></i>
+        </button>
+      </div>
+    </div>
+    <div class="recipe-content">
+      <h3>{{ recipe.title }}</h3>
+      <div class="recipe-info">
+        <span><i class="far fa-clock"></i> {{ recipe.time }}</span>
+        <span><i class="fas fa-signal"></i> {{ recipe.difficulty }}</span>
+      </div>
+      <div class="recipe-categories">
+        <span *ngFor="let cat of recipe.categories; trackBy: trackByCategory">{{ cat }}</span>
+      </div>
+      <button class="recipe-button" [routerLink]="'/recipe'">Ver receta</button>
+    </div>
+  </div>
+  
