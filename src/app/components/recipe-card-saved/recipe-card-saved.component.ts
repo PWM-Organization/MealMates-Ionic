@@ -13,7 +13,7 @@ import { RouterModule } from '@angular/router';
     '../recipe-card-default/recipe-card-default.component.css',
     '../recipe-card-created/recipe-card-created.component.css',
     '../recipes-list/recipes-list.component.css',
-    '../../../styles.css'
+    '../../../global.scss'
   ]
 })
 export class RecipeCardSavedComponent {

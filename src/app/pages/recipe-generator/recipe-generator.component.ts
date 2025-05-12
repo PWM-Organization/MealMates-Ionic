@@ -12,7 +12,7 @@ import { Recipe } from '../../../models/Recipe';
   standalone: true,
   imports: [CommonModule, FormsModule, ReactiveFormsModule],
   templateUrl: './recipe-generator.component.html',
-  styleUrls: ['./recipe-generator.component.css', '../../../styles.css'],
+  styleUrls: ['./recipe-generator.component.css', '../../../global.scss'],
 })
 
 export class RecipeGeneratorComponent implements OnInit {
