@@ -1,61 +1,51 @@
-<header class="header">
-    <div class="brand">
-        <a routerLink="/" class="brand-link">
-            <h1 class="brand-logo">MealMates</h1>
-        </a>
-    </div>
-    <div class="header-right">
-        <nav class="navigation">
-            <ul>
-                <li><a routerLink="/blog" class="nav-button">Blog</a></li>
-                <ng-container *ngIf="user">
-                    <li><a routerLink="/my-recipes" class="nav-button">Mis recetas</a></li>
-                    <li><a routerLink="/weekly-planner" class="nav-button">Menú Semanal</a></li>
-                </ng-container>
-            </ul>
-        </nav>
-        <div class="user-icon">
-            <div class="user-menu-container">
-                <i class="fas fa-user-circle"></i>
-                <div class="user-menu">
-                    <div class="user-menu-header">
-                        <ng-container *ngIf="user; else guestHeader">
-                            <a routerLink="/profile" class="user-text">{{ user.email }}</a>
-                        </ng-container>
-                        <ng-template #guestHeader>
-                            <a routerLink="/login" class="guest-text">Invitado</a>
-                        </ng-template>
-                    </div>
-                    <ng-container *ngIf="user; else guestMenuItems">
-                        <div class="user-menu-items user-items">
-                            <a routerLink="/profile" class="menu-item">
-                                <i class="fas fa-user-edit"></i>
-                                Mi perfil
-                            </a>
-                            <a routerLink="/weekly-planner" class="menu-item">
-                                <i class="fas fa-calendar-week"></i>
-                                Planificador
-                            </a>
-                            <a (click)="logout()" class="menu-item logout">
-                                <i class="fas fa-sign-out-alt"></i>
-                                Cerrar sesión
-                            </a>
-                        </div>
-                    </ng-container>
-                    <ng-template #guestMenuItems>
-                        <div class="user-menu-items guest-items">
-                            <a routerLink="/login" class="menu-item">
-                                <i class="fas fa-sign-in-alt"></i>
-                                Iniciar sesión
-                            </a>
-                            <a routerLink="/register" class="menu-item">
-                                <i class="fas fa-user-plus"></i>
-                                Registrarse
-                            </a>
-                        </div>
-                    </ng-template>
-                </div>
-            </div>
-        </div>
-    </div>
-</header>
+<ion-header class="header">
+  <ion-toolbar>
+    <ion-title>
+      <a routerLink="/" class="brand-link">
+        MealMates
+      </a>
+    </ion-title>
+    <ion-buttons slot="end">
+      <ion-button routerLink="/blog">Blog</ion-button>
+      <ng-container *ngIf="user">
+        <ion-button routerLink="/my-recipes">Mis recetas</ion-button>
+        <ion-button routerLink="/weekly-planner">Menú Semanal</ion-button>
+      </ng-container>
+      <ion-menu-button autoHide="false"></ion-menu-button>
+      <ion-button id="user-menu-trigger" fill="clear">
+        <ion-icon name="person-circle-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-popover trigger="user-menu-trigger" triggerAction="click" [showBackdrop]="true">
+  <ng-template>
+    <ion-list>
+      <ng-container *ngIf="user; else guestMenu">
+        <ion-item routerLink="/profile">
+          <ion-icon name="person-outline" slot="start"></ion-icon>
+          {{ user.email }}
+        </ion-item>
+        <ion-item routerLink="/weekly-planner">
+          <ion-icon name="calendar-outline" slot="start"></ion-icon>
+          Planificador
+        </ion-item>
+        <ion-item (click)="logout()">
+          <ion-icon name="log-out-outline" slot="start"></ion-icon>
+          Cerrar sesión
+        </ion-item>
+      </ng-container>
+      <ng-template #guestMenu>
+        <ion-item routerLink="/login">
+          <ion-icon name="log-in-outline" slot="start"></ion-icon>
+          Iniciar sesión
+        </ion-item>
+        <ion-item routerLink="/register">
+          <ion-icon name="person-add-outline" slot="start"></ion-icon>
+          Registrarse
+        </ion-item>
+      </ng-template>
+    </ion-list>
+  </ng-template>
+</ion-popover>

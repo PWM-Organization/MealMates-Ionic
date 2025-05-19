@@ -1,24 +1,27 @@
-<div class="recipe-card simple">
-    <div class="recipe-image">
-      <img [src]="recipe.image" [alt]="recipe.alt" />
-      <div class="recipe-actions">
-        <button class="edit-btn" [routerLink]="'/recipe-generator'">
-          <i class="fas fa-edit"></i>
-        </button>
-        <button class="delete-btn">
-          <i class="fas fa-trash"></i>
-        </button>
-      </div>
-    </div>
-    <div class="recipe-content">
-      <h3>{{ recipe.title }}</h3>
-      <div class="recipe-info">
-        <span><i class="far fa-clock"></i> {{ recipe.time }}</span>
-        <span><i class="fas fa-signal"></i> {{ recipe.difficulty }}</span>
-      </div>
-      <div class="recipe-categories">
-        <span *ngFor="let cat of recipe.categories; trackBy: trackByCategory">{{ cat }}</span>
-      </div>
+<ion-card class="recipe-card created">
+  <div class="recipe-image">
+    <ion-img [src]="recipe.image" [alt]="recipe.alt"></ion-img>
+    <div class="recipe-actions">
+      <ion-button fill="clear" class="edit-btn" [routerLink]="'/recipe-generator'" size="small">
+        <ion-icon name="create-outline"></ion-icon>
+      </ion-button>
+      <ion-button fill="clear" class="delete-btn" size="small">
+        <ion-icon name="trash-outline"></ion-icon>
+      </ion-button>
     </div>
   </div>
-  
+  <ion-card-content class="recipe-content">
+    <ion-card-title>{{ recipe.title }}</ion-card-title>
+    <div class="recipe-info">
+      <ion-icon name="time-outline"></ion-icon>
+      <span>{{ recipe.time }}</span>
+      <ion-icon name="barbell-outline"></ion-icon>
+      <span>{{ recipe.difficulty }}</span>
+    </div>
+    <div class="recipe-categories">
+      <ion-chip *ngFor="let cat of recipe.categories; trackBy: trackByCategory">
+        {{ cat }}
+      </ion-chip>
+    </div>
+  </ion-card-content>
+</ion-card>

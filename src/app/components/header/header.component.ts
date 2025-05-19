@@ -1,6 +1,7 @@
 import { Component, Input, inject } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { IonicModule } from '@ionic/angular';
 import { User } from '@angular/fire/auth';
 import { AuthService } from '../../services/auth.service';
 import { Router } from '@angular/router';
@@ -8,9 +9,9 @@ import { Router } from '@angular/router';
 @Component({
     selector: 'app-header',
     standalone: true,
-    imports: [RouterModule, CommonModule],
+    imports: [RouterModule, CommonModule, IonicModule],
     templateUrl: './header.component.html',
-    styleUrls: ['./header.component.css'],
+    styleUrls: ['./header.component.scss'],
 })
 export class HeaderComponent {
     @Input() user: User | null = null;

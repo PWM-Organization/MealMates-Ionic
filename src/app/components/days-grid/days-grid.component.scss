@@ -1,0 +1,17 @@
+.days-grid {
+  ion-card-title {
+    text-align: center;
+    color: var(--primary-color);
+  }
+  .day-cell {
+    margin: 0.5rem 0;
+    ion-card-title {
+      font-size: 1.1rem;
+      color: var(--secondary-color);
+    }
+    ion-card-content {
+      text-align: center;
+      font-size: 0.95rem;
+    }
+  }
+}

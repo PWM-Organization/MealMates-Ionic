@@ -1,11 +1,13 @@
 import { Component } from '@angular/core';
+import { IonicModule } from '@ionic/angular';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-categories',
   standalone: true,
-  imports: [],
+  imports: [IonicModule, CommonModule],
   templateUrl: './categories.component.html',
-  styleUrl: './categories.component.css'
+  styleUrl: './categories.component.scss'
 })
 export class CategoriesComponent {
   categories = [
@@ -45,5 +47,9 @@ export class CategoriesComponent {
       "count": 8,
       "isChecked": true
     }
-  ]
+  ];
+   trackById(index: number, category: any) {
+    return category.id;
+  }
 }
+

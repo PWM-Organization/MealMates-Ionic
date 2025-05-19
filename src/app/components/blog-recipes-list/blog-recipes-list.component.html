@@ -1,52 +1,68 @@
-@if (loading) {
-    <div class="loading-state">
-        <i class="fas fa-spinner fa-spin"></i>
-        <p>Cargando recetas...</p>
-    </div>
-} @else if (error) {
-    <div class="error-state">
-        <i class="fas fa-exclamation-triangle"></i>
-        <h2>Error al cargar las recetas</h2>
-        <p>Ha ocurrido un problema al obtener las recetas. Inténtalo de nuevo más tarde.</p>
-    </div>
-} @else if (blogRecipes.length < 1) {
-    <div class="empty-state">
-        <i class="fas fa-book"></i>
-        <h2>No hay recetas disponibles</h2>
-        <p>Vuelve más tarde para ver nuevas recetas</p>
-    </div>
-} @else {
-    <div class="blog-recipes-list">
-        @for (recipe of blogRecipes; track recipe.id){
-            <article class="recipe-card blog">
-                <div class="recipe-image">
-                    <img src="{{recipe.imageUrl}}" alt="{{recipe.alt}}">
-                    <div class="recipe-actions">
-                        <button class="save-btn"><i class="far fa-bookmark"></i></button>
-                    </div>
-                </div>
-                <div class="recipe-content">
-                    <h3>{{recipe.title}}</h3>
-                    <p>{{recipe.description}}</p>
-                    <div class="recipe-categories">
-                        @for(cat of recipe.categories; track cat){
-                            <span>{{cat}}</span>
-                        }
-                    </div>
-                    <div class="recipe-meta">
-                        <div class="properties">
-                            <div class="rating">
-                                {{recipe.rate}} <i class="fas fa-star"></i>
-                            </div>
-                            <div class="author">
-                                <img src="{{recipe.chefImage}}" alt="{{recipe.chefName}}">
-                                <span>{{recipe.chefName}}</span>
-                            </div>
-                        </div>
-                    </div>
-                    <button class="recipe-button" [routerLink]="['/recipe', recipe.id]">Ver receta</button>
-                </div>
-            </article>
-        }
-    </div>
-}
+<ion-content>
+  <ng-container *ngIf="loading; else loaded">
+    <ion-spinner name="crescent"></ion-spinner>
+    <p class="loading-text">Cargando recetas...</p>
+  </ng-container>
+  <ng-template #loaded>
+    <ng-container *ngIf="error; else recipesList">
+      <ion-card color="danger" class="error-state">
+        <ion-card-header>
+          <ion-card-title>Error al cargar las recetas</ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          <ion-icon name="warning-outline" size="large"></ion-icon>
+          <p>Ha ocurrido un problema al obtener las recetas. Inténtalo de nuevo más tarde.</p>
+        </ion-card-content>
+      </ion-card>
+    </ng-container>
+    <ng-template #recipesList>
+      <ng-container *ngIf="blogRecipes.length < 1; else showRecipes">
+        <ion-card class="empty-state">
+          <ion-card-header>
+            <ion-card-title>No hay recetas disponibles</ion-card-title>
+          </ion-card-header>
+          <ion-card-content>
+            <ion-icon name="book-outline" size="large"></ion-icon>
+            <p>Vuelve más tarde para ver nuevas recetas</p>
+          </ion-card-content>
+        </ion-card>
+      </ng-container>
+      <ng-template #showRecipes>
+        <ion-grid class="blog-recipes-list">
+          <ion-row>
+            <ion-col size="12" size-md="6" size-lg="4" *ngFor="let recipe of blogRecipes; trackBy: trackById">
+              <ion-card class="recipe-card blog">
+                <ion-img [src]="recipe.imageUrl" [alt]="recipe.alt"></ion-img>
+                <ion-card-header>
+                  <ion-card-title>{{ recipe.title }}</ion-card-title>
+                  <ion-card-subtitle>{{ recipe.chefName }}</ion-card-subtitle>
+                </ion-card-header>
+                <ion-card-content>
+                  <p>{{ recipe.description }}</p>
+                  <div class="recipe-categories">
+                    <ion-chip *ngFor="let cat of recipe.categories">{{ cat }}</ion-chip>
+                  </div>
+                  <div class="recipe-meta">
+                    <ion-badge color="warning">
+                      <ion-icon name="star" size="small"></ion-icon>
+                      {{ recipe.rate }}
+                    </ion-badge>
+                    <ion-badge color="medium">
+                      <ion-icon name="time-outline" size="small"></ion-icon>
+                      {{ recipe.time }}
+                    </ion-badge>
+                    <ion-badge color="tertiary">
+                      <ion-icon name="barbell-outline" size="small"></ion-icon>
+                      {{ recipe.difficulty }}
+                    </ion-badge>
+                  </div>
+                  <ion-button expand="block" [routerLink]="['/recipe', recipe.id]">Ver receta</ion-button>
+                </ion-card-content>
+              </ion-card>
+            </ion-col>
+          </ion-row>
+        </ion-grid>
+      </ng-template>
+    </ng-template>
+  </ng-template>
+</ion-content>

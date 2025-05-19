@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, Input } from '@angular/core';
 import { RouterModule } from '@angular/router';
+import { IonicModule } from '@ionic/angular';
 import { RecipeCardCreatedComponent } from '../recipe-card-created/recipe-card-created.component';
 import { RecipeCardDefaultComponent } from '../recipe-card-default/recipe-card-default.component';
 import { RecipeCardSavedComponent } from '../recipe-card-saved/recipe-card-saved.component';
@@ -8,9 +9,9 @@ import { RecipeCardSavedComponent } from '../recipe-card-saved/recipe-card-saved
 @Component({
   selector: 'app-recipes-list',
   standalone: true,
-  imports: [RouterModule, CommonModule, RecipeCardCreatedComponent, RecipeCardDefaultComponent, RecipeCardSavedComponent],
+  imports: [RouterModule, CommonModule, IonicModule, RecipeCardCreatedComponent, RecipeCardDefaultComponent, RecipeCardSavedComponent],
   templateUrl: './recipes-list.component.html',
-  styleUrls: ['./recipes-list.component.css']
+  styleUrls: ['./recipes-list.component.scss']
 })
 export class RecipesListComponent {
   @Input() recipeType = 1;

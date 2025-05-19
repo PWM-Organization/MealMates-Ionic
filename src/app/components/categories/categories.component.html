@@ -1,16 +1,21 @@
-<aside class="categories-sidebar">
-    <h2>Categorías</h2>
-    @for(category of categories; track category.id){
-        <div class="category-item">
-            @if(category.isChecked) {
-                <input type="checkbox" id="{{category.id}}" checked/>
-            } @else {
-                <input type="checkbox" id="{{category.id}}"/>
-            }
-            <label for="{{category.id}}">
-                {{category.name}} ({{category.count}})
-            </label>
-        </div>
-    }
+<ion-card class="categories-sidebar">
+  <ion-card-header>
+    <ion-card-title>Categorías</ion-card-title>
+  </ion-card-header>
+  <ion-card-content>
+    <ion-list class="category-list">
+      <ion-item *ngFor="let category of categories; trackBy: trackById" lines="none" class="category-item">
+        <ion-checkbox
+          slot="start"
+          [checked]="category.isChecked"
+          (ionChange)="category.isChecked = !category.isChecked"
+          [id]="category.id">
+        </ion-checkbox>
+        <ion-label>
+          {{category.name}} ({{category.count}})
+        </ion-label>
+      </ion-item>
+    </ion-list>
     <p class="menu-description">Filtra las recetas por categorías para encontrar exactamente lo que buscas.</p>
-</aside>
+  </ion-card-content>
+</ion-card>

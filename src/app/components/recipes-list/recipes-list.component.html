@@ -1,5 +1,11 @@
-<div class="recipes-list">
-    <ng-container *ngFor="let recipe of recipes; trackBy: trackRecipe">
+<ion-grid class="recipes-list">
+  <ion-row>
+    <ion-col
+      size="12"
+      size-md="6"
+      size-lg="4"
+      *ngFor="let recipe of recipes; trackBy: trackRecipe"
+    >
       <ng-container *ngIf="recipeType === 1 && recipe.option === 'created'">
         <app-recipe-card-created [recipe]="recipe"></app-recipe-card-created>
       </ng-container>
@@ -9,6 +15,6 @@
       <ng-container *ngIf="recipeType === 3">
         <app-recipe-card-default [recipe]="recipe"></app-recipe-card-default>
       </ng-container>
-    </ng-container>
-  </div>
-  
+    </ion-col>
+  </ion-row>
+</ion-grid>

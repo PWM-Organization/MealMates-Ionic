@@ -1,15 +1,16 @@
 import { Component, OnInit } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { IonicModule } from '@ionic/angular';
 import { Firestore, collection, getDocs } from '@angular/fire/firestore';
 import { Recipe } from '../../../models/Recipe';
 
 @Component({
   selector: 'app-blog-recipes-list',
   standalone: true,
-  imports: [RouterModule, CommonModule],
+  imports: [RouterModule, CommonModule, IonicModule],
   templateUrl: './blog-recipes-list.component.html',
-  styleUrls: ['./blog-recipes-list.component.css'],
+  styleUrls: ['./blog-recipes-list.component.scss'],
 })
 export class BlogRecipesListComponent implements OnInit {
   blogRecipes: Recipe[] = [];
@@ -53,5 +54,9 @@ export class BlogRecipesListComponent implements OnInit {
       this.error = true;
       this.loading = false;
     }
+  }
+
+  trackById(index: number, recipe: Recipe) {
+    return recipe.id;
   }
 }
