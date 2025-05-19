@@ -84,6 +84,72 @@
     flex-direction: row;
     gap: 3rem;
     align-items: flex-start;
+    min-height: calc(100vh - 70px);
+    background-color: var(--primary-color);
+
+    ion-card {
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    }
+
+    .profile-sidebar {
+        text-align: center;
+        padding-top: 2rem;
+
+        .profile-avatar {
+            margin: 0 auto 1rem auto;
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+            }
+        }
+        ion-card-title {
+            font-size: 1.1rem;
+            color: var(--secondary-color);
+            margin-top: 1rem;
+        }
+        ion-button {
+            margin-top: 1.5rem;
+        }
+    }
+
+    .form-actions {
+        margin-top: 2rem;
+        .success-message {
+            color: var(--ion-color-success);
+            text-align: center;
+            margin-top: 1rem;
+        }
+        .error-message {
+            color: var(--ion-color-danger);
+            text-align: center;
+            margin-top: 1rem;
+        }
+    }
+
+    .error-message {
+        color: var(--ion-color-danger);
+        font-size: 0.95rem;
+        margin: 0.5rem 0 0.5rem 0.5rem;
+    }
+
+    .success-message {
+        color: var(--ion-color-success);
+        font-size: 0.95rem;
+        margin: 0.5rem 0 0.5rem 0.5rem;
+    }
+
+    .loading-indicator {
+        text-align: center;
+        padding: 2rem;
+        color: var(--ion-color-medium);
+    }
 }
 
 /* Contenedor para imagen y botón */
@@ -267,6 +333,12 @@
     .profile-content {
         flex-direction: column;
         align-items: center;
+        ion-row {
+            flex-direction: column;
+        }
+        .profile-sidebar {
+            margin-bottom: 2rem;
+        }
     }
     .profile-image-section {
         width: 100%;

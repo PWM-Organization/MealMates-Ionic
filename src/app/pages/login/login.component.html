@@ -1,71 +1,85 @@
-<main class="login-container">
-    <div class="login-card">
-        <div class="login-header">
-            <h2>Iniciar Sesión</h2>
-            <p>¡Bienvenido de nuevo a MealMates!</p>
+<ion-content class="ion-padding login-container">
+  <ion-card class="login-card">
+    <ion-card-header class="login-header">
+      <ion-card-title>Iniciar Sesión</ion-card-title>
+      <ion-card-subtitle>¡Bienvenido de nuevo a MealMates!</ion-card-subtitle>
+    </ion-card-header>
+
+    <ion-card-content>
+      <form class="login-form" [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+        <ion-item class="form-group" lines="none">
+          <ion-label position="floating" for="email">Email</ion-label>
+          <ion-input
+            type="email"
+            id="email"
+            formControlName="email"
+            required
+            fill="outline"
+            placeholder="tu@email.com"
+          ></ion-input>
+        </ion-item>
+        <div
+          *ngIf="
+            loginForm.controls.email.invalid &&
+            (loginForm.controls.email.dirty || loginForm.controls.email.touched)
+          "
+          class="error-message"
+        >
+          <span *ngIf="loginForm.controls.email.errors?.['required']">Email is required.</span>
+          <span *ngIf="loginForm.controls.email.errors?.['email']">Please enter a valid email.</span>
         </div>
 
-        <form class="login-form" [formGroup]="loginForm" (ngSubmit)="onSubmit()">
-            <div class="form-group">
-                <label for="email">Email</label>
-                <div class="input-with-icon">
-                    <i class="fas fa-envelope"></i>
-                    <input type="email" id="email" placeholder="tu@email.com" formControlName="email" required />
-                </div>
-                <div
-                    *ngIf="
-                        loginForm.controls.email.invalid &&
-                        (loginForm.controls.email.dirty || loginForm.controls.email.touched)
-                    "
-                    class="error-message"
-                >
-                    <span *ngIf="loginForm.controls.email.errors?.['required']">Email is required.</span>
-                    <span *ngIf="loginForm.controls.email.errors?.['email']">Please enter a valid email.</span>
-                </div>
-            </div>
-
-            <div class="form-group">
-                <label for="password">Contraseña</label>
-                <div class="input-with-icon">
-                    <i class="fas fa-lock"></i>
-                    <input type="password" id="password" placeholder="••••••••" formControlName="password" required />
-                </div>
-                <div
-                    *ngIf="
-                        loginForm.controls.password.invalid &&
-                        (loginForm.controls.password.dirty || loginForm.controls.password.touched)
-                    "
-                    class="error-message"
-                >
-                    <span *ngIf="loginForm.controls.password.errors?.['required']">Password is required.</span>
-                </div>
-            </div>
-
-            <div *ngIf="loginError" class="error-message firebase-error">
-                {{ loginError }}
-            </div>
-
-            <div class="form-options">
-                <a class="forgot-password" routerLink="/forgot-password">¿Olvidaste tu contraseña?</a>
-            </div>
-
-            <button type="submit" class="login-button" [disabled]="loginForm.invalid">Iniciar Sesión</button>
-        </form>
-
-        <div class="register-link">¿No tienes una cuenta? <a routerLink="/register">Regístrate aquí</a></div>
-
-        <div class="test-credentials">
-            <h3>Credenciales de prueba</h3>
-            <div class="credential-pair">
-                <p><strong>Usuario 1:</strong></p>
-                <p>Email: maria&#64;example.com</p>
-                <p>Contraseña: password123</p>
-            </div>
-            <div class="credential-pair">
-                <p><strong>Usuario 2:</strong></p>
-                <p>Email: juan&#64;example.com</p>
-                <p>Contraseña: password456</p>
-            </div>
+        <ion-item class="form-group" lines="none">
+          <ion-label position="floating" for="password">Contraseña</ion-label>
+          <ion-input
+            type="password"
+            id="password"
+            formControlName="password"
+            required
+            fill="outline"
+            placeholder="••••••••"
+          ></ion-input>
+        </ion-item>
+        <div
+          *ngIf="
+            loginForm.controls.password.invalid &&
+            (loginForm.controls.password.dirty || loginForm.controls.password.touched)
+          "
+          class="error-message"
+        >
+          <span *ngIf="loginForm.controls.password.errors?.['required']">Password is required.</span>
         </div>
-    </div>
-</main>
+
+        <div *ngIf="loginError" class="error-message firebase-error">
+          {{ loginError }}
+        </div>
+
+        <div class="form-options">
+          <a class="forgot-password" routerLink="/forgot-password">¿Olvidaste tu contraseña?</a>
+        </div>
+
+        <ion-button expand="block" type="submit" class="login-button" color="primary" [disabled]="loginForm.invalid">
+          Iniciar Sesión
+        </ion-button>
+      </form>
+
+      <div class="register-link">
+        ¿No tienes una cuenta? <a routerLink="/register">Regístrate aquí</a>
+      </div>
+
+      <div class="test-credentials">
+        <h3>Credenciales de prueba</h3>
+        <div class="credential-pair">
+          <p><strong>Usuario 1:</strong></p>
+          <p>Email: maria&#64;example.com</p>
+          <p>Contraseña: password123</p>
+        </div>
+        <div class="credential-pair">
+          <p><strong>Usuario 2:</strong></p>
+          <p>Email: juan&#64;example.com</p>
+          <p>Contraseña: password456</p>
+        </div>
+      </div>
+    </ion-card-content>
+  </ion-card>
+</ion-content>

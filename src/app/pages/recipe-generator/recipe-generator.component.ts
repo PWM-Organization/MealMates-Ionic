@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { IonicModule } from '@ionic/angular';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, FormArray, Validators } from '@angular/forms';
 import { Firestore, collection, addDoc } from '@angular/fire/firestore';
 import { Auth } from '@angular/fire/auth';
@@ -10,9 +11,9 @@ import { Recipe } from '../../../models/Recipe';
 @Component({
   selector: 'app-recipe-generator',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule],
+  imports: [CommonModule, IonicModule, FormsModule, ReactiveFormsModule],
   templateUrl: './recipe-generator.component.html',
-  styleUrls: ['./recipe-generator.component.css', '../../../global.scss'],
+  styleUrls: ['./recipe-generator.component.scss', '../../../global.scss'],
 })
 
 export class RecipeGeneratorComponent implements OnInit {

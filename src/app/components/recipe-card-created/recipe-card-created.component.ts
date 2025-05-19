@@ -9,11 +9,11 @@ import { IonicModule } from '@ionic/angular';
   imports: [CommonModule, RouterModule, IonicModule],
   templateUrl: './recipe-card-created.component.html',
   styleUrls: ['./recipe-card-created.component.scss',
-    '../../pages/recipe/recipe.component.css',
+    '../../pages/recipe/recipe.component.scss',
     '../blog-recipes-list/blog-recipes-list.component.scss',
     '../recipe-card-default/recipe-card-default.component.scss',
-    '../recipe-card-saved/recipe-card-saved.component.css',
-    '../recipes-list/recipes-list.component.css',
+    '../recipe-card-saved/recipe-card-saved.component.scss',
+    '../recipes-list/recipes-list.component.scss',
     '../../../global.scss'
   ]
 })

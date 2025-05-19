@@ -1,0 +1,81 @@
+.planner-container {
+    padding: 2rem 5%;
+    background-color: var(--primary-color);
+    min-height: calc(100vh - 70px);
+
+    .filters-section {
+        background: var(--white);
+        padding: 1.5rem;
+        border-radius: 10px;
+        margin-bottom: 2rem;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+
+        ion-card-title {
+            margin-bottom: 1.5rem;
+            color: var(--secondary-color);
+        }
+    }
+
+    .filters-grid {
+        width: 100%;
+    }
+
+    .filter-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+
+        ion-label {
+            font-weight: 500;
+            color: var(--secondary-color);
+        }
+    }
+
+    .weekly-menu {
+        margin-top: 2rem;
+    }
+
+    .days-grid {
+        margin-bottom: 2rem;
+    }
+
+    .day-card {
+        background: var(--white);
+        border-radius: 10px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        max-width: 500px;
+        margin: 0 auto 1.5rem auto;
+
+        ion-card-title {
+            color: var(--secondary-color);
+            margin-bottom: 1rem;
+        }
+    }
+
+    .generate-button {
+        display: block;
+        margin: 2rem auto 0 auto;
+        padding: 1rem 2rem;
+        background-color: var(--secondary-color);
+        color: var(--white);
+        border-radius: 8px;
+        font-size: 1.1rem;
+        width: fit-content;
+        text-decoration: none;
+        font-weight: 600;
+        --background: var(--secondary-color);
+        --color: var(--white);
+    }
+}
+
+@media (max-width: 768px) {
+    .planner-container {
+        padding: 1rem;
+    }
+
+    .days-grid {
+        ion-row {
+            flex-direction: column;
+        }
+    }
+}

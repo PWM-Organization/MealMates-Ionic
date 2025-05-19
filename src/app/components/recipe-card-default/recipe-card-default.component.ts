@@ -15,8 +15,8 @@ import { IonicModule } from '@ionic/angular';
   styleUrls: ['./recipe-card-default.component.scss',
     '../blog-recipes-list/blog-recipes-list.component.scss',
     '../recipe-card-default/recipe-card-default.component.scss',
-    '../recipe-card-saved/recipe-card-saved.component.css',
-    '../recipes-list/recipes-list.component.css',
+    '../recipe-card-saved/recipe-card-saved.component.scss',
+    '../recipes-list/recipes-list.component.scss',
     '../../../global.scss'
   ]
 })

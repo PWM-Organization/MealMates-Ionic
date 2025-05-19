@@ -2,13 +2,49 @@
     padding: 2rem 5%;
     background-color: var(--primary-color);
     min-height: calc(100vh - 70px);
-}
 
-.title-header {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin-bottom: 2rem;
+    .title-header {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-bottom: 2rem;
+
+        ion-title {
+            color: var(--secondary-color);
+            font-size: 2rem;
+            font-weight: 700;
+        }
+    }
+
+    .recipes-segment {
+        margin-bottom: 2rem;
+        display: flex;
+        justify-content: center;
+    }
+
+    .add-recipe-btn {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin: 1.5rem auto 0 auto;
+        width: fit-content;
+        background-color: var(--accent-color);
+        color: var(--white);
+        border-radius: 10px;
+        font-weight: 500;
+        font-size: 1rem;
+        --background: var(--accent-color);
+        --color: var(--white);
+        --box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+
+        ion-icon {
+            font-size: 1.3rem;
+        }
+    }
+
+    .tab-content {
+        margin-top: 2rem;
+    }
 }
 
 .title-header h1 {
@@ -16,19 +52,11 @@
 }
 
 .add-recipe-btn {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
     padding: 0.8rem 1.5rem;
-    background-color: var(--accent-color);
-    color: var(--white);
     border: none;
-    border-radius: 10px;
     text-decoration: none;
     transition: background-color 0.3s ease;
-    width: fit-content;
     height: fit-content;
-    margin: 10px;
 }
 
 .add-recipe-btn:hover {

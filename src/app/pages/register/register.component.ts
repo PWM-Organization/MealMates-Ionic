@@ -1,5 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
+import { IonicModule } from '@ionic/angular';
 import {
     AbstractControl,
     FormBuilder,
@@ -30,11 +31,11 @@ export function passwordMatchValidator(): ValidatorFn {
 @Component({
     selector: 'app-register',
     standalone: true,
-    imports: [RouterModule, ReactiveFormsModule, CommonModule],
+    imports: [RouterModule, ReactiveFormsModule, CommonModule, IonicModule],
     templateUrl: './register.component.html',
     styleUrls: [
-        './register.component.css', 
-        '../login/login.component.css'
+        './register.component.scss', 
+        '../login/login.component.scss'
     ]
 })
 export class RegisterComponent {

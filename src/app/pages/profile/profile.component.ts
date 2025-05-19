@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject } from '@angular/core';
 import { RouterModule } from '@angular/router';
+import { IonicModule } from '@ionic/angular';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Observable, Subscription, switchMap, tap } from 'rxjs';
 import { User } from '@angular/fire/auth'; // Importar User si es necesario tipar
@@ -13,9 +14,9 @@ import { UserProfile } from '../../../models/UserProfile';
 @Component({
     selector: 'app-profile',
     standalone: true,
-    imports: [RouterModule, CommonModule, ReactiveFormsModule], // Añadir ReactiveFormsModule
+    imports: [RouterModule, CommonModule, IonicModule, ReactiveFormsModule], // Añadir ReactiveFormsModule
     templateUrl: './profile.component.html',
-    styleUrls: ['./profile.component.css'],
+    styleUrls: ['./profile.component.scss'],
 })
 export class ProfileComponent implements OnInit {
     // Inyectar servicios

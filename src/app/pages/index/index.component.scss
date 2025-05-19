@@ -1,0 +1,45 @@
+/* Hero Section */
+.hero {
+    background-color: var(--primary-color);
+    padding: 2rem 1rem;
+    text-align: center;
+
+    .hero-content h1 {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+        color: var(--secondary-color);
+    }
+}
+
+.blog-recipes-list {
+    display: grid;
+    padding: 1rem;
+    margin: 0 auto;
+}
+
+.featured-recipes {
+    margin-top: 2rem;
+
+    ion-card {
+        max-width: 900px;
+        margin: 0 auto;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+
+    ion-card-title {
+        font-size: 2rem;
+        text-align: center;
+        margin-bottom: 1rem;
+        color: var(--secondary-color);
+    }
+
+    ion-card-content {
+        padding: 1.5rem 1rem;
+    }
+
+    ion-button {
+        margin-top: 2rem;
+        font-size: 1.1rem;
+        font-weight: 600;
+    }
+}

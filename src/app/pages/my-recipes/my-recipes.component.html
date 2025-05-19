@@ -1,24 +1,32 @@
-<main class="recipes-container">
-    <div class="title-header">
-        <h1>Mis Recetas</h1>
-    </div>
-    <div class="tab">
-        <button class="tablink" [class.active]="activeTab === 'created'" (click)="changeTab('created')">Mis recetas</button>
-        <button class="tablink" [class.active]="activeTab === 'saved'" (click)="changeTab('saved')">Recetas guardadas</button>
-    </div>
+<ion-content class="recipes-container">
+  <ion-header class="title-header" collapse="condense">
+    <ion-toolbar>
+      <ion-title>Mis Recetas</ion-title>
+    </ion-toolbar>
+  </ion-header>
 
-    @if(isCreated){
-        <div class="tab-content" [class.active]="activeTab === 'created'">
-            <app-recipes-list [recipeType]="1"/>
-            <a routerLink="/recipe-generator" class="add-recipe-btn">
-                <i class="fas fa-plus"></i> Nueva Receta
-            </a>
-        </div>
-    } @else {
-        <div class="tab-content" [class.active]="activeTab === 'saved'">
-            <app-recipes-list [recipeType]="2"/>
-        </div>
-    }
-    
-    
-</main>
+  <ion-segment [(ngModel)]="activeTab" class="recipes-segment" value="created">
+    <ion-segment-button value="created">
+      Mis recetas
+    </ion-segment-button>
+    <ion-segment-button value="saved">
+      Recetas guardadas
+    </ion-segment-button>
+  </ion-segment>
+
+  <div class="tab-content" *ngIf="activeTab === 'created'">
+    <app-recipes-list [recipeType]="1"></app-recipes-list>
+    <ion-button
+      class="add-recipe-btn"
+      color="primary"
+      expand="block"
+      routerLink="/recipe-generator"
+    >
+      <ion-icon name="add-outline" slot="start"></ion-icon>
+      Nueva Receta
+    </ion-button>
+  </div>
+  <div class="tab-content" *ngIf="activeTab === 'saved'">
+    <app-recipes-list [recipeType]="2"></app-recipes-list>
+  </div>
+</ion-content>

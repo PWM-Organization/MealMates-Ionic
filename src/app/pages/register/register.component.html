@@ -1,88 +1,86 @@
-<main class="login-container">
-    <div class="login-card">
-        <div class="login-header">
-            <h2>Registrarse</h2>
-            <h4>¡Bienvenido a MealMates!</h4>
-            <p>Regístrate y disfruta de múltiples ventajas</p>
+<ion-content class="ion-padding login-container">
+  <ion-card class="login-card">
+    <ion-card-header class="login-header">
+      <ion-card-title>Registrarse</ion-card-title>
+      <ion-card-subtitle>¡Bienvenido a MealMates!</ion-card-subtitle>
+      <p>Regístrate y disfruta de múltiples ventajas</p>
+    </ion-card-header>
+
+    <ion-card-content>
+      <form class="login-form" [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+        <ion-item class="form-group" lines="none">
+          <ion-label position="floating" for="email">Email</ion-label>
+          <ion-input
+            type="email"
+            id="email"
+            formControlName="email"
+            required
+            fill="outline"
+            placeholder="tu@email.com"
+          ></ion-input>
+        </ion-item>
+        <div
+          *ngIf="registerForm.controls.email.invalid && (registerForm.controls.email.dirty || registerForm.controls.email.touched)"
+          class="error-message"
+        >
+          <span *ngIf="registerForm.controls.email.errors?.['required']">El email es obligatorio.</span>
+          <span *ngIf="registerForm.controls.email.errors?.['email']">Introduce un email válido.</span>
         </div>
 
-        <form class="login-form" [formGroup]="registerForm" (ngSubmit)="onSubmit()">
-            <div class="form-group">
-                <label for="email">Email</label>
-                <div class="input-with-icon">
-                    <i class="fas fa-envelope"></i>
-                    <input type="email" id="email" placeholder="tu@email.com" formControlName="email" required />
-                </div>
-                <div
-                    *ngIf="
-                        registerForm.controls.email.invalid &&
-                        (registerForm.controls.email.dirty || registerForm.controls.email.touched)
-                    "
-                    class="error-message"
-                >
-                    <span *ngIf="registerForm.controls.email.errors?.['required']">El email es obligatorio.</span>
-                    <span *ngIf="registerForm.controls.email.errors?.['email']">Introduce un email válido.</span>
-                </div>
-            </div>
+        <ion-item class="form-group" lines="none">
+          <ion-label position="floating" for="password">Contraseña</ion-label>
+          <ion-input
+            type="password"
+            id="password"
+            formControlName="password"
+            required
+            fill="outline"
+            placeholder="••••••••"
+          ></ion-input>
+        </ion-item>
+        <div
+          *ngIf="registerForm.controls.password.invalid && (registerForm.controls.password.dirty || registerForm.controls.password.touched)"
+          class="error-message"
+        >
+          <span *ngIf="registerForm.controls.password.errors?.['required']">La contraseña es obligatoria.</span>
+          <span *ngIf="registerForm.controls.password.errors?.['minlength']">La contraseña debe tener al menos 6 caracteres.</span>
+        </div>
 
-            <div class="form-group">
-                <label for="password">Contraseña</label>
-                <div class="input-with-icon">
-                    <i class="fas fa-lock"></i>
-                    <input type="password" id="password" placeholder="••••••••" formControlName="password" required />
-                </div>
-                <div
-                    *ngIf="
-                        registerForm.controls.password.invalid &&
-                        (registerForm.controls.password.dirty || registerForm.controls.password.touched)
-                    "
-                    class="error-message"
-                >
-                    <span *ngIf="registerForm.controls.password.errors?.['required']"
-                        >La contraseña es obligatoria.</span
-                    >
-                    <span *ngIf="registerForm.controls.password.errors?.['minlength']"
-                        >La contraseña debe tener al menos 6 caracteres.</span
-                    >
-                </div>
-            </div>
-            <div class="form-group">
-                <label for="confirm-password">Repetir contraseña</label>
-                <div class="input-with-icon">
-                    <i class="fas fa-lock"></i>
-                    <input
-                        type="password"
-                        id="confirm-password"
-                        placeholder="••••••••"
-                        formControlName="confirmPassword"
-                        required
-                    />
-                </div>
-            </div>
+        <ion-item class="form-group" lines="none">
+          <ion-label position="floating" for="confirm-password">Repetir contraseña</ion-label>
+          <ion-input
+            type="password"
+            id="confirm-password"
+            formControlName="confirmPassword"
+            required
+            fill="outline"
+            placeholder="••••••••"
+          ></ion-input>
+        </ion-item>
+        <div
+          *ngIf="registerForm.controls.confirmPassword.invalid && (registerForm.controls.confirmPassword.dirty || registerForm.controls.confirmPassword.touched)"
+          class="error-message"
+        >
+          <span *ngIf="registerForm.controls.confirmPassword.errors?.['required']">Confirma la contraseña.</span>
+        </div>
+        <div
+          *ngIf="registerForm.errors?.['passwordMismatch'] && (registerForm.controls.confirmPassword.dirty || registerForm.controls.confirmPassword.touched)"
+          class="error-message"
+        >
+          Las contraseñas no coinciden.
+        </div>
 
-            <div
-                *ngIf="
-                    registerForm.controls.confirmPassword.invalid &&
-                    (registerForm.controls.confirmPassword.dirty || registerForm.controls.confirmPassword.touched)
-                "
-                class="error-message"
-            >
-                <span *ngIf="registerForm.controls.confirmPassword.errors?.['required']">Confirma la contraseña.</span>
-            </div>
+        <div *ngIf="registerError" class="error-message firebase-error">
+          {{ registerError }}
+        </div>
 
-            <div
-                *ngIf="registerForm.errors?.['passwordMismatch'] && (registerForm.controls.confirmPassword.dirty || registerForm.controls.confirmPassword.touched)"
-                class="error-message"
-            >
-                Las contraseñas no coinciden.
-            </div>
-
-            <div *ngIf="registerError" class="error-message firebase-error">
-                {{ registerError }}
-            </div>
-
-            <button type="submit" class="login-button" [disabled]="registerForm.invalid">Registrar cuenta</button>
-        </form>
-        <div class="register-link">Ya tengo una cuenta <a routerLink="/login">Iniciar sesión</a></div>
-    </div>
-</main>
+        <ion-button expand="block" type="submit" class="login-button" color="primary" [disabled]="registerForm.invalid">
+          Registrar cuenta
+        </ion-button>
+      </form>
+      <div class="register-link">
+        Ya tengo una cuenta <a routerLink="/login">Iniciar sesión</a>
+      </div>
+    </ion-card-content>
+  </ion-card>
+</ion-content>

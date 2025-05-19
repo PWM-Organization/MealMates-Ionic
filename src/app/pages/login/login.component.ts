@@ -2,15 +2,16 @@ import { Component, inject } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import { IonicModule } from '@ionic/angular';
 
 import { AuthService } from '../../services/auth.service';
 
 @Component({
     selector: 'app-login',
     standalone: true,
-    imports: [RouterModule, ReactiveFormsModule, CommonModule],
+    imports: [RouterModule, ReactiveFormsModule, CommonModule, IonicModule],
     templateUrl: './login.component.html',
-    styleUrls: ['./login.component.css'],
+    styleUrls: ['./login.component.scss'],
 })
 export class LoginComponent {
     private fb = inject(FormBuilder);

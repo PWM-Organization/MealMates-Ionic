@@ -12,7 +12,7 @@ import { RouterModule } from '@angular/router';
   ],
   templateUrl: './index.component.html',
   styleUrls: [
-    './index.component.css',
+    './index.component.scss',
   ]
 })
 export class IndexComponent {

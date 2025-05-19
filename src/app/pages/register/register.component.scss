@@ -1,0 +1,88 @@
+ion-content.login-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background-color: var(--primary-color);
+}
+
+.login-card {
+  background: var(--white);
+  padding: 2.5rem 1.5rem;
+  border-radius: 15px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 450px;
+  margin: 2rem auto;
+}
+
+.login-header {
+  text-align: center;
+  margin-bottom: 2rem;
+
+  ion-card-title {
+    color: var(--secondary-color);
+    margin-bottom: 0.5rem;
+    font-size: 2rem;
+  }
+  ion-card-subtitle {
+    color: #666;
+    font-size: 1rem;
+  }
+  p {
+    color: #888;
+    margin-top: 0.5rem;
+    font-size: 1rem;
+  }
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.form-group {
+  margin-bottom: 0.5rem;
+}
+
+.error-message {
+  color: var(--ion-color-danger, #eb445a);
+  font-size: 0.95rem;
+  margin: 0.5rem 0 0.5rem 0.5rem;
+}
+
+.login-button {
+  margin-top: 1rem;
+  background-color: var(--accent-color);
+  color: var(--white);
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+.login-button[disabled] {
+  opacity: 0.7;
+}
+
+.register-link {
+  text-align: center;
+  margin-top: 1.5rem;
+  color: #666;
+
+  a {
+    color: var(--accent-color);
+    text-decoration: none;
+    font-weight: 500;
+  }
+
+  a:hover {
+    text-decoration: underline;
+  }
+}
+
+@media (max-width: 480px) {
+  .login-card {
+    padding: 1.5rem 0.5rem;
+  }
+}

@@ -1,13 +1,22 @@
-<section class="hero">
+<ion-content>
+  <section class="hero ion-padding">
     <div class="hero-content">
-        <h1>Meal Mates</h1>
-        <p>Tu compañero perfecto para la cocina</p>
+      <h1>Meal Mates</h1>
+      <p>Tu compañero perfecto para la cocina</p>
     </div>
-</section>
-<section class="featured-recipes">
-    <h2>Recetas destacadas</h2>
-    <div class="recipe-grid">
-        <app-blog-recipes-list/>
-    </div>
-    <button class="primary-button" routerLink="/blog">Ver Blog</button>
-</section>
+  </section>
+
+  <section class="featured-recipes ion-padding">
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title>Recetas destacadas</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <app-blog-recipes-list></app-blog-recipes-list>
+        <ion-button expand="block" color="primary" routerLink="/blog">
+          Ver Blog
+        </ion-button>
+      </ion-card-content>
+    </ion-card>
+  </section>
+</ion-content>

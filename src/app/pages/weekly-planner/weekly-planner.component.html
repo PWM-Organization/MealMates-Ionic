@@ -1,47 +1,72 @@
-<main class="planner-container">
-    <section class="filters-section">
-        <h2>Filtros</h2>
-        <div class="filters-grid">
-            <div class="filter-group">
-                <label>Tipo de dieta</label>
-                <select name="diet-type">
-                    <option value="">Todas</option>
-                    <option value="vegetariana">Vegetariana</option>
-                    <option value="vegana">Vegana</option>
-                    <option value="sin gluten">Sin gluten</option>
-                </select>
-            </div>
-            <div class="filter-group">
-                <label>Tiempo de preparación</label>
-                <select name="prep-time">
-                    <option value="">Cualquiera</option>
-                    <option value="15">15 minutos</option>
-                    <option value="30">30 minutos</option>
-                    <option value="60">1 hora</option>
-                </select>
-            </div>
-            <div class="filter-group">
-                <label>Dificultad</label>
-                <select name="difficulty">
-                    <option value="">Todas</option>
-                    <option value="fácil">Fácil</option>
-                    <option value="medio">Media</option>
-                    <option value="difícil">Difícil</option>
-                </select>
-            </div>
-        </div>
-    </section>
+<ion-content class="planner-container">
+  <ion-card class="filters-section">
+    <ion-card-header>
+      <ion-card-title>Filtros</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <ion-grid class="filters-grid">
+        <ion-row>
+          <ion-col size="12" size-md="4">
+            <ion-item class="filter-group" lines="none">
+              <ion-label>Tipo de dieta</ion-label>
+              <ion-select name="diet-type" interface="popover">
+                <ion-select-option value="">Todas</ion-select-option>
+                <ion-select-option value="vegetariana">Vegetariana</ion-select-option>
+                <ion-select-option value="vegana">Vegana</ion-select-option>
+                <ion-select-option value="sin gluten">Sin gluten</ion-select-option>
+              </ion-select>
+            </ion-item>
+          </ion-col>
+          <ion-col size="12" size-md="4">
+            <ion-item class="filter-group" lines="none">
+              <ion-label>Tiempo de preparación</ion-label>
+              <ion-select name="prep-time" interface="popover">
+                <ion-select-option value="">Cualquiera</ion-select-option>
+                <ion-select-option value="15">15 minutos</ion-select-option>
+                <ion-select-option value="30">30 minutos</ion-select-option>
+                <ion-select-option value="60">1 hora</ion-select-option>
+              </ion-select>
+            </ion-item>
+          </ion-col>
+          <ion-col size="12" size-md="4">
+            <ion-item class="filter-group" lines="none">
+              <ion-label>Dificultad</ion-label>
+              <ion-select name="difficulty" interface="popover">
+                <ion-select-option value="">Todas</ion-select-option>
+                <ion-select-option value="fácil">Fácil</ion-select-option>
+                <ion-select-option value="medio">Media</ion-select-option>
+                <ion-select-option value="difícil">Difícil</ion-select-option>
+              </ion-select>
+            </ion-item>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+    </ion-card-content>
+  </ion-card>
 
-    <section class="weekly-menu">
-        <div class="days-grid">
-            @for (day of weeklyPlan; track day){
-                <div class="day-card">
-                    <h3>{{day}}</h3> 
-                </div>
-            }
-            
-        </div>
-        <app-recipes-list [recipeType]="3"/>
-        <a class="generate-button">Generar receta</a>
-    </section>
-</main>
+  <section class="weekly-menu">
+    <ion-grid class="days-grid">
+      <ion-row>
+        <ion-col
+          *ngFor="let day of weeklyPlan"
+          size="12"
+          size-md="6"
+          size-lg="4"
+        >
+          <ion-card class="day-card">
+            <ion-card-header>
+              <ion-card-title>{{ day }}</ion-card-title>
+            </ion-card-header>
+            <ion-card-content>
+              <!-- Aquí puedes mostrar la receta asignada al día -->
+            </ion-card-content>
+          </ion-card>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+    <app-recipes-list [recipeType]="3"></app-recipes-list>
+    <ion-button expand="block" class="generate-button" color="secondary">
+      Generar receta
+    </ion-button>
+  </section>
+</ion-content>
