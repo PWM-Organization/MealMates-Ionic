@@ -1,0 +1,7 @@
+{
+  "name": "MealMates-App",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular"
+}

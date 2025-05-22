@@ -1,0 +1,27 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-title>MealMates</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <div class="landing-container">
+    <div class="logo-section">
+      <ion-icon name="restaurant" size="large" color="primary"></ion-icon>
+      <h1>MealMates</h1>
+      <p>Descubre y comparte las mejores recetas</p>
+    </div>
+
+    <div class="actions">
+      <ion-button expand="block" color="primary" (click)="goToLogin()">
+        <ion-icon name="log-in" slot="start"></ion-icon>
+        Iniciar Sesión
+      </ion-button>
+
+      <ion-button expand="block" fill="outline" color="primary" (click)="goToRegister()">
+        <ion-icon name="person-add" slot="start"></ion-icon>
+        Registrarse
+      </ion-button>
+    </div>
+  </div>
+</ion-content>

@@ -77,3 +77,7 @@ src/app/firebase.config.ts
 
 .cursor/
 serviceAccountKey.json
+
+19.2.13/
+firebase.config.ts
+src/firebase.config.ts
