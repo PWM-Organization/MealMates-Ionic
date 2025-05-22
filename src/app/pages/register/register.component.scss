@@ -1,88 +1,229 @@
-ion-content.login-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
-  background-color: var(--primary-color);
+// Importamos estilos base del login
+@use '../login/login.component.scss';
+
+.register-content {
+  --background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+  position: relative;
+  overflow: hidden;
 }
 
-.login-card {
-  background: var(--white);
-  padding: 2.5rem 1.5rem;
-  border-radius: 15px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-  width: 100%;
-  max-width: 450px;
-  margin: 2rem auto;
-}
-
-.login-header {
-  text-align: center;
-  margin-bottom: 2rem;
-
-  ion-card-title {
-    color: var(--secondary-color);
-    margin-bottom: 0.5rem;
-    font-size: 2rem;
-  }
-  ion-card-subtitle {
-    color: #666;
-    font-size: 1rem;
-  }
-  p {
-    color: #888;
-    margin-top: 0.5rem;
-    font-size: 1rem;
-  }
-}
-
-.login-form {
+.register-container {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  min-height: 100vh;
+  padding: 20px;
+  position: relative;
+  z-index: 2;
 }
 
-.form-group {
-  margin-bottom: 0.5rem;
+// Override para los estilos específicos del registro
+.form-section {
+  flex: 3; // Más espacio para el formulario en registro
+  max-width: 450px; // Ligeramente más ancho para acomodar los campos de nombre
+  width: 100%;
+  margin: 0 auto;
+}
+
+.welcome-text {
+  text-align: center;
+  margin-bottom: 32px;
+  
+  h2 {
+    font-size: 1.8rem;
+    font-weight: 600;
+    color: var(--ion-color-dark);
+    margin: 0 0 8px 0;
+  }
+  
+  p {
+    font-size: 1rem;
+    color: var(--ion-color-medium);
+    margin: 0;
+  }
+}
+
+.register-form {
+  animation: fadeInUp 0.6s ease-out 0.2s both;
+}
+
+// Fila de campos de nombre
+.name-row {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 20px;
+  
+  .input-group.half-width {
+    flex: 1;
+    margin-bottom: 0;
+  }
+}
+
+.input-group {
+  margin-bottom: 20px;
+}
+
+.input-item {
+  --background: #ffffff;
+  --border-radius: 12px;
+  --border-width: 2px;
+  --border-color: #e2e8f0;
+  --box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  --padding-start: 20px;
+  --padding-end: 20px;
+  --inner-padding-top: 16px;
+  --inner-padding-bottom: 16px;
+  margin-bottom: 8px;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    --border-color: var(--ion-color-primary-tint);
+  }
+  
+  &.ion-focused {
+    --border-color: var(--ion-color-primary);
+    --box-shadow: 0 4px 16px rgba(255, 123, 66, 0.2);
+  }
+  
+  &.has-error {
+    --border-color: var(--ion-color-danger);
+    --box-shadow: 0 2px 8px rgba(244, 67, 54, 0.2);
+  }
+}
+
+.input-icon {
+  color: var(--ion-color-medium);
+  margin-right: 12px;
+  font-size: 1.2rem;
+}
+
+.password-toggle {
+  --color: var(--ion-color-medium);
+  --padding-start: 8px;
+  --padding-end: 8px;
 }
 
 .error-message {
-  color: var(--ion-color-danger, #eb445a);
-  font-size: 0.95rem;
-  margin: 0.5rem 0 0.5rem 0.5rem;
-}
-
-.login-button {
-  margin-top: 1rem;
-  background-color: var(--accent-color);
-  color: var(--white);
-  border-radius: 8px;
-  font-size: 1rem;
+  color: var(--ion-color-danger);
+  font-size: 0.875rem;
+  margin-left: 20px;
+  margin-top: 4px;
   font-weight: 500;
+  animation: fadeIn 0.3s ease;
 }
 
-.login-button[disabled] {
-  opacity: 0.7;
-}
-
-.register-link {
-  text-align: center;
-  margin-top: 1.5rem;
-  color: #666;
-
-  a {
-    color: var(--accent-color);
-    text-decoration: none;
-    font-weight: 500;
+.register-button {
+  --background: linear-gradient(135deg, var(--ion-color-primary) 0%, var(--ion-color-primary-shade) 100%);
+  --background-activated: var(--ion-color-primary-shade);
+  --border-radius: 12px;
+  --box-shadow: 0 4px 16px rgba(255, 123, 66, 0.4);
+  --color: white;
+  font-weight: 600;
+  font-size: 1.1rem;
+  height: 56px;
+  margin: 24px 0;
+  letter-spacing: 0.025em;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    --box-shadow: 0 6px 20px rgba(255, 123, 66, 0.5);
+    transform: translateY(-2px);
   }
+  
+  &.button-disabled {
+    opacity: 0.6;
+    --box-shadow: 0 2px 8px rgba(255, 123, 66, 0.2);
+  }
+}
 
-  a:hover {
-    text-decoration: underline;
+// Footer Section
+.footer-section {
+  flex: 1;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding-bottom: 20px;
+  min-height: 80px; // Menor altura mínima para registro
+}
+
+.login-link {
+  text-align: center;
+  animation: fadeIn 0.8s ease-out 0.4s both;
+  
+  p {
+    margin: 0 0 8px 0;
+    color: var(--ion-color-medium);
+    font-size: 0.95rem;
+  }
+  
+  ion-button {
+    --color: var(--ion-color-primary);
+    font-size: 1rem;
+    text-decoration: none;
+    
+    strong {
+      font-weight: 600;
+    }
+  }
+}
+
+// Responsive Design específico para registro
+@media (max-width: 576px) {
+  .register-container {
+    padding: 16px;
+  }
+  
+  .form-section {
+    max-width: 100%;
+  }
+  
+  .name-row {
+    flex-direction: column;
+    gap: 0;
+    
+    .input-group.half-width {
+      margin-bottom: 20px;
+    }
+  }
+  
+  .logo-icon {
+    font-size: 3rem;
+  }
+  
+  .app-title {
+    font-size: 2rem;
+  }
+  
+  .welcome-text h2 {
+    font-size: 1.5rem;
   }
 }
 
 @media (max-width: 480px) {
-  .login-card {
-    padding: 1.5rem 0.5rem;
+  .header-section {
+    min-height: 150px;
+  }
+  
+  .footer-section {
+    min-height: 60px;
+  }
+}
+
+// Dark mode support
+@media (prefers-color-scheme: dark) {
+  .register-content {
+    --background: linear-gradient(135deg, #1a202c 0%, #2d3748 100%);
+  }
+  
+  .input-item {
+    --background: #2d3748;
+    --border-color: #4a5568;
+    
+    &:hover {
+      --border-color: var(--ion-color-primary-tint);
+    }
+  }
+  
+  .decoration-circle {
+    background: linear-gradient(135deg, rgba(255, 140, 90, 0.15) 0%, rgba(255, 179, 135, 0.08) 100%);
   }
 }

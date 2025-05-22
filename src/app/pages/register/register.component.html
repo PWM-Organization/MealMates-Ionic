@@ -1,86 +1,147 @@
-<ion-content class="ion-padding login-container">
-  <ion-card class="login-card">
-    <ion-card-header class="login-header">
-      <ion-card-title>Registrarse</ion-card-title>
-      <ion-card-subtitle>¡Bienvenido a MealMates!</ion-card-subtitle>
-      <p>Regístrate y disfruta de múltiples ventajas</p>
-    </ion-card-header>
+<ion-content class="register-content" [fullscreen]="true">
+  <div class="register-container">
+    <!-- Header con logo -->
+    <div class="header-section">
+      <div class="logo-container">
+        <ion-icon name="restaurant" class="logo-icon"></ion-icon>
+        <h1 class="app-title">MealMates</h1>
+        <p class="app-subtitle">Tu compañero culinario perfecto</p>
+      </div>
+    </div>
 
-    <ion-card-content>
-      <form class="login-form" [formGroup]="registerForm" (ngSubmit)="onSubmit()">
-        <ion-item class="form-group" lines="none">
-          <ion-label position="floating" for="email">Email</ion-label>
-          <ion-input
-            type="email"
-            id="email"
-            formControlName="email"
-            required
-            fill="outline"
-            placeholder="tu@email.com"
-          ></ion-input>
-        </ion-item>
-        <div
-          *ngIf="registerForm.controls.email.invalid && (registerForm.controls.email.dirty || registerForm.controls.email.touched)"
-          class="error-message"
+    <!-- Formulario de registro -->
+    <div class="form-section">
+      <div class="welcome-text">
+        <h2>¡Únete a nosotros!</h2>
+        <p>Crea tu cuenta y descubre increíbles recetas</p>
+      </div>
+
+      <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="register-form">
+        <!-- Campos de nombre -->
+        <div class="name-row">
+          <div class="input-group half-width">
+            <ion-item class="input-item" [class.has-error]="firstNameError">
+              <ion-icon name="person-outline" slot="start" class="input-icon"></ion-icon>
+              <ion-label position="stacked">Nombre</ion-label>
+              <ion-input
+                type="text"
+                formControlName="firstName"
+                placeholder="Tu nombre"
+                [clearInput]="true"
+                autocomplete="given-name"
+              ></ion-input>
+            </ion-item>
+            <div class="error-message" *ngIf="firstNameError">
+              {{ firstNameError }}
+            </div>
+          </div>
+
+          <div class="input-group half-width">
+            <ion-item class="input-item" [class.has-error]="lastNameError">
+              <ion-icon name="person-outline" slot="start" class="input-icon"></ion-icon>
+              <ion-label position="stacked">Apellidos</ion-label>
+              <ion-input
+                type="text"
+                formControlName="lastName"
+                placeholder="Tus apellidos"
+                [clearInput]="true"
+                autocomplete="family-name"
+              ></ion-input>
+            </ion-item>
+            <div class="error-message" *ngIf="lastNameError">
+              {{ lastNameError }}
+            </div>
+          </div>
+        </div>
+
+        <!-- Campo de email -->
+        <div class="input-group">
+          <ion-item class="input-item" [class.has-error]="emailError">
+            <ion-icon name="mail-outline" slot="start" class="input-icon"></ion-icon>
+            <ion-label position="stacked">Email</ion-label>
+            <ion-input
+              type="email"
+              formControlName="email"
+              placeholder="ejemplo@email.com"
+              [clearInput]="true"
+              autocomplete="email"
+            ></ion-input>
+          </ion-item>
+          <div class="error-message" *ngIf="emailError">
+            {{ emailError }}
+          </div>
+        </div>
+
+        <!-- Campo de contraseña -->
+        <div class="input-group">
+          <ion-item class="input-item" [class.has-error]="passwordError">
+            <ion-icon name="lock-closed-outline" slot="start" class="input-icon"></ion-icon>
+            <ion-label position="stacked">Contraseña</ion-label>
+            <ion-input
+              [type]="showPassword() ? 'text' : 'password'"
+              formControlName="password"
+              placeholder="Tu contraseña"
+              autocomplete="new-password"
+            ></ion-input>
+            <ion-button fill="clear" slot="end" (click)="togglePasswordVisibility()" class="password-toggle">
+              <ion-icon [name]="showPassword() ? 'eye-off-outline' : 'eye-outline'" color="medium"></ion-icon>
+            </ion-button>
+          </ion-item>
+          <div class="error-message" *ngIf="passwordError">
+            {{ passwordError }}
+          </div>
+        </div>
+
+        <!-- Campo de confirmar contraseña -->
+        <div class="input-group">
+          <ion-item class="input-item" [class.has-error]="confirmPasswordError">
+            <ion-icon name="lock-closed-outline" slot="start" class="input-icon"></ion-icon>
+            <ion-label position="stacked">Confirmar Contraseña</ion-label>
+            <ion-input
+              [type]="showConfirmPassword() ? 'text' : 'password'"
+              formControlName="confirmPassword"
+              placeholder="Repite tu contraseña"
+              autocomplete="new-password"
+            ></ion-input>
+            <ion-button fill="clear" slot="end" (click)="toggleConfirmPasswordVisibility()" class="password-toggle">
+              <ion-icon [name]="showConfirmPassword() ? 'eye-off-outline' : 'eye-outline'" color="medium"></ion-icon>
+            </ion-button>
+          </ion-item>
+          <div class="error-message" *ngIf="confirmPasswordError">
+            {{ confirmPasswordError }}
+          </div>
+        </div>
+
+        <!-- Botón de registro -->
+        <ion-button
+          expand="block"
+          type="submit"
+          [disabled]="registerForm.invalid || isLoading()"
+          class="register-button"
+          size="large"
         >
-          <span *ngIf="registerForm.controls.email.errors?.['required']">El email es obligatorio.</span>
-          <span *ngIf="registerForm.controls.email.errors?.['email']">Introduce un email válido.</span>
-        </div>
-
-        <ion-item class="form-group" lines="none">
-          <ion-label position="floating" for="password">Contraseña</ion-label>
-          <ion-input
-            type="password"
-            id="password"
-            formControlName="password"
-            required
-            fill="outline"
-            placeholder="••••••••"
-          ></ion-input>
-        </ion-item>
-        <div
-          *ngIf="registerForm.controls.password.invalid && (registerForm.controls.password.dirty || registerForm.controls.password.touched)"
-          class="error-message"
-        >
-          <span *ngIf="registerForm.controls.password.errors?.['required']">La contraseña es obligatoria.</span>
-          <span *ngIf="registerForm.controls.password.errors?.['minlength']">La contraseña debe tener al menos 6 caracteres.</span>
-        </div>
-
-        <ion-item class="form-group" lines="none">
-          <ion-label position="floating" for="confirm-password">Repetir contraseña</ion-label>
-          <ion-input
-            type="password"
-            id="confirm-password"
-            formControlName="confirmPassword"
-            required
-            fill="outline"
-            placeholder="••••••••"
-          ></ion-input>
-        </ion-item>
-        <div
-          *ngIf="registerForm.controls.confirmPassword.invalid && (registerForm.controls.confirmPassword.dirty || registerForm.controls.confirmPassword.touched)"
-          class="error-message"
-        >
-          <span *ngIf="registerForm.controls.confirmPassword.errors?.['required']">Confirma la contraseña.</span>
-        </div>
-        <div
-          *ngIf="registerForm.errors?.['passwordMismatch'] && (registerForm.controls.confirmPassword.dirty || registerForm.controls.confirmPassword.touched)"
-          class="error-message"
-        >
-          Las contraseñas no coinciden.
-        </div>
-
-        <div *ngIf="registerError" class="error-message firebase-error">
-          {{ registerError }}
-        </div>
-
-        <ion-button expand="block" type="submit" class="login-button" color="primary" [disabled]="registerForm.invalid">
-          Registrar cuenta
+          <ion-icon name="person-add-outline" slot="start" *ngIf="!isLoading()"></ion-icon>
+          <ion-spinner name="crescent" *ngIf="isLoading()"></ion-spinner>
+          {{ isLoading() ? 'Creando cuenta...' : 'Crear Cuenta' }}
         </ion-button>
       </form>
-      <div class="register-link">
-        Ya tengo una cuenta <a routerLink="/login">Iniciar sesión</a>
+    </div>
+
+    <!-- Footer con enlace a login -->
+    <div class="footer-section">
+      <div class="login-link">
+        <p>¿Ya tienes una cuenta?</p>
+        <ion-button fill="clear" (click)="goToLogin()" color="primary">
+          <strong>Inicia sesión aquí</strong>
+        </ion-button>
       </div>
-    </ion-card-content>
-  </ion-card>
+    </div>
+  </div>
+
+  <!-- Background decorativo -->
+  <div class="background-decoration">
+    <div class="decoration-circle circle-1"></div>
+    <div class="decoration-circle circle-2"></div>
+    <div class="decoration-circle circle-3"></div>
+  </div>
 </ion-content>
