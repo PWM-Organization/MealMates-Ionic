@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">MealMates</string>
+    <string name="title_activity_main">MealMates</string>
+    <string name="package_name">com.mealmates.app</string>
+    <string name="custom_url_scheme">com.mealmates.app</string>
+</resources>
