@@ -21,6 +21,7 @@ import {
   IonFab,
   IonFabButton,
   RefresherCustomEvent,
+  ToastController,
 } from '@ionic/angular/standalone';
 import { AuthService } from '../../services/auth.service';
 import { RecipeService } from '../../services/recipe.service';
@@ -59,6 +60,7 @@ export class FavoritesPage implements OnInit {
   private recipeService = inject(RecipeService);
   private sqliteService = inject(SqliteService);
   private router = inject(Router);
+  private toastCtrl = inject(ToastController);
 
   allRecipes = signal<Recipe[]>([]);
   favoriteRecipeIds = signal<string[]>([]);
@@ -74,6 +76,11 @@ export class FavoritesPage implements OnInit {
   });
 
   async ngOnInit() {
+    // Wait for auth to load
+    while (this.authService.isLoading()) {
+      await new Promise((resolve) => setTimeout(resolve, 100));
+    }
+
     await this.sqliteService.initializeDB();
     await this.loadData();
   }
@@ -82,8 +89,8 @@ export class FavoritesPage implements OnInit {
     try {
       this.isLoading.set(true);
 
-      // Load all recipes from Firestore
-      const recipes = await this.recipeService.loadRecipes();
+      // Load all public recipes from Firestore
+      const recipes = await this.recipeService.loadRecipes({ isPublic: true });
       this.allRecipes.set(recipes);
 
       // Load favorite IDs from SQLite
@@ -94,6 +101,7 @@ export class FavoritesPage implements OnInit {
       }
     } catch (error) {
       console.error('Error loading data:', error);
+      await this.showToast('Error cargando datos', 'alert-circle');
     } finally {
       this.isLoading.set(false);
     }
@@ -105,9 +113,7 @@ export class FavoritesPage implements OnInit {
   }
 
   goToRecipeDetail(recipe: Recipe) {
-    // TODO: Implement recipe detail page
-    console.log('Recipe detail clicked:', recipe.title);
-    // this.router.navigate(['/recipe', recipe.id]);
+    this.router.navigate(['/recipe', recipe.id]);
   }
 
   async logout() {
@@ -133,7 +139,17 @@ export class FavoritesPage implements OnInit {
   }
 
   goToExploreRecipes() {
-    // TODO: Implement explore recipes page
-    console.log('Explore recipes clicked');
+    this.router.navigate(['/explore']);
+  }
+
+  private async showToast(message: string, icon: string) {
+    const toast = await this.toastCtrl.create({
+      message,
+      duration: 2000,
+      position: 'bottom',
+      icon,
+      color: 'primary',
+    });
+    await toast.present();
   }
 }
