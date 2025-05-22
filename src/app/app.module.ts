@@ -8,7 +8,7 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { initializeApp, provideFirebaseApp } from '@angular/fire/app';
 import { getFirestore, provideFirestore } from '@angular/fire/firestore';
-import { environment } from './firebase.config';
+import { firebaseConfig } from './firebase.config';
 
 import { BlogRecipesListComponent } from './components/blog-recipes-list/blog-recipes-list.component';
 import { CategoriesComponent } from './components/categories/categories.component';
@@ -21,9 +21,26 @@ import { RecipeCardSavedComponent } from './components/recipe-card-saved/recipe-
 import { RecipesListComponent } from './components/recipes-list/recipes-list.component';
 
 @NgModule({
-  declarations: [AppComponent,],
-  imports: [BrowserModule, IonicModule.forRoot(), AppRoutingModule, BlogRecipesListComponent, CategoriesComponent, DaysGridComponent, FooterComponent, HeaderComponent, RecipeCardCreatedComponent, RecipeCardDefaultComponent, RecipeCardSavedComponent, RecipesListComponent],
-  providers: [{ provide: RouteReuseStrategy, useClass: IonicRouteStrategy }, provideFirebaseApp(() => initializeApp(environment.firebaseConfig)), provideFirestore(() => getFirestore())],
+  declarations: [AppComponent],
+  imports: [
+    BrowserModule,
+    IonicModule.forRoot(),
+    AppRoutingModule,
+    BlogRecipesListComponent,
+    CategoriesComponent,
+    DaysGridComponent,
+    FooterComponent,
+    HeaderComponent,
+    RecipeCardCreatedComponent,
+    RecipeCardDefaultComponent,
+    RecipeCardSavedComponent,
+    RecipesListComponent,
+  ],
+  providers: [
+    { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
+    provideFirebaseApp(() => initializeApp(firebaseConfig)),
+    provideFirestore(() => getFirestore()),
+  ],
   bootstrap: [AppComponent],
 })
 export class AppModule {}
