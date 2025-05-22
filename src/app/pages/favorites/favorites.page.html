@@ -3,7 +3,7 @@
     <ion-title>Mis Favoritos</ion-title>
     <ion-buttons slot="end">
       <ion-button (click)="logout()">
-        <ion-icon name="log-out"></ion-icon>
+        <ion-icon name="log-out-outline"></ion-icon>
       </ion-button>
     </ion-buttons>
   </ion-toolbar>
@@ -11,26 +11,20 @@
 
 <ion-content>
   <ion-refresher slot="fixed" (ionRefresh)="handleRefresh($event)">
-    <ion-refresher-content
-      pullingIcon="arrow-down"
-      pullingText="Desliza para actualizar"
-      refreshingSpinner="crescent"
-      refreshingText="Actualizando..."
-    >
-    </ion-refresher-content>
+    <ion-refresher-content></ion-refresher-content>
   </ion-refresher>
 
-  <!-- Welcome Section -->
-  <div class="welcome-section" *ngIf="userProfile()">
-    <div class="user-info">
-      <ion-avatar>
-        <img [src]="userProfile()?.profileImageUrl || 'assets/icon/default-avatar.png'" />
+  <!-- User Welcome Section -->
+  <div class="user-welcome" *ngIf="userProfile()">
+    <ion-item lines="none">
+      <ion-avatar slot="start">
+        <img [src]="userProfile()?.profileImageUrl || '/assets/icon/favicon.png'" alt="Avatar" />
       </ion-avatar>
-      <div class="user-details">
+      <ion-label>
         <h2>¡Hola, {{ userProfile()?.firstName }}!</h2>
-        <p>Aquí tienes tus recetas favoritas</p>
-      </div>
-    </div>
+        <p>Aquí están tus recetas favoritas</p>
+      </ion-label>
+    </ion-item>
   </div>
 
   <!-- Loading State -->
@@ -44,19 +38,18 @@
     <ion-icon name="heart-outline" size="large" color="medium"></ion-icon>
     <h2>No tienes favoritos aún</h2>
     <p>Explora las recetas y marca tus favoritas</p>
-    <ion-button fill="outline" color="primary" (click)="goToExploreRecipes()">
-      <ion-icon name="search" slot="start"></ion-icon>
+    <ion-button expand="block" fill="outline" color="primary" (click)="goToExploreRecipes()">
+      <ion-icon name="search-outline" slot="start"></ion-icon>
       Explorar Recetas
     </ion-button>
   </div>
 
-  <!-- Recipes List -->
+  <!-- Favorites List -->
   <ion-list *ngIf="!isLoading() && favoriteRecipes().length > 0">
     <ion-item
       *ngFor="let recipe of favoriteRecipes(); trackBy: trackByRecipeId"
       button
       (click)="goToRecipeDetail(recipe)"
-      class="recipe-item"
     >
       <ion-thumbnail slot="start">
         <img [src]="recipe.imageUrl" [alt]="recipe.title" />
@@ -64,33 +57,31 @@
 
       <ion-label>
         <h2>{{ recipe.title }}</h2>
-        <p>{{ recipe.description }}</p>
-        <div class="recipe-meta">
+        <p>{{ recipe?.description }}</p>
+        <div class="recipe-chips">
           <ion-chip [color]="getDifficultyColor(recipe.difficulty)" outline>
-            <ion-icon name="speedometer"></ion-icon>
+            <ion-icon name="speedometer-outline"></ion-icon>
             <ion-label>{{ recipe.difficulty }}</ion-label>
           </ion-chip>
-
-          <ion-chip color="medium" outline>
-            <ion-icon name="time"></ion-icon>
-            <ion-label>{{ recipe.cookingTime }} min</ion-label>
-          </ion-chip>
-
           <ion-chip color="primary" outline>
-            <ion-icon name="heart"></ion-icon>
-            <ion-label>Favorito</ion-label>
+            <ion-icon name="time-outline"></ion-icon>
+            <ion-label>{{ recipe.cookingTime }}min</ion-label>
+          </ion-chip>
+          <ion-chip color="secondary" outline>
+            <ion-icon name="people-outline"></ion-icon>
+            <ion-label>{{ recipe.servings }} porciones</ion-label>
           </ion-chip>
         </div>
       </ion-label>
 
-      <ion-icon name="chevron-forward" slot="end" color="medium"></ion-icon>
+      <ion-icon name="chevron-forward-outline" slot="end" color="medium"></ion-icon>
     </ion-item>
   </ion-list>
 
   <!-- Floating Action Button -->
   <ion-fab vertical="bottom" horizontal="end" slot="fixed">
     <ion-fab-button color="primary" (click)="goToExploreRecipes()">
-      <ion-icon name="add"></ion-icon>
+      <ion-icon name="add-outline"></ion-icon>
     </ion-fab-button>
   </ion-fab>
 </ion-content>

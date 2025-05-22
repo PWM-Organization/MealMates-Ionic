@@ -219,7 +219,7 @@ export class RecipeDetailPage implements OnInit {
       try {
         await navigator.share({
           title: recipe.title,
-          text: recipe.description || 'Deliciosa receta de MealMates',
+          text: recipe?.description || 'Deliciosa receta de MealMates',
           url: window.location.href,
         });
       } catch (error) {

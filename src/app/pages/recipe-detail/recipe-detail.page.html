@@ -5,9 +5,6 @@
     </ion-buttons>
     <ion-title>{{ recipe()?.title || 'Detalle de Receta' }}</ion-title>
     <ion-buttons slot="end">
-      <ion-button (click)="shareRecipe()">
-        <ion-icon name="share"></ion-icon>
-      </ion-button>
       <ion-button (click)="toggleFavorite()" [disabled]="!currentUser()">
         <ion-icon [name]="isFavorite() ? 'heart' : 'heart-outline'" [color]="isFavorite() ? 'danger' : 'medium'">
         </ion-icon>
@@ -24,78 +21,53 @@
   </div>
 
   <!-- Recipe Content -->
-  <div *ngIf="!isLoading() && recipe()" class="recipe-detail">
-    <!-- Hero Image and Title -->
+  <div *ngIf="!isLoading() && recipe()">
+    <!-- Hero Image -->
     <div class="recipe-hero">
-      <img [src]="recipe()!.imageUrl" [alt]="recipe()!.title" *ngIf="recipe()!.imageUrl" />
+      <img [src]="recipe()!.imageUrl" [alt]="recipe()!.title" />
       <div class="hero-overlay">
         <h1>{{ recipe()!.title }}</h1>
-        <p *ngIf="recipe()!.description">{{ recipe()!.description }}</p>
       </div>
     </div>
 
-    <!-- Recipe Meta Info -->
-    <ion-card class="meta-card">
+    <!-- Recipe Info Card -->
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title>{{ recipe()!.title }}</ion-card-title>
+      </ion-card-header>
       <ion-card-content>
-        <ion-grid>
-          <ion-row>
-            <ion-col size="6" size-md="3">
-              <div class="meta-item">
-                <ion-icon name="time" color="primary"></ion-icon>
-                <span>{{ recipe()!.cookingTime }} min</span>
-              </div>
-            </ion-col>
-            <ion-col size="6" size-md="3">
-              <div class="meta-item">
-                <ion-icon name="people" color="primary"></ion-icon>
-                <span>{{ recipe()!.servings }} porciones</span>
-              </div>
-            </ion-col>
-            <ion-col size="6" size-md="3">
-              <div class="meta-item">
-                <ion-chip [color]="getDifficultyColor(recipe()!.difficulty)">
-                  <ion-icon name="speedometer"></ion-icon>
-                  <ion-label>{{ recipe()!.difficulty }}</ion-label>
-                </ion-chip>
-              </div>
-            </ion-col>
-            <ion-col size="6" size-md="3">
-              <div class="meta-item">
-                <ion-chip [color]="getCategoryColor(recipe()!.category)">
-                  <ion-icon name="restaurant"></ion-icon>
-                  <ion-label>{{ recipe()!.category }}</ion-label>
-                </ion-chip>
-              </div>
-            </ion-col>
-          </ion-row>
-        </ion-grid>
+        <p>{{ recipe()!.description }}</p>
 
-        <!-- Tags -->
-        <div class="tags-section" *ngIf="recipe()!.tags && recipe()!.tags.length > 0">
-          <ion-chip *ngFor="let tag of recipe()!.tags" color="tertiary" outline>
-            <ion-label>{{ tag }}</ion-label>
+        <!-- Recipe Meta Chips -->
+        <div class="recipe-meta">
+          <ion-chip [color]="getDifficultyColor(recipe()!.difficulty)">
+            <ion-icon name="speedometer-outline"></ion-icon>
+            <ion-label>{{ recipe()!.difficulty }}</ion-label>
           </ion-chip>
-        </div>
 
-        <!-- Stats -->
-        <div class="stats-section">
-          <div class="stat">
-            <ion-icon name="heart" color="danger"></ion-icon>
-            <span>{{ recipe()!.likes || 0 }} likes</span>
-          </div>
-          <div class="stat">
-            <ion-icon name="bookmark" color="warning"></ion-icon>
-            <span>{{ recipe()!.saves || 0 }} guardados</span>
-          </div>
+          <ion-chip color="primary">
+            <ion-icon name="time-outline"></ion-icon>
+            <ion-label>{{ recipe()!.cookingTime }} min</ion-label>
+          </ion-chip>
+
+          <ion-chip color="secondary">
+            <ion-icon name="people-outline"></ion-icon>
+            <ion-label>{{ recipe()!.servings }} porciones</ion-label>
+          </ion-chip>
+
+          <ion-chip [color]="getCategoryColor(recipe()!.category)">
+            <ion-icon name="restaurant-outline"></ion-icon>
+            <ion-label>{{ recipe()!.category }}</ion-label>
+          </ion-chip>
         </div>
       </ion-card-content>
     </ion-card>
 
-    <!-- Ingredients -->
-    <ion-card class="ingredients-card">
+    <!-- Ingredients Section -->
+    <ion-card>
       <ion-card-header>
         <ion-card-title>
-          <ion-icon name="basket" color="primary"></ion-icon>
+          <ion-icon name="basket-outline"></ion-icon>
           Ingredientes
         </ion-card-title>
       </ion-card-header>
@@ -104,22 +76,20 @@
           <ion-item *ngFor="let ingredient of recipe()!.ingredients; let i = index">
             <ion-checkbox slot="start" [checked]="checkedIngredients()[i]" (ionChange)="toggleIngredientCheck(i)">
             </ion-checkbox>
-            <ion-label [class.ingredient-checked]="checkedIngredients()[i]">
-              <div class="ingredient-text" [class.optional]="isIngredientOptional(ingredient)">
-                {{ getIngredientText(ingredient) }}
-                <span *ngIf="isIngredientOptional(ingredient)" class="optional-label"> (opcional)</span>
-              </div>
+            <ion-label [class.checked]="checkedIngredients()[i]">
+              {{ getIngredientText(ingredient) }}
+              <p *ngIf="isIngredientOptional(ingredient)" class="optional-text">(Opcional)</p>
             </ion-label>
           </ion-item>
         </ion-list>
       </ion-card-content>
     </ion-card>
 
-    <!-- Instructions -->
-    <ion-card class="instructions-card">
+    <!-- Instructions Section -->
+    <ion-card>
       <ion-card-header>
         <ion-card-title>
-          <ion-icon name="list" color="primary"></ion-icon>
+          <ion-icon name="list-outline"></ion-icon>
           Instrucciones
         </ion-card-title>
       </ion-card-header>
@@ -134,10 +104,10 @@
     </ion-card>
 
     <!-- Nutrition Info (if available) -->
-    <ion-card *ngIf="recipe()!.nutritionInfo" class="nutrition-card">
+    <ion-card *ngIf="recipe()!.nutritionInfo">
       <ion-card-header>
         <ion-card-title>
-          <ion-icon name="fitness" color="primary"></ion-icon>
+          <ion-icon name="fitness-outline"></ion-icon>
           Información Nutricional
         </ion-card-title>
       </ion-card-header>
@@ -146,26 +116,26 @@
           <ion-row>
             <ion-col size="6">
               <div class="nutrition-item">
-                <span class="nutrition-label">Calorías:</span>
-                <span class="nutrition-value">{{ recipe()!.nutritionInfo!.calories }}</span>
+                <strong>{{ recipe()!.nutritionInfo!.calories }}</strong>
+                <span>Calorías</span>
               </div>
             </ion-col>
             <ion-col size="6">
               <div class="nutrition-item">
-                <span class="nutrition-label">Proteínas:</span>
-                <span class="nutrition-value">{{ recipe()!.nutritionInfo!.protein }}g</span>
+                <strong>{{ recipe()!.nutritionInfo!.protein }}g</strong>
+                <span>Proteína</span>
               </div>
             </ion-col>
             <ion-col size="6">
               <div class="nutrition-item">
-                <span class="nutrition-label">Carbohidratos:</span>
-                <span class="nutrition-value">{{ recipe()!.nutritionInfo!.carbs }}g</span>
+                <strong>{{ recipe()!.nutritionInfo!.carbs }}g</strong>
+                <span>Carbohidratos</span>
               </div>
             </ion-col>
             <ion-col size="6">
               <div class="nutrition-item">
-                <span class="nutrition-label">Grasas:</span>
-                <span class="nutrition-value">{{ recipe()!.nutritionInfo!.fat }}g</span>
+                <strong>{{ recipe()!.nutritionInfo!.fat }}g</strong>
+                <span>Grasas</span>
               </div>
             </ion-col>
           </ion-row>
@@ -176,23 +146,26 @@
 
   <!-- Error State -->
   <div *ngIf="!isLoading() && !recipe()" class="error-state">
-    <ion-icon name="alert-circle" size="large" color="danger"></ion-icon>
+    <ion-icon name="alert-circle-outline" size="large" color="danger"></ion-icon>
     <h2>Receta no encontrada</h2>
     <p>La receta que buscas no existe o ha sido eliminada.</p>
-    <ion-button expand="block" (click)="goBack()">
-      <ion-icon name="arrow-back" slot="start"></ion-icon>
-      Volver
-    </ion-button>
+    <ion-button expand="block" color="primary" (click)="goBack()"> Volver a Favoritos </ion-button>
   </div>
 
-  <!-- Floating Action Button -->
+  <!-- Floating Action Buttons -->
   <ion-fab vertical="bottom" horizontal="end" slot="fixed">
     <ion-fab-button
-      (click)="toggleFavorite()"
       [color]="isFavorite() ? 'danger' : 'primary'"
+      (click)="toggleFavorite()"
       [disabled]="!currentUser()"
     >
       <ion-icon [name]="isFavorite() ? 'heart' : 'heart-outline'"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
+
+  <ion-fab vertical="bottom" horizontal="start" slot="fixed">
+    <ion-fab-button color="secondary" (click)="shareRecipe()">
+      <ion-icon name="share-outline"></ion-icon>
     </ion-fab-button>
   </ion-fab>
 </ion-content>

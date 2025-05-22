@@ -239,7 +239,7 @@ export class RecipeService {
       const filteredRecipes = allRecipes.filter(
         (recipe) =>
           recipe.title.toLowerCase().includes(searchTermLower) ||
-          recipe.description?.toLowerCase().includes(searchTermLower) ||
+          recipe?.description?.toLowerCase().includes(searchTermLower) ||
           recipe.tags.some((tag) => tag.toLowerCase().includes(searchTermLower)),
       );
 

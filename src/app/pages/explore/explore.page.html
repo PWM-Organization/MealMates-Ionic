@@ -1,0 +1,71 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/favorites"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Explorar Recetas</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ion-refresher slot="fixed" (ionRefresh)="handleRefresh($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
+  <!-- Search Bar -->
+  <ion-searchbar placeholder="Buscar recetas..." (ionInput)="onSearchChange($event)" debounce="300"> </ion-searchbar>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading()" class="loading-container">
+    <ion-spinner name="crescent" color="primary"></ion-spinner>
+    <p>Cargando recetas...</p>
+  </div>
+
+  <!-- Recipes List -->
+  <ion-list *ngIf="!isLoading()">
+    <ion-item
+      *ngFor="let recipe of filteredRecipes(); trackBy: trackByRecipeId"
+      button
+      (click)="goToRecipeDetail(recipe)"
+    >
+      <ion-thumbnail slot="start">
+        <img [src]="recipe.imageUrl" [alt]="recipe.title" />
+      </ion-thumbnail>
+
+      <ion-label>
+        <h2>{{ recipe.title }}</h2>
+        <p>{{ recipe?.description }}</p>
+        <div class="recipe-chips">
+          <ion-chip [color]="getDifficultyColor(recipe.difficulty)" outline>
+            <ion-icon name="speedometer-outline"></ion-icon>
+            <ion-label>{{ recipe.difficulty }}</ion-label>
+          </ion-chip>
+          <ion-chip color="primary" outline>
+            <ion-icon name="time-outline"></ion-icon>
+            <ion-label>{{ recipe.cookingTime }}min</ion-label>
+          </ion-chip>
+          <ion-chip color="secondary" outline>
+            <ion-icon name="people-outline"></ion-icon>
+            <ion-label>{{ recipe.servings }} porciones</ion-label>
+          </ion-chip>
+        </div>
+      </ion-label>
+
+      <ion-button
+        slot="end"
+        fill="clear"
+        (click)="toggleFavorite(recipe, $event)"
+        [color]="isFavorite(recipe.id) ? 'danger' : 'medium'"
+      >
+        <ion-icon [name]="isFavorite(recipe.id) ? 'heart' : 'heart-outline'"></ion-icon>
+      </ion-button>
+    </ion-item>
+  </ion-list>
+
+  <!-- Empty State -->
+  <div *ngIf="!isLoading() && filteredRecipes().length === 0" class="empty-state">
+    <ion-icon name="search-outline" size="large" color="medium"></ion-icon>
+    <h2>No se encontraron recetas</h2>
+    <p>Intenta con otros términos de búsqueda</p>
+  </div>
+</ion-content>

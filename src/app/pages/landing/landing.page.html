@@ -1,40 +1,90 @@
-<ion-content class="landing-content">
-  <div class="landing-container">
-    <!-- Hero Section -->
-    <div class="hero-section">
-      <div class="logo-container">
-        <ion-icon name="restaurant" size="large" color="primary"></ion-icon>
-        <h1>MealMates</h1>
-      </div>
-      <p class="tagline">Tu compañero culinario perfecto</p>
-      <p class="subtitle">Descubre, guarda y comparte las mejores recetas</p>
-    </div>
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-title>MealMates</ion-title>
+  </ion-toolbar>
+</ion-header>
 
-    <!-- Features Section -->
-    <ion-grid class="features-grid">
+<ion-content>
+  <ion-refresher slot="fixed" (ionRefresh)="handleRefresh($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
+  <!-- Hero Section -->
+  <div class="hero-section">
+    <ion-text>
+      <h1>¡Bienvenido a MealMates!</h1>
+      <p>Descubre las mejores recetas y planifica tus comidas</p>
+    </ion-text>
+  </div>
+
+  <!-- Featured Recipes Carousel -->
+  <div class="section-header">
+    <ion-text>
+      <h2>Recetas Destacadas</h2>
+    </ion-text>
+  </div>
+
+  <div *ngIf="isLoading()" class="loading-container">
+    <ion-spinner name="crescent" color="primary"></ion-spinner>
+    <ion-text>
+      <p>Cargando recetas...</p>
+    </ion-text>
+  </div>
+
+  <div *ngIf="!isLoading() && featuredRecipes().length > 0" class="recipes-carousel">
+    <div *ngFor="let recipe of featuredRecipes(); trackBy: trackByRecipeId" class="recipe-card-wrapper">
+      <ion-card button (click)="viewRecipe(recipe.id)">
+        <ion-img [src]="recipe.imageUrl" [alt]="recipe.title"></ion-img>
+        <ion-card-header>
+          <ion-card-title>{{ recipe.title }}</ion-card-title>
+          <ion-card-subtitle>{{ recipe?.description }}</ion-card-subtitle>
+        </ion-card-header>
+        <ion-card-content>
+          <div class="recipe-meta">
+            <ion-chip [color]="getDifficultyColor(recipe.difficulty)" outline="true">
+              <ion-icon name="speedometer-outline"></ion-icon>
+              <ion-label>{{ recipe.difficulty }}</ion-label>
+            </ion-chip>
+            <ion-chip color="primary" outline="true">
+              <ion-icon name="time-outline"></ion-icon>
+              <ion-label>{{ recipe.cookingTime }}min</ion-label>
+            </ion-chip>
+          </div>
+        </ion-card-content>
+      </ion-card>
+    </div>
+  </div>
+
+  <!-- Features Section -->
+  <div class="features-section">
+    <ion-text>
+      <h2>¿Por qué elegir MealMates?</h2>
+    </ion-text>
+
+    <ion-grid>
       <ion-row>
         <ion-col size="12" size-md="4">
-          <ion-card class="feature-card">
-            <ion-card-content>
-              <ion-icon name="search" size="large" color="primary"></ion-icon>
+          <ion-card>
+            <ion-card-content class="feature-card">
+              <ion-icon name="search-outline" color="primary" size="large"></ion-icon>
               <ion-card-title>Explora Recetas</ion-card-title>
               <p>Miles de recetas deliciosas esperándote</p>
             </ion-card-content>
           </ion-card>
         </ion-col>
         <ion-col size="12" size-md="4">
-          <ion-card class="feature-card">
-            <ion-card-content>
-              <ion-icon name="heart" size="large" color="danger"></ion-icon>
+          <ion-card>
+            <ion-card-content class="feature-card">
+              <ion-icon name="heart-outline" color="danger" size="large"></ion-icon>
               <ion-card-title>Guarda Favoritos</ion-card-title>
               <p>Organiza tus recetas preferidas</p>
             </ion-card-content>
           </ion-card>
         </ion-col>
         <ion-col size="12" size-md="4">
-          <ion-card class="feature-card">
-            <ion-card-content>
-              <ion-icon name="calendar" size="large" color="secondary"></ion-icon>
+          <ion-card>
+            <ion-card-content class="feature-card">
+              <ion-icon name="calendar-outline" color="secondary" size="large"></ion-icon>
               <ion-card-title>Planifica Comidas</ion-card-title>
               <p>Organiza tu menú semanal</p>
             </ion-card-content>
@@ -42,23 +92,18 @@
         </ion-col>
       </ion-row>
     </ion-grid>
+  </div>
 
-    <!-- Action Buttons -->
-    <div class="action-buttons">
-      <ion-button expand="block" size="large" (click)="goToRegister()" class="register-btn">
-        <ion-icon name="person-add" slot="start"></ion-icon>
-        Crear Cuenta
-      </ion-button>
+  <!-- Action Buttons -->
+  <div class="action-buttons">
+    <ion-button expand="block" size="large" color="primary" (click)="goToRegister()">
+      <ion-icon name="person-add-outline" slot="start"></ion-icon>
+      Crear Cuenta
+    </ion-button>
 
-      <ion-button expand="block" size="large" fill="outline" (click)="goToLogin()" class="login-btn">
-        <ion-icon name="log-in" slot="start"></ion-icon>
-        Iniciar Sesión
-      </ion-button>
-    </div>
-
-    <!-- Footer -->
-    <div class="footer">
-      <p>&copy; 2024 MealMates. Hecho con ❤️ para los amantes de la cocina.</p>
-    </div>
+    <ion-button expand="block" size="large" fill="outline" color="primary" (click)="goToLogin()">
+      <ion-icon name="log-in-outline" slot="start"></ion-icon>
+      Iniciar Sesión
+    </ion-button>
   </div>
 </ion-content>

@@ -4,52 +4,52 @@
 /** MealMates App Color Theme - Cool Orange Primary **/
 :root {
   /** Primary - Cool Orange **/
-  --ion-color-primary: #ff7043;
-  --ion-color-primary-rgb: 255, 112, 67;
+  --ion-color-primary: #ff6b35;
+  --ion-color-primary-rgb: 255, 107, 53;
   --ion-color-primary-contrast: #ffffff;
   --ion-color-primary-contrast-rgb: 255, 255, 255;
-  --ion-color-primary-shade: #e0623b;
-  --ion-color-primary-tint: #ff7f56;
+  --ion-color-primary-shade: #e05f2f;
+  --ion-color-primary-tint: #ff7a49;
 
   /** Secondary - Deep Orange **/
-  --ion-color-secondary: #ff5722;
-  --ion-color-secondary-rgb: 255, 87, 34;
+  --ion-color-secondary: #ff8a65;
+  --ion-color-secondary-rgb: 255, 138, 101;
   --ion-color-secondary-contrast: #ffffff;
   --ion-color-secondary-contrast-rgb: 255, 255, 255;
-  --ion-color-secondary-shade: #e04d1e;
-  --ion-color-secondary-tint: #ff6638;
+  --ion-color-secondary-shade: #e07958;
+  --ion-color-secondary-tint: #ff9574;
 
   /** Success - Fresh Green **/
-  --ion-color-success: #4caf50;
-  --ion-color-success-rgb: 76, 175, 80;
+  --ion-color-success: #2dd36f;
+  --ion-color-success-rgb: 45, 211, 111;
   --ion-color-success-contrast: #ffffff;
   --ion-color-success-contrast-rgb: 255, 255, 255;
-  --ion-color-success-shade: #439a46;
-  --ion-color-success-tint: #5eb862;
+  --ion-color-success-shade: #28ba62;
+  --ion-color-success-tint: #42d77d;
 
   /** Warning - Warm Yellow **/
-  --ion-color-warning: #ff9800;
-  --ion-color-warning-rgb: 255, 152, 0;
+  --ion-color-warning: #ffc409;
+  --ion-color-warning-rgb: 255, 196, 9;
   --ion-color-warning-contrast: #000000;
   --ion-color-warning-contrast-rgb: 0, 0, 0;
-  --ion-color-warning-shade: #e08600;
-  --ion-color-warning-tint: #ffa21a;
+  --ion-color-warning-shade: #e0ac08;
+  --ion-color-warning-tint: #ffca22;
 
   /** Danger - Red **/
-  --ion-color-danger: #f44336;
-  --ion-color-danger-rgb: 244, 67, 54;
+  --ion-color-danger: #eb445a;
+  --ion-color-danger-rgb: 235, 68, 90;
   --ion-color-danger-contrast: #ffffff;
   --ion-color-danger-contrast-rgb: 255, 255, 255;
-  --ion-color-danger-shade: #d73a2f;
-  --ion-color-danger-tint: #f5574a;
+  --ion-color-danger-shade: #cf3c4f;
+  --ion-color-danger-tint: #ed576b;
 
   /** Dark **/
-  --ion-color-dark: #2e2e2e;
-  --ion-color-dark-rgb: 46, 46, 46;
+  --ion-color-dark: #222428;
+  --ion-color-dark-rgb: 34, 36, 40;
   --ion-color-dark-contrast: #ffffff;
   --ion-color-dark-contrast-rgb: 255, 255, 255;
-  --ion-color-dark-shade: #292929;
-  --ion-color-dark-tint: #434343;
+  --ion-color-dark-shade: #1e2023;
+  --ion-color-dark-tint: #383a3e;
 
   /** Medium **/
   --ion-color-medium: #92949c;
@@ -73,12 +73,45 @@
   :root {
     --ion-color-primary: #ff8a65;
     --ion-color-primary-rgb: 255, 138, 101;
-    --ion-color-primary-shade: #e07a59;
+    --ion-color-primary-contrast: #000000;
+    --ion-color-primary-contrast-rgb: 0, 0, 0;
+    --ion-color-primary-shade: #e07958;
     --ion-color-primary-tint: #ff9574;
 
-    --ion-color-secondary: #ff7043;
-    --ion-color-secondary-rgb: 255, 112, 67;
-    --ion-color-secondary-shade: #e0623b;
-    --ion-color-secondary-tint: #ff7f56;
+    --ion-color-secondary: #ffab91;
+    --ion-color-secondary-rgb: 255, 171, 145;
+    --ion-color-secondary-contrast: #000000;
+    --ion-color-secondary-contrast-rgb: 0, 0, 0;
+    --ion-color-secondary-shade: #e09680;
+    --ion-color-secondary-tint: #ffb39c;
+
+    --ion-background-color: #1a1a1a;
+    --ion-background-color-rgb: 26, 26, 26;
+
+    --ion-text-color: #ffffff;
+    --ion-text-color-rgb: 255, 255, 255;
+
+    --ion-color-step-50: #262626;
+    --ion-color-step-100: #2d2d2d;
+    --ion-color-step-150: #333333;
+    --ion-color-step-200: #404040;
+    --ion-color-step-250: #4d4d4d;
+    --ion-color-step-300: #595959;
+    --ion-color-step-350: #666666;
+    --ion-color-step-400: #737373;
+    --ion-color-step-450: #808080;
+    --ion-color-step-500: #8c8c8c;
+    --ion-color-step-550: #999999;
+    --ion-color-step-600: #a6a6a6;
+    --ion-color-step-650: #b3b3b3;
+    --ion-color-step-700: #bfbfbf;
+    --ion-color-step-750: #cccccc;
+    --ion-color-step-800: #d9d9d9;
+    --ion-color-step-850: #e6e6e6;
+    --ion-color-step-900: #f2f2f2;
+    --ion-color-step-950: #f9f9f9;
+
+    --ion-item-background: #1e1e1e;
+    --ion-card-background: #1e1e1e;
   }
 }

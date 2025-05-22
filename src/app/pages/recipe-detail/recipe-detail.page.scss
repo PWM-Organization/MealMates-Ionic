@@ -5,16 +5,14 @@
   justify-content: center;
   padding: 3rem 1rem;
   text-align: center;
+  min-height: 50vh;
 
   ion-spinner {
     margin-bottom: 1rem;
-    --size: 32px;
   }
 
   p {
     color: var(--ion-color-medium);
-    font-size: 1rem;
-    margin: 0;
   }
 }
 
@@ -38,14 +36,14 @@
     bottom: 0;
     left: 0;
     right: 0;
-    background: linear-gradient(transparent, rgba(0, 0, 0, 0.8));
+    background: linear-gradient(transparent, rgba(0, 0, 0, 0.7));
     color: white;
     padding: 2rem 1rem 1rem;
 
     h1 {
+      margin: 0;
       font-size: 1.8rem;
-      font-weight: 700;
-      margin: 0 0 0.5rem 0;
+      font-weight: 600;
       text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
     }
 
@@ -58,76 +56,14 @@
   }
 }
 
-.meta-card {
-  margin: 1rem;
-  --border-radius: 16px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+.recipe-meta {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-top: 1rem;
 
-  .meta-item {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    padding: 0.5rem;
-
-    ion-icon {
-      font-size: 1.5rem;
-      margin-bottom: 0.5rem;
-    }
-
-    span {
-      font-size: 0.9rem;
-      font-weight: 500;
-      color: var(--ion-color-dark);
-    }
-
-    ion-chip {
-      margin: 0;
-      font-size: 0.8rem;
-      height: auto;
-      padding: 0.5rem 0.75rem;
-
-      ion-icon {
-        font-size: 1rem;
-        margin-bottom: 0;
-        margin-right: 0.25rem;
-      }
-    }
-  }
-
-  .tags-section {
-    margin-top: 1rem;
-    padding-top: 1rem;
-    border-top: 1px solid var(--ion-color-light-shade);
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-
-    ion-chip {
-      font-size: 0.75rem;
-      height: 28px;
-    }
-  }
-
-  .stats-section {
-    display: flex;
-    justify-content: center;
-    gap: 2rem;
-    margin-top: 1rem;
-    padding-top: 1rem;
-    border-top: 1px solid var(--ion-color-light-shade);
-
-    .stat {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      font-size: 0.9rem;
-      color: var(--ion-color-medium);
-
-      ion-icon {
-        font-size: 1.1rem;
-      }
-    }
+  ion-chip {
+    font-size: 0.85rem;
   }
 }
 
@@ -187,60 +123,65 @@
   }
 }
 
-.instructions-card {
-  .instructions {
-    .instruction-step {
+.instructions {
+  .instruction-step {
+    display: flex;
+    margin-bottom: 1rem;
+    align-items: flex-start;
+
+    .step-number {
+      background: var(--ion-color-primary);
+      color: white;
+      border-radius: 50%;
+      width: 28px;
+      height: 28px;
       display: flex;
-      margin-bottom: 1.5rem;
-      align-items: flex-start;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      font-size: 0.9rem;
+      margin-right: 1rem;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
 
-      &:last-child {
-        margin-bottom: 0;
-      }
-
-      .step-number {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 32px;
-        height: 32px;
-        min-width: 32px;
-        background: var(--ion-color-primary);
-        color: white;
-        border-radius: 50%;
-        font-weight: 600;
-        font-size: 0.9rem;
-        margin-right: 1rem;
-        margin-top: 0.2rem;
-      }
-
-      .step-content {
-        flex: 1;
-        font-size: 1rem;
-        line-height: 1.5;
-        color: var(--ion-color-dark);
-      }
+    .step-content {
+      flex: 1;
+      line-height: 1.5;
+      color: var(--ion-color-dark);
     }
   }
 }
 
 .nutrition-card {
   .nutrition-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0.5rem 0;
+    text-align: center;
+    padding: 0.5rem;
 
-    .nutrition-label {
-      font-weight: 500;
-      color: var(--ion-color-dark);
+    strong {
+      display: block;
+      font-size: 1.2rem;
+      color: var(--ion-color-primary);
+      margin-bottom: 0.25rem;
     }
 
-    .nutrition-value {
-      font-weight: 600;
-      color: var(--ion-color-primary);
+    span {
+      font-size: 0.9rem;
+      color: var(--ion-color-medium);
     }
   }
+}
+
+.checked {
+  text-decoration: line-through;
+  opacity: 0.6;
+}
+
+.optional-text {
+  color: var(--ion-color-medium);
+  font-style: italic;
+  font-size: 0.85rem;
+  margin: 0;
 }
 
 .error-state {
@@ -250,23 +191,20 @@
   justify-content: center;
   padding: 3rem 2rem;
   text-align: center;
+  min-height: 50vh;
 
   ion-icon {
     margin-bottom: 1.5rem;
-    opacity: 0.6;
   }
 
   h2 {
-    color: var(--ion-color-medium);
-    font-size: 1.5rem;
-    font-weight: 600;
-    margin: 0 0 0.5rem 0;
+    color: var(--ion-color-danger);
+    margin-bottom: 0.5rem;
   }
 
   p {
-    color: var(--ion-color-medium-shade);
-    font-size: 1rem;
-    margin: 0 0 2rem 0;
+    color: var(--ion-color-medium);
+    margin-bottom: 2rem;
     line-height: 1.4;
   }
 
@@ -304,26 +242,17 @@ ion-fab-button {
     }
   }
 
-  .meta-card,
   .ingredients-card,
   .instructions-card,
   .nutrition-card {
     margin: 1rem 2rem;
   }
 
-  .instructions-card {
-    .instruction-step {
-      .step-number {
-        width: 40px;
-        height: 40px;
-        min-width: 40px;
-        font-size: 1rem;
-        margin-right: 1.5rem;
-      }
-
-      .step-content {
-        font-size: 1.1rem;
-      }
+  .instructions .instruction-step {
+    .step-number {
+      width: 32px;
+      height: 32px;
+      font-size: 1rem;
     }
   }
 }
@@ -347,7 +276,6 @@ ion-fab-button {
   }
 }
 
-.meta-card,
 .ingredients-card,
 .instructions-card,
 .nutrition-card {

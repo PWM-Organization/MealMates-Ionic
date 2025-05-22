@@ -1,0 +1,63 @@
+// Estilos nativos de Ionic
+
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 1rem;
+  text-align: center;
+  min-height: 50vh;
+
+  ion-spinner {
+    margin-bottom: 1rem;
+  }
+
+  p {
+    color: var(--ion-color-medium);
+  }
+}
+
+.recipe-chips {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-top: 0.5rem;
+
+  ion-chip {
+    font-size: 0.8rem;
+    height: auto;
+
+    ion-icon {
+      font-size: 0.9rem;
+    }
+  }
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 2rem;
+  text-align: center;
+  min-height: 50vh;
+
+  ion-icon {
+    margin-bottom: 1.5rem;
+    font-size: 4rem;
+  }
+
+  h2 {
+    color: var(--ion-color-medium);
+    margin-bottom: 0.5rem;
+    font-size: 1.5rem;
+  }
+
+  p {
+    color: var(--ion-color-medium-shade);
+    margin-bottom: 2rem;
+    font-size: 1rem;
+    line-height: 1.4;
+  }
+}

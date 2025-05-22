@@ -2,24 +2,23 @@ import { Component, OnInit, signal, computed, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import {
-  IonHeader,
-  IonToolbar,
-  IonTitle,
-  IonButtons,
-  IonButton,
-  IonIcon,
   IonContent,
-  IonRefresher,
-  IonRefresherContent,
+  IonHeader,
+  IonTitle,
+  IonToolbar,
   IonList,
   IonItem,
   IonThumbnail,
   IonLabel,
   IonChip,
+  IonButton,
+  IonIcon,
   IonSpinner,
-  IonAvatar,
-  IonFab,
-  IonFabButton,
+  IonRefresher,
+  IonRefresherContent,
+  IonSearchbar,
+  IonButtons,
+  IonBackButton,
   RefresherCustomEvent,
   ToastController,
 } from '@ionic/angular/standalone';
@@ -29,33 +28,32 @@ import { SqliteService } from '../../services/sqlite.service';
 import { Recipe } from '../../../models/recipe.model';
 
 @Component({
-  selector: 'app-favorites',
+  selector: 'app-explore',
   standalone: true,
   imports: [
     CommonModule,
-    IonHeader,
-    IonToolbar,
-    IonTitle,
-    IonButtons,
-    IonButton,
-    IonIcon,
     IonContent,
-    IonRefresher,
-    IonRefresherContent,
+    IonHeader,
+    IonTitle,
+    IonToolbar,
     IonList,
     IonItem,
     IonThumbnail,
     IonLabel,
     IonChip,
+    IonButton,
+    IonIcon,
     IonSpinner,
-    IonAvatar,
-    IonFab,
-    IonFabButton,
+    IonRefresher,
+    IonRefresherContent,
+    IonSearchbar,
+    IonButtons,
+    IonBackButton,
   ],
-  templateUrl: './favorites.page.html',
-  styleUrls: ['./favorites.page.scss'],
+  templateUrl: './explore.page.html',
+  styleUrls: ['./explore.page.scss'],
 })
-export class FavoritesPage implements OnInit {
+export class ExplorePage implements OnInit {
   private authService = inject(AuthService);
   private recipeService = inject(RecipeService);
   private sqliteService = inject(SqliteService);
@@ -63,25 +61,14 @@ export class FavoritesPage implements OnInit {
   private toastCtrl = inject(ToastController);
 
   allRecipes = signal<Recipe[]>([]);
+  filteredRecipes = signal<Recipe[]>([]);
   favoriteRecipeIds = signal<string[]>([]);
   isLoading = signal(true);
+  searchTerm = signal('');
 
-  // Computed signals for reactive data
   currentUser = computed(() => this.authService.currentUser());
-  userProfile = computed(() => this.authService.userProfile());
-  favoriteRecipes = computed(() => {
-    const recipes = this.allRecipes();
-    const favoriteIds = this.favoriteRecipeIds();
-    return recipes.filter((recipe) => favoriteIds.includes(recipe.id));
-  });
 
   async ngOnInit() {
-    // Wait for auth to load
-    while (this.authService.isLoading()) {
-      await new Promise((resolve) => setTimeout(resolve, 100));
-    }
-
-    await this.sqliteService.initializeDB();
     await this.loadData();
   }
 
@@ -92,16 +79,18 @@ export class FavoritesPage implements OnInit {
       // Load all public recipes from Firestore
       const recipes = await this.recipeService.loadRecipes();
       this.allRecipes.set(recipes);
+      this.filteredRecipes.set(recipes);
 
       // Load favorite IDs from SQLite
       const user = this.currentUser();
       if (user) {
+        await this.sqliteService.initializeDB();
         const favoriteIds = await this.sqliteService.getFavorites(user.uid);
         this.favoriteRecipeIds.set(favoriteIds);
       }
     } catch (error) {
       console.error('Error loading data:', error);
-      await this.showToast('Error cargando datos', 'alert-circle');
+      await this.showToast('Error cargando recetas', 'alert-circle');
     } finally {
       this.isLoading.set(false);
     }
@@ -112,13 +101,59 @@ export class FavoritesPage implements OnInit {
     event.target.complete();
   }
 
-  goToRecipeDetail(recipe: Recipe) {
-    this.router.navigate(['/recipe', recipe.id]);
+  onSearchChange(event: any) {
+    const searchTerm = event.detail.value.toLowerCase();
+    this.searchTerm.set(searchTerm);
+
+    if (!searchTerm) {
+      this.filteredRecipes.set(this.allRecipes());
+      return;
+    }
+
+    const filtered = this.allRecipes().filter(
+      (recipe) =>
+        recipe.title.toLowerCase().includes(searchTerm) ||
+        (recipe.description && recipe.description.toLowerCase().includes(searchTerm)) ||
+        recipe.category.toLowerCase().includes(searchTerm),
+    );
+    this.filteredRecipes.set(filtered);
   }
 
-  async logout() {
-    await this.authService.logout();
-    this.router.navigate(['/landing']);
+  async toggleFavorite(recipe: Recipe, event: Event) {
+    event.stopPropagation();
+
+    const user = this.currentUser();
+    if (!user) {
+      await this.showToast('Debes iniciar sesión para guardar favoritos', 'alert-circle');
+      return;
+    }
+
+    try {
+      const newStatus = await this.sqliteService.toggleFavorite(recipe.id, user.uid);
+
+      // Update local favorites list
+      const currentFavorites = this.favoriteRecipeIds();
+      if (newStatus) {
+        this.favoriteRecipeIds.set([...currentFavorites, recipe.id]);
+      } else {
+        this.favoriteRecipeIds.set(currentFavorites.filter((id) => id !== recipe.id));
+      }
+
+      const message = newStatus ? 'Receta agregada a favoritos' : 'Receta eliminada de favoritos';
+      const icon = newStatus ? 'heart' : 'heart-dislike';
+      await this.showToast(message, icon);
+    } catch (error) {
+      console.error('Error toggling favorite:', error);
+      await this.showToast('Error al actualizar favoritos', 'alert-circle');
+    }
+  }
+
+  isFavorite(recipeId: string): boolean {
+    return this.favoriteRecipeIds().includes(recipeId);
+  }
+
+  goToRecipeDetail(recipe: Recipe) {
+    this.router.navigate(['/recipe', recipe.id]);
   }
 
   getDifficultyColor(difficulty: string): string {
@@ -136,10 +171,6 @@ export class FavoritesPage implements OnInit {
 
   trackByRecipeId(index: number, recipe: Recipe): string {
     return recipe.id;
-  }
-
-  goToExploreRecipes() {
-    this.router.navigate(['/explore']);
   }
 
   private async showToast(message: string, icon: string) {
