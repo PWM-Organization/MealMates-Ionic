@@ -1,0 +1,171 @@
+.register-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 100%;
+  padding: 1rem;
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+.logo-section {
+  text-align: center;
+  margin-bottom: 2rem;
+
+  ion-icon {
+    margin-bottom: 1rem;
+  }
+
+  h1 {
+    color: var(--ion-color-primary);
+    font-size: 2rem;
+    font-weight: bold;
+    margin: 0.5rem 0;
+  }
+
+  p {
+    color: var(--ion-color-medium);
+    font-size: 1rem;
+    margin: 0;
+  }
+}
+
+form {
+  width: 100%;
+  margin-bottom: 1rem;
+}
+
+.name-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+
+  @media (max-width: 480px) {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+}
+
+.name-errors {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  margin-bottom: 1rem;
+
+  .error-message {
+    margin: 0;
+  }
+}
+
+.form-item {
+  margin-bottom: 1rem;
+  --border-radius: 8px;
+  --background: var(--ion-color-light);
+
+  ion-label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+
+    ion-icon {
+      font-size: 1rem;
+    }
+  }
+
+  ion-input {
+    --padding-start: 16px;
+    --padding-end: 16px;
+    --padding-top: 12px;
+    --padding-bottom: 12px;
+  }
+
+  // Remove margin for name row items
+  .name-row & {
+    margin-bottom: 0;
+  }
+}
+
+.error-message {
+  color: var(--ion-color-danger);
+  font-size: 0.875rem;
+  margin: 0.25rem 0 1rem 0;
+  padding-left: 0.5rem;
+}
+
+.register-button {
+  margin: 2rem 0 1rem 0;
+  --border-radius: 8px;
+  height: 48px;
+  font-weight: 600;
+}
+
+.login-link {
+  text-align: center;
+  margin-top: 1rem;
+
+  p {
+    color: var(--ion-color-medium);
+    margin: 0 0 0.5rem 0;
+    font-size: 0.9rem;
+  }
+
+  ion-button {
+    --color: var(--ion-color-primary);
+    font-weight: 600;
+  }
+}
+
+// Responsive adjustments
+@media (min-width: 768px) {
+  .register-container {
+    padding: 2rem;
+    max-width: 500px;
+  }
+
+  .logo-section h1 {
+    font-size: 2.5rem;
+  }
+
+  .name-row {
+    gap: 1rem;
+  }
+}
+
+// Form validation styles
+.form-item.ng-touched.ng-invalid {
+  --border-color: var(--ion-color-danger);
+
+  ion-input {
+    --highlight-color-focused: var(--ion-color-danger);
+  }
+}
+
+.form-item.ng-touched.ng-valid {
+  --border-color: var(--ion-color-success);
+
+  ion-input {
+    --highlight-color-focused: var(--ion-color-success);
+  }
+}
+
+// Animation for validation feedback
+@keyframes shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-4px);
+  }
+  75% {
+    transform: translateX(4px);
+  }
+}
+
+.form-item.ng-invalid.ng-touched {
+  animation: shake 0.3s ease-in-out;
+}

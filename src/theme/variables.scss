@@ -1,2 +1,84 @@
 // For information on how to create your own theme, please see:
 // http://ionicframework.com/docs/theming/
+
+/** MealMates App Color Theme - Cool Orange Primary **/
+:root {
+  /** Primary - Cool Orange **/
+  --ion-color-primary: #ff7043;
+  --ion-color-primary-rgb: 255, 112, 67;
+  --ion-color-primary-contrast: #ffffff;
+  --ion-color-primary-contrast-rgb: 255, 255, 255;
+  --ion-color-primary-shade: #e0623b;
+  --ion-color-primary-tint: #ff7f56;
+
+  /** Secondary - Deep Orange **/
+  --ion-color-secondary: #ff5722;
+  --ion-color-secondary-rgb: 255, 87, 34;
+  --ion-color-secondary-contrast: #ffffff;
+  --ion-color-secondary-contrast-rgb: 255, 255, 255;
+  --ion-color-secondary-shade: #e04d1e;
+  --ion-color-secondary-tint: #ff6638;
+
+  /** Success - Fresh Green **/
+  --ion-color-success: #4caf50;
+  --ion-color-success-rgb: 76, 175, 80;
+  --ion-color-success-contrast: #ffffff;
+  --ion-color-success-contrast-rgb: 255, 255, 255;
+  --ion-color-success-shade: #439a46;
+  --ion-color-success-tint: #5eb862;
+
+  /** Warning - Warm Yellow **/
+  --ion-color-warning: #ff9800;
+  --ion-color-warning-rgb: 255, 152, 0;
+  --ion-color-warning-contrast: #000000;
+  --ion-color-warning-contrast-rgb: 0, 0, 0;
+  --ion-color-warning-shade: #e08600;
+  --ion-color-warning-tint: #ffa21a;
+
+  /** Danger - Red **/
+  --ion-color-danger: #f44336;
+  --ion-color-danger-rgb: 244, 67, 54;
+  --ion-color-danger-contrast: #ffffff;
+  --ion-color-danger-contrast-rgb: 255, 255, 255;
+  --ion-color-danger-shade: #d73a2f;
+  --ion-color-danger-tint: #f5574a;
+
+  /** Dark **/
+  --ion-color-dark: #2e2e2e;
+  --ion-color-dark-rgb: 46, 46, 46;
+  --ion-color-dark-contrast: #ffffff;
+  --ion-color-dark-contrast-rgb: 255, 255, 255;
+  --ion-color-dark-shade: #292929;
+  --ion-color-dark-tint: #434343;
+
+  /** Medium **/
+  --ion-color-medium: #92949c;
+  --ion-color-medium-rgb: 146, 148, 156;
+  --ion-color-medium-contrast: #ffffff;
+  --ion-color-medium-contrast-rgb: 255, 255, 255;
+  --ion-color-medium-shade: #808289;
+  --ion-color-medium-tint: #9d9fa6;
+
+  /** Light **/
+  --ion-color-light: #f4f5f8;
+  --ion-color-light-rgb: 244, 245, 248;
+  --ion-color-light-contrast: #000000;
+  --ion-color-light-contrast-rgb: 0, 0, 0;
+  --ion-color-light-shade: #d7d8da;
+  --ion-color-light-tint: #f5f6f9;
+}
+
+/** Dark theme colors **/
+@media (prefers-color-scheme: dark) {
+  :root {
+    --ion-color-primary: #ff8a65;
+    --ion-color-primary-rgb: 255, 138, 101;
+    --ion-color-primary-shade: #e07a59;
+    --ion-color-primary-tint: #ff9574;
+
+    --ion-color-secondary: #ff7043;
+    --ion-color-secondary-rgb: 255, 112, 67;
+    --ion-color-secondary-shade: #e0623b;
+    --ion-color-secondary-tint: #ff7f56;
+  }
+}

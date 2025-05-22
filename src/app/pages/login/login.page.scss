@@ -1,0 +1,130 @@
+.login-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 100%;
+  padding: 1rem;
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+.logo-section {
+  text-align: center;
+  margin-bottom: 2rem;
+
+  ion-icon {
+    margin-bottom: 1rem;
+  }
+
+  h1 {
+    color: var(--ion-color-primary);
+    font-size: 2rem;
+    font-weight: bold;
+    margin: 0.5rem 0;
+  }
+
+  p {
+    color: var(--ion-color-medium);
+    font-size: 1rem;
+    margin: 0;
+  }
+}
+
+form {
+  width: 100%;
+  margin-bottom: 1rem;
+}
+
+.form-item {
+  margin-bottom: 1rem;
+  --border-radius: 8px;
+  --background: var(--ion-color-light);
+
+  ion-label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+
+    ion-icon {
+      font-size: 1rem;
+    }
+  }
+
+  ion-input {
+    --padding-start: 16px;
+    --padding-end: 16px;
+    --padding-top: 12px;
+    --padding-bottom: 12px;
+  }
+}
+
+.error-message {
+  color: var(--ion-color-danger);
+  font-size: 0.875rem;
+  margin: 0.25rem 0 1rem 0;
+  padding-left: 0.5rem;
+}
+
+.login-button {
+  margin: 2rem 0 1rem 0;
+  --border-radius: 8px;
+  height: 48px;
+  font-weight: 600;
+}
+
+.forgot-password {
+  text-align: center;
+  margin-bottom: 1rem;
+
+  ion-button {
+    --color: var(--ion-color-medium);
+    font-size: 0.875rem;
+  }
+}
+
+.register-link {
+  text-align: center;
+  margin-top: 1rem;
+
+  p {
+    color: var(--ion-color-medium);
+    margin: 0 0 0.5rem 0;
+    font-size: 0.9rem;
+  }
+
+  ion-button {
+    --color: var(--ion-color-primary);
+    font-weight: 600;
+  }
+}
+
+// Responsive adjustments
+@media (min-width: 768px) {
+  .login-container {
+    padding: 2rem;
+  }
+
+  .logo-section h1 {
+    font-size: 2.5rem;
+  }
+}
+
+// Form validation styles
+.form-item.ng-touched.ng-invalid {
+  --border-color: var(--ion-color-danger);
+
+  ion-input {
+    --highlight-color-focused: var(--ion-color-danger);
+  }
+}
+
+.form-item.ng-touched.ng-valid {
+  --border-color: var(--ion-color-success);
+
+  ion-input {
+    --highlight-color-focused: var(--ion-color-success);
+  }
+}

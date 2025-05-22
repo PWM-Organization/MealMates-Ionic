@@ -1,0 +1,66 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/landing"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Iniciar Sesión</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <div class="login-container">
+    <div class="logo-section">
+      <ion-icon name="restaurant" size="large" color="primary"></ion-icon>
+      <h1>MealMates</h1>
+      <p>Bienvenido de vuelta</p>
+    </div>
+
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+      <ion-item lines="none" class="form-item">
+        <ion-label position="stacked">
+          <ion-icon name="mail" color="primary"></ion-icon>
+          Email
+        </ion-label>
+        <ion-input type="email" formControlName="email" placeholder="ejemplo@email.com" fill="outline"> </ion-input>
+      </ion-item>
+      <div class="error-message" *ngIf="loginForm.get('email')?.invalid && loginForm.get('email')?.touched">
+        Ingresa un email válido
+      </div>
+
+      <ion-item lines="none" class="form-item">
+        <ion-label position="stacked">
+          <ion-icon name="lock-closed" color="primary"></ion-icon>
+          Contraseña
+        </ion-label>
+        <ion-input
+          [type]="showPassword() ? 'text' : 'password'"
+          formControlName="password"
+          placeholder="Tu contraseña"
+          fill="outline"
+        >
+        </ion-input>
+        <ion-button fill="clear" slot="end" (click)="togglePasswordVisibility()" type="button">
+          <ion-icon [name]="showPassword() ? 'eye-off' : 'eye'" color="medium"> </ion-icon>
+        </ion-button>
+      </ion-item>
+      <div class="error-message" *ngIf="loginForm.get('password')?.invalid && loginForm.get('password')?.touched">
+        La contraseña debe tener al menos 6 caracteres
+      </div>
+
+      <ion-button expand="block" type="submit" [disabled]="loginForm.invalid || isLoading()" class="login-button">
+        <ion-spinner *ngIf="isLoading()" name="crescent" slot="start"></ion-spinner>
+        <ion-icon *ngIf="!isLoading()" name="log-in" slot="start"></ion-icon>
+        {{ isLoading() ? 'Iniciando sesión...' : 'Iniciar Sesión' }}
+      </ion-button>
+    </form>
+
+    <div class="forgot-password">
+      <ion-button fill="clear" size="small" (click)="goToForgotPassword()"> ¿Olvidaste tu contraseña? </ion-button>
+    </div>
+
+    <div class="register-link">
+      <p>¿No tienes cuenta?</p>
+      <ion-button fill="clear" (click)="goToRegister()"> Crear cuenta </ion-button>
+    </div>
+  </div>
+</ion-content>
