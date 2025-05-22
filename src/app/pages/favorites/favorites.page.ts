@@ -20,6 +20,8 @@ import {
   IonAvatar,
   IonFab,
   IonFabButton,
+  IonTabBar,
+  IonTabButton,
   RefresherCustomEvent,
   ToastController,
 } from '@ionic/angular/standalone';
@@ -51,6 +53,8 @@ import { Recipe } from '../../../models/recipe.model';
     IonAvatar,
     IonFab,
     IonFabButton,
+    IonTabBar,
+    IonTabButton,
   ],
   templateUrl: './favorites.page.html',
   styleUrls: ['./favorites.page.scss'],

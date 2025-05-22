@@ -70,10 +70,13 @@
     ion-card {
       margin: 0;
       height: 100%;
+      border-radius: 16px;
+      box-shadow: 0 4px 12px rgba(var(--ion-color-primary-rgb), 0.15);
 
       ion-img {
         height: 180px;
         object-fit: cover;
+        border-radius: 16px 16px 0 0;
       }
 
       .recipe-meta {
@@ -90,17 +93,23 @@
 }
 
 .features-section {
-  padding: 2rem 1rem;
+  padding: 1.5rem 1rem;
 
   h2 {
     text-align: center;
-    margin-bottom: 2rem;
+    margin-bottom: 1.5rem;
     color: var(--ion-color-dark);
   }
 
   .feature-card {
     text-align: center;
     padding: 1.5rem;
+    border-radius: 16px;
+    transition: transform 0.2s ease;
+
+    &:hover {
+      transform: translateY(-2px);
+    }
 
     ion-icon {
       margin-bottom: 1rem;
@@ -120,14 +129,21 @@
 }
 
 .action-buttons {
-  padding: 2rem 1rem;
+  padding: 1rem;
   max-width: 400px;
   margin: 0 auto;
+  position: sticky;
+  bottom: 20px;
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.1);
 
   ion-button {
-    margin-bottom: 1rem;
+    margin-bottom: 0.75rem;
     height: 48px;
     font-weight: 600;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(var(--ion-color-primary-rgb), 0.2);
 
     &:last-child {
       margin-bottom: 0;
@@ -176,12 +192,16 @@
   }
 
   .features-section {
-    padding: 2rem 2rem;
+    padding: 2rem;
   }
 
   .action-buttons {
     max-width: 400px;
-    margin: 2rem auto 0;
+    margin: 1rem auto 0;
+    position: relative;
+    bottom: auto;
+    background: transparent;
+    box-shadow: none;
   }
 }
 
@@ -221,8 +241,4 @@
 }
 .feature-card:nth-child(3) {
   animation-delay: 0.3s;
-}
-
-.action-buttons {
-  animation-delay: 0.4s;
 }

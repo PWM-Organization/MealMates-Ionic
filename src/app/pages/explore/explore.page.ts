@@ -19,6 +19,8 @@ import {
   IonSearchbar,
   IonButtons,
   IonBackButton,
+  IonTabBar,
+  IonTabButton,
   RefresherCustomEvent,
   ToastController,
 } from '@ionic/angular/standalone';
@@ -49,6 +51,8 @@ import { Recipe } from '../../../models/recipe.model';
     IonSearchbar,
     IonButtons,
     IonBackButton,
+    IonTabBar,
+    IonTabButton,
   ],
   templateUrl: './explore.page.html',
   styleUrls: ['./explore.page.scss'],
