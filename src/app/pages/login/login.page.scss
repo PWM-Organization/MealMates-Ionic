@@ -1,10 +1,13 @@
+.login-content {
+  --background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+}
+
 .login-container {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  align-items: center;
-  min-height: 100%;
-  padding: 1rem;
+  min-height: 100vh;
+  padding: 2rem 1rem;
   max-width: 400px;
   margin: 0 auto;
 }
@@ -14,117 +17,222 @@
   margin-bottom: 2rem;
 
   ion-icon {
+    font-size: 3.5rem;
     margin-bottom: 1rem;
+    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.1));
   }
 
   h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin: 0;
     color: var(--ion-color-primary);
-    font-size: 2rem;
-    font-weight: bold;
-    margin: 0.5rem 0;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   }
 
   p {
+    font-size: 1.1rem;
     color: var(--ion-color-medium);
-    font-size: 1rem;
-    margin: 0;
+    margin: 0.5rem 0 0;
+    font-weight: 500;
   }
 }
 
-form {
-  width: 100%;
-  margin-bottom: 1rem;
-}
+.login-card {
+  --border-radius: 20px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+  margin-bottom: 2rem;
 
-.form-item {
-  margin-bottom: 1rem;
-  --border-radius: 8px;
-  --background: var(--ion-color-light);
+  ion-card-header {
+    padding-bottom: 0;
 
-  ion-label {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-weight: 500;
-    margin-bottom: 0.5rem;
-
-    ion-icon {
-      font-size: 1rem;
+    ion-card-title {
+      font-size: 1.4rem;
+      font-weight: 600;
+      text-align: center;
+      color: var(--ion-color-dark);
     }
   }
 
-  ion-input {
-    --padding-start: 16px;
-    --padding-end: 16px;
-    --padding-top: 12px;
-    --padding-bottom: 12px;
-  }
-}
+  ion-card-content {
+    padding: 1.5rem;
 
-.error-message {
-  color: var(--ion-color-danger);
-  font-size: 0.875rem;
-  margin: 0.25rem 0 1rem 0;
-  padding-left: 0.5rem;
-}
+    form {
+      .input-item {
+        --background: #f8f9fa;
+        --border-radius: 12px;
+        --padding-start: 16px;
+        --padding-end: 16px;
+        --inner-padding-end: 8px;
+        margin-bottom: 1rem;
+        border: 2px solid transparent;
+        transition: all 0.3s ease;
 
-.login-button {
-  margin: 2rem 0 1rem 0;
-  --border-radius: 8px;
-  height: 48px;
-  font-weight: 600;
-}
+        &.has-error {
+          --background: #ffeef0;
+          border-color: var(--ion-color-danger);
+        }
 
-.forgot-password {
-  text-align: center;
-  margin-bottom: 1rem;
+        &:focus-within {
+          --background: white;
+          border-color: var(--ion-color-primary);
+          box-shadow: 0 0 0 3px rgba(var(--ion-color-primary-rgb), 0.1);
+        }
 
-  ion-button {
-    --color: var(--ion-color-medium);
-    font-size: 0.875rem;
+        ion-label {
+          font-weight: 600;
+          color: var(--ion-color-dark);
+          margin-bottom: 0.5rem;
+          font-size: 0.9rem;
+        }
+
+        ion-input {
+          --padding-start: 0;
+          font-size: 1rem;
+        }
+
+        ion-button {
+          --color: var(--ion-color-medium);
+          margin: 0;
+        }
+      }
+
+      .error-message {
+        color: var(--ion-color-danger);
+        font-size: 0.85rem;
+        margin: -0.5rem 0 1rem 16px;
+        font-weight: 500;
+      }
+
+      .login-button {
+        --border-radius: 12px;
+        --box-shadow: 0 4px 16px rgba(var(--ion-color-primary-rgb), 0.3);
+        height: 50px;
+        font-size: 1rem;
+        font-weight: 600;
+        margin-top: 1rem;
+        text-transform: none;
+
+        &:hover {
+          --box-shadow: 0 6px 20px rgba(var(--ion-color-primary-rgb), 0.4);
+        }
+
+        &:disabled {
+          --opacity: 0.6;
+          --box-shadow: none;
+        }
+      }
+    }
   }
 }
 
 .register-link {
   text-align: center;
-  margin-top: 1rem;
 
-  p {
-    color: var(--ion-color-medium);
-    margin: 0 0 0.5rem 0;
-    font-size: 0.9rem;
+  ion-text p {
+    font-size: 0.95rem;
+    margin: 0 0 0.5rem;
   }
 
-  ion-button {
-    --color: var(--ion-color-primary);
+  .register-btn {
+    font-size: 1rem;
     font-weight: 600;
+    text-transform: none;
+    --color: var(--ion-color-primary);
+
+    &:hover {
+      --color: var(--ion-color-primary-shade);
+    }
   }
 }
 
-// Responsive adjustments
+// Responsive design
 @media (min-width: 768px) {
   .login-container {
-    padding: 2rem;
+    padding: 3rem 2rem;
+    max-width: 450px;
   }
 
-  .logo-section h1 {
-    font-size: 2.5rem;
+  .logo-section {
+    margin-bottom: 3rem;
+
+    ion-icon {
+      font-size: 4rem;
+    }
+
+    h1 {
+      font-size: 3rem;
+    }
+
+    p {
+      font-size: 1.2rem;
+    }
+  }
+
+  .login-card {
+    ion-card-content {
+      padding: 2rem;
+
+      form {
+        .input-item {
+          --padding-start: 20px;
+          --padding-end: 20px;
+        }
+
+        .error-message {
+          margin-left: 20px;
+        }
+
+        .login-button {
+          height: 56px;
+          font-size: 1.1rem;
+        }
+      }
+    }
   }
 }
 
-// Form validation styles
-.form-item.ng-touched.ng-invalid {
-  --border-color: var(--ion-color-danger);
-
-  ion-input {
-    --highlight-color-focused: var(--ion-color-danger);
+// Animation
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
-.form-item.ng-touched.ng-valid {
-  --border-color: var(--ion-color-success);
+.logo-section,
+.login-card,
+.register-link {
+  animation: fadeInUp 0.6s ease-out;
+}
 
-  ion-input {
-    --highlight-color-focused: var(--ion-color-success);
+.login-card {
+  animation-delay: 0.1s;
+}
+
+.register-link {
+  animation-delay: 0.2s;
+}
+
+// Focus improvements
+.input-item ion-input {
+  &:focus {
+    outline: none;
   }
+}
+
+// Button loading state
+.login-button[disabled] {
+  cursor: not-allowed;
+}
+
+// Error state styling
+.has-error ion-input {
+  --color: var(--ion-color-danger);
 }

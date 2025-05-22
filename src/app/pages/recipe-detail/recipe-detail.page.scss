@@ -1,0 +1,368 @@
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 1rem;
+  text-align: center;
+
+  ion-spinner {
+    margin-bottom: 1rem;
+    --size: 32px;
+  }
+
+  p {
+    color: var(--ion-color-medium);
+    font-size: 1rem;
+    margin: 0;
+  }
+}
+
+.recipe-detail {
+  padding-bottom: 80px; // Space for FAB
+}
+
+.recipe-hero {
+  position: relative;
+  height: 250px;
+  overflow: hidden;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .hero-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(transparent, rgba(0, 0, 0, 0.8));
+    color: white;
+    padding: 2rem 1rem 1rem;
+
+    h1 {
+      font-size: 1.8rem;
+      font-weight: 700;
+      margin: 0 0 0.5rem 0;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+    }
+
+    p {
+      margin: 0;
+      font-size: 1rem;
+      opacity: 0.9;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+    }
+  }
+}
+
+.meta-card {
+  margin: 1rem;
+  --border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+
+  .meta-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 0.5rem;
+
+    ion-icon {
+      font-size: 1.5rem;
+      margin-bottom: 0.5rem;
+    }
+
+    span {
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: var(--ion-color-dark);
+    }
+
+    ion-chip {
+      margin: 0;
+      font-size: 0.8rem;
+      height: auto;
+      padding: 0.5rem 0.75rem;
+
+      ion-icon {
+        font-size: 1rem;
+        margin-bottom: 0;
+        margin-right: 0.25rem;
+      }
+    }
+  }
+
+  .tags-section {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--ion-color-light-shade);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+
+    ion-chip {
+      font-size: 0.75rem;
+      height: 28px;
+    }
+  }
+
+  .stats-section {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--ion-color-light-shade);
+
+    .stat {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.9rem;
+      color: var(--ion-color-medium);
+
+      ion-icon {
+        font-size: 1.1rem;
+      }
+    }
+  }
+}
+
+.ingredients-card,
+.instructions-card,
+.nutrition-card {
+  margin: 1rem;
+  --border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+
+  ion-card-title {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: var(--ion-color-dark);
+
+    ion-icon {
+      font-size: 1.5rem;
+    }
+  }
+}
+
+.ingredients-card {
+  ion-list {
+    background: transparent;
+  }
+
+  ion-item {
+    --padding-start: 0;
+    --inner-padding-end: 0;
+
+    ion-checkbox {
+      margin-right: 1rem;
+    }
+
+    .ingredient-text {
+      font-size: 1rem;
+      line-height: 1.4;
+
+      &.optional {
+        color: var(--ion-color-medium);
+      }
+
+      .optional-label {
+        font-style: italic;
+        font-size: 0.9rem;
+        color: var(--ion-color-medium-shade);
+      }
+    }
+
+    &.ingredient-checked ion-label {
+      opacity: 0.6;
+      text-decoration: line-through;
+    }
+  }
+}
+
+.instructions-card {
+  .instructions {
+    .instruction-step {
+      display: flex;
+      margin-bottom: 1.5rem;
+      align-items: flex-start;
+
+      &:last-child {
+        margin-bottom: 0;
+      }
+
+      .step-number {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 32px;
+        height: 32px;
+        min-width: 32px;
+        background: var(--ion-color-primary);
+        color: white;
+        border-radius: 50%;
+        font-weight: 600;
+        font-size: 0.9rem;
+        margin-right: 1rem;
+        margin-top: 0.2rem;
+      }
+
+      .step-content {
+        flex: 1;
+        font-size: 1rem;
+        line-height: 1.5;
+        color: var(--ion-color-dark);
+      }
+    }
+  }
+}
+
+.nutrition-card {
+  .nutrition-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 0;
+
+    .nutrition-label {
+      font-weight: 500;
+      color: var(--ion-color-dark);
+    }
+
+    .nutrition-value {
+      font-weight: 600;
+      color: var(--ion-color-primary);
+    }
+  }
+}
+
+.error-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 2rem;
+  text-align: center;
+
+  ion-icon {
+    margin-bottom: 1.5rem;
+    opacity: 0.6;
+  }
+
+  h2 {
+    color: var(--ion-color-medium);
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin: 0 0 0.5rem 0;
+  }
+
+  p {
+    color: var(--ion-color-medium-shade);
+    font-size: 1rem;
+    margin: 0 0 2rem 0;
+    line-height: 1.4;
+  }
+
+  ion-button {
+    --border-radius: 8px;
+    font-weight: 600;
+  }
+}
+
+// Floating Action Button
+ion-fab-button {
+  --box-shadow: 0 4px 16px rgba(var(--ion-color-primary-rgb), 0.3);
+  --border-radius: 16px;
+  --transition: all 0.2s ease;
+
+  &:hover {
+    --box-shadow: 0 6px 20px rgba(var(--ion-color-primary-rgb), 0.4);
+    transform: translateY(-2px);
+  }
+}
+
+// Responsive design
+@media (min-width: 768px) {
+  .recipe-hero {
+    height: 300px;
+
+    .hero-overlay {
+      h1 {
+        font-size: 2.2rem;
+      }
+
+      p {
+        font-size: 1.1rem;
+      }
+    }
+  }
+
+  .meta-card,
+  .ingredients-card,
+  .instructions-card,
+  .nutrition-card {
+    margin: 1rem 2rem;
+  }
+
+  .instructions-card {
+    .instruction-step {
+      .step-number {
+        width: 40px;
+        height: 40px;
+        min-width: 40px;
+        font-size: 1rem;
+        margin-right: 1.5rem;
+      }
+
+      .step-content {
+        font-size: 1.1rem;
+      }
+    }
+  }
+}
+
+@media (min-width: 1024px) {
+  .recipe-detail {
+    max-width: 800px;
+    margin: 0 auto;
+  }
+}
+
+// Animation for smooth loading
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.meta-card,
+.ingredients-card,
+.instructions-card,
+.nutrition-card {
+  animation: fadeInUp 0.5s ease-out;
+
+  &:nth-child(2) {
+    animation-delay: 0.1s;
+  }
+  &:nth-child(3) {
+    animation-delay: 0.2s;
+  }
+  &:nth-child(4) {
+    animation-delay: 0.3s;
+  }
+  &:nth-child(5) {
+    animation-delay: 0.4s;
+  }
+}

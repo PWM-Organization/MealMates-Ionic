@@ -24,4 +24,9 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/favorites/favorites.page').then((m) => m.FavoritesPage),
     canActivate: [AuthGuard],
   },
+  {
+    path: 'recipe/:id',
+    loadComponent: () => import('./pages/recipe-detail/recipe-detail.page').then((m) => m.RecipeDetailPage),
+    canActivate: [AuthGuard],
+  },
 ];

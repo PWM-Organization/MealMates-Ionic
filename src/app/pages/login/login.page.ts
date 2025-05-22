@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, signal, inject } from '@angular/core';
 import { FormBuilder, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
@@ -9,14 +9,19 @@ import {
   IonButtons,
   IonBackButton,
   IonContent,
+  IonCard,
+  IonCardHeader,
+  IonCardTitle,
+  IonCardContent,
   IonItem,
   IonLabel,
   IonInput,
   IonButton,
   IonIcon,
-  IonSpinner,
+  IonText,
   LoadingController,
   AlertController,
+  ToastController,
 } from '@ionic/angular/standalone';
 import { AuthService } from '../../services/auth.service';
 
@@ -32,12 +37,16 @@ import { AuthService } from '../../services/auth.service';
     IonButtons,
     IonBackButton,
     IonContent,
+    IonCard,
+    IonCardHeader,
+    IonCardTitle,
+    IonCardContent,
     IonItem,
     IonLabel,
     IonInput,
     IonButton,
     IonIcon,
-    IonSpinner,
+    IonText,
   ],
   templateUrl: './login.page.html',
   styleUrls: ['./login.page.scss'],
@@ -48,6 +57,7 @@ export class LoginPage {
   private router = inject(Router);
   private loadingCtrl = inject(LoadingController);
   private alertCtrl = inject(AlertController);
+  private toastCtrl = inject(ToastController);
 
   isLoading = signal(false);
   showPassword = signal(false);
@@ -61,37 +71,39 @@ export class LoginPage {
     if (this.loginForm.valid) {
       const loading = await this.loadingCtrl.create({
         message: 'Iniciando sesión...',
+        spinner: 'crescent',
       });
       await loading.present();
-      this.isLoading.set(true);
 
       try {
+        this.isLoading.set(true);
         const formValue = this.loginForm.value;
         await this.authService.login(formValue.email!, formValue.password!);
 
         await loading.dismiss();
-        this.isLoading.set(false);
+        await this.showToast('¡Bienvenido de vuelta!', 'checkmark-circle');
         this.router.navigate(['/favorites']);
       } catch (error: any) {
         await loading.dismiss();
-        this.isLoading.set(false);
+        console.error('Login error:', error);
 
-        let errorMessage = 'Error al iniciar sesión. Verifica tus credenciales.';
+        let message = 'Error al iniciar sesión';
         if (error.code === 'auth/user-not-found') {
-          errorMessage = 'No existe una cuenta con este email.';
+          message = 'Usuario no encontrado';
         } else if (error.code === 'auth/wrong-password') {
-          errorMessage = 'Contraseña incorrecta.';
+          message = 'Contraseña incorrecta';
         } else if (error.code === 'auth/invalid-email') {
-          errorMessage = 'Email inválido.';
+          message = 'Email inválido';
+        } else if (error.code === 'auth/too-many-requests') {
+          message = 'Demasiados intentos fallidos. Intenta más tarde';
         }
 
-        const alert = await this.alertCtrl.create({
-          header: 'Error',
-          message: errorMessage,
-          buttons: ['OK'],
-        });
-        await alert.present();
+        await this.showAlert('Error', message);
+      } finally {
+        this.isLoading.set(false);
       }
+    } else {
+      await this.showAlert('Error', 'Por favor completa todos los campos correctamente');
     }
   }
 
@@ -103,8 +115,43 @@ export class LoginPage {
     this.router.navigate(['/register']);
   }
 
-  goToForgotPassword() {
-    // TODO: Implement forgot password
-    console.log('Forgot password clicked');
+  goToLanding() {
+    this.router.navigate(['/landing']);
+  }
+
+  private async showAlert(header: string, message: string) {
+    const alert = await this.alertCtrl.create({
+      header,
+      message,
+      buttons: ['OK'],
+    });
+    await alert.present();
+  }
+
+  private async showToast(message: string, icon: string) {
+    const toast = await this.toastCtrl.create({
+      message,
+      duration: 3000,
+      position: 'top',
+      icon,
+      color: 'success',
+    });
+    await toast.present();
+  }
+
+  getFieldError(fieldName: string): string {
+    const field = this.loginForm.get(fieldName);
+    if (field?.errors && field?.touched) {
+      if (field.errors['required']) {
+        return `${fieldName === 'email' ? 'Email' : 'Contraseña'} es requerido`;
+      }
+      if (field.errors['email']) {
+        return 'Email inválido';
+      }
+      if (field.errors['minlength']) {
+        return 'La contraseña debe tener al menos 6 caracteres';
+      }
+    }
+    return '';
   }
 }

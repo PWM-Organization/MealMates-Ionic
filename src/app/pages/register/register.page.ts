@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, signal, inject } from '@angular/core';
 import { FormBuilder, Validators, ReactiveFormsModule, AbstractControl } from '@angular/forms';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
@@ -9,16 +9,22 @@ import {
   IonButtons,
   IonBackButton,
   IonContent,
+  IonCard,
+  IonCardHeader,
+  IonCardTitle,
+  IonCardContent,
   IonItem,
   IonLabel,
   IonInput,
   IonButton,
   IonIcon,
-  IonSpinner,
+  IonText,
   LoadingController,
   AlertController,
+  ToastController,
 } from '@ionic/angular/standalone';
 import { AuthService } from '../../services/auth.service';
+import { UserRegistrationData } from '../../../models/user.model';
 
 @Component({
   selector: 'app-register',
@@ -32,12 +38,16 @@ import { AuthService } from '../../services/auth.service';
     IonButtons,
     IonBackButton,
     IonContent,
+    IonCard,
+    IonCardHeader,
+    IonCardTitle,
+    IonCardContent,
     IonItem,
     IonLabel,
     IonInput,
     IonButton,
     IonIcon,
-    IonSpinner,
+    IonText,
   ],
   templateUrl: './register.page.html',
   styleUrls: ['./register.page.scss'],
@@ -48,6 +58,7 @@ export class RegisterPage {
   private router = inject(Router);
   private loadingCtrl = inject(LoadingController);
   private alertCtrl = inject(AlertController);
+  private toastCtrl = inject(ToastController);
 
   isLoading = signal(false);
   showPassword = signal(false);
@@ -64,9 +75,9 @@ export class RegisterPage {
     { validators: this.passwordMatchValidator },
   );
 
-  passwordMatchValidator(form: AbstractControl) {
-    const password = form.get('password');
-    const confirmPassword = form.get('confirmPassword');
+  passwordMatchValidator(control: AbstractControl) {
+    const password = control.get('password');
+    const confirmPassword = control.get('confirmPassword');
     return password?.value === confirmPassword?.value ? null : { passwordMismatch: true };
   }
 
@@ -74,49 +85,44 @@ export class RegisterPage {
     if (this.registerForm.valid) {
       const loading = await this.loadingCtrl.create({
         message: 'Creando cuenta...',
+        spinner: 'crescent',
       });
       await loading.present();
-      this.isLoading.set(true);
 
       try {
+        this.isLoading.set(true);
         const formValue = this.registerForm.value;
-        await this.authService.register(formValue.email!, formValue.password!, {
+
+        const userData: UserRegistrationData = {
           firstName: formValue.firstName!,
           lastName: formValue.lastName!,
           email: formValue.email!,
-        });
+        };
+
+        await this.authService.register(formValue.email!, formValue.password!, userData);
 
         await loading.dismiss();
-        this.isLoading.set(false);
-
-        const successAlert = await this.alertCtrl.create({
-          header: '¡Cuenta creada!',
-          message: 'Tu cuenta ha sido creada exitosamente.',
-          buttons: ['OK'],
-        });
-        await successAlert.present();
-
+        await this.showToast('¡Cuenta creada exitosamente!', 'checkmark-circle');
         this.router.navigate(['/favorites']);
       } catch (error: any) {
         await loading.dismiss();
-        this.isLoading.set(false);
+        console.error('Registration error:', error);
 
-        let errorMessage = 'Error al crear la cuenta. Inténtalo de nuevo.';
+        let message = 'Error al crear la cuenta';
         if (error.code === 'auth/email-already-in-use') {
-          errorMessage = 'Este email ya está registrado. Intenta con otro email.';
-        } else if (error.code === 'auth/weak-password') {
-          errorMessage = 'La contraseña es muy débil. Usa al menos 6 caracteres.';
+          message = 'Ya existe una cuenta con este email';
         } else if (error.code === 'auth/invalid-email') {
-          errorMessage = 'Email inválido.';
+          message = 'Email inválido';
+        } else if (error.code === 'auth/weak-password') {
+          message = 'La contraseña es muy débil';
         }
 
-        const alert = await this.alertCtrl.create({
-          header: 'Error',
-          message: errorMessage,
-          buttons: ['OK'],
-        });
-        await alert.present();
+        await this.showAlert('Error', message);
+      } finally {
+        this.isLoading.set(false);
       }
+    } else {
+      await this.showAlert('Error', 'Por favor completa todos los campos correctamente');
     }
   }
 
@@ -130,5 +136,65 @@ export class RegisterPage {
 
   goToLogin() {
     this.router.navigate(['/login']);
+  }
+
+  goToLanding() {
+    this.router.navigate(['/landing']);
+  }
+
+  private async showAlert(header: string, message: string) {
+    const alert = await this.alertCtrl.create({
+      header,
+      message,
+      buttons: ['OK'],
+    });
+    await alert.present();
+  }
+
+  private async showToast(message: string, icon: string) {
+    const toast = await this.toastCtrl.create({
+      message,
+      duration: 3000,
+      position: 'top',
+      icon,
+      color: 'success',
+    });
+    await toast.present();
+  }
+
+  getFieldError(fieldName: string): string {
+    const field = this.registerForm.get(fieldName);
+    if (field?.errors && field?.touched) {
+      if (field.errors['required']) {
+        switch (fieldName) {
+          case 'firstName':
+            return 'Nombre es requerido';
+          case 'lastName':
+            return 'Apellidos son requeridos';
+          case 'email':
+            return 'Email es requerido';
+          case 'password':
+            return 'Contraseña es requerida';
+          case 'confirmPassword':
+            return 'Confirmar contraseña es requerido';
+          default:
+            return 'Campo requerido';
+        }
+      }
+      if (field.errors['email']) {
+        return 'Email inválido';
+      }
+      if (field.errors['minlength']) {
+        const requiredLength = field.errors['minlength'].requiredLength;
+        return `Mínimo ${requiredLength} caracteres`;
+      }
+    }
+
+    // Check for password mismatch
+    if (fieldName === 'confirmPassword' && this.registerForm.errors?.['passwordMismatch'] && field?.touched) {
+      return 'Las contraseñas no coinciden';
+    }
+
+    return '';
   }
 }

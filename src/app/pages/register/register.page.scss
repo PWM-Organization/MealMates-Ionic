@@ -1,11 +1,14 @@
+.register-content {
+  --background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+}
+
 .register-container {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  align-items: center;
-  min-height: 100%;
-  padding: 1rem;
-  max-width: 400px;
+  min-height: 100vh;
+  padding: 1.5rem 1rem;
+  max-width: 450px;
   margin: 0 auto;
 }
 
@@ -14,158 +17,248 @@
   margin-bottom: 2rem;
 
   ion-icon {
+    font-size: 3rem;
     margin-bottom: 1rem;
+    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.1));
   }
 
   h1 {
+    font-size: 2.2rem;
+    font-weight: 700;
+    margin: 0;
     color: var(--ion-color-primary);
-    font-size: 2rem;
-    font-weight: bold;
-    margin: 0.5rem 0;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   }
 
   p {
-    color: var(--ion-color-medium);
     font-size: 1rem;
-    margin: 0;
-  }
-}
-
-form {
-  width: 100%;
-  margin-bottom: 1rem;
-}
-
-.name-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0.5rem;
-  margin-bottom: 1rem;
-
-  @media (max-width: 480px) {
-    grid-template-columns: 1fr;
-    gap: 0;
-  }
-}
-
-.name-errors {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-  margin-bottom: 1rem;
-
-  .error-message {
-    margin: 0;
-  }
-}
-
-.form-item {
-  margin-bottom: 1rem;
-  --border-radius: 8px;
-  --background: var(--ion-color-light);
-
-  ion-label {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
+    color: var(--ion-color-medium);
+    margin: 0.5rem 0 0;
     font-weight: 500;
-    margin-bottom: 0.5rem;
+  }
+}
 
-    ion-icon {
-      font-size: 1rem;
+.register-card {
+  --border-radius: 20px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+  margin-bottom: 2rem;
+
+  ion-card-header {
+    padding-bottom: 0;
+
+    ion-card-title {
+      font-size: 1.3rem;
+      font-weight: 600;
+      text-align: center;
+      color: var(--ion-color-dark);
     }
   }
 
-  ion-input {
-    --padding-start: 16px;
-    --padding-end: 16px;
-    --padding-top: 12px;
-    --padding-bottom: 12px;
+  ion-card-content {
+    padding: 1.5rem;
+
+    form {
+      .input-item {
+        --background: #f8f9fa;
+        --border-radius: 12px;
+        --padding-start: 16px;
+        --padding-end: 16px;
+        --inner-padding-end: 8px;
+        margin-bottom: 1rem;
+        border: 2px solid transparent;
+        transition: all 0.3s ease;
+
+        &.has-error {
+          --background: #ffeef0;
+          border-color: var(--ion-color-danger);
+        }
+
+        &:focus-within {
+          --background: white;
+          border-color: var(--ion-color-primary);
+          box-shadow: 0 0 0 3px rgba(var(--ion-color-primary-rgb), 0.1);
+        }
+
+        ion-label {
+          font-weight: 600;
+          color: var(--ion-color-dark);
+          margin-bottom: 0.5rem;
+          font-size: 0.9rem;
+        }
+
+        ion-input {
+          --padding-start: 0;
+          font-size: 1rem;
+        }
+
+        ion-button {
+          --color: var(--ion-color-medium);
+          margin: 0;
+        }
+      }
+
+      .error-message {
+        color: var(--ion-color-danger);
+        font-size: 0.85rem;
+        margin: -0.5rem 0 1rem 16px;
+        font-weight: 500;
+        min-height: 1rem;
+      }
+
+      .register-button {
+        --border-radius: 12px;
+        --box-shadow: 0 4px 16px rgba(var(--ion-color-primary-rgb), 0.3);
+        height: 50px;
+        font-size: 1rem;
+        font-weight: 600;
+        margin-top: 1.5rem;
+        text-transform: none;
+
+        &:hover {
+          --box-shadow: 0 6px 20px rgba(var(--ion-color-primary-rgb), 0.4);
+        }
+
+        &:disabled {
+          --opacity: 0.6;
+          --box-shadow: none;
+        }
+      }
+    }
   }
-
-  // Remove margin for name row items
-  .name-row & {
-    margin-bottom: 0;
-  }
-}
-
-.error-message {
-  color: var(--ion-color-danger);
-  font-size: 0.875rem;
-  margin: 0.25rem 0 1rem 0;
-  padding-left: 0.5rem;
-}
-
-.register-button {
-  margin: 2rem 0 1rem 0;
-  --border-radius: 8px;
-  height: 48px;
-  font-weight: 600;
 }
 
 .login-link {
   text-align: center;
-  margin-top: 1rem;
 
-  p {
-    color: var(--ion-color-medium);
-    margin: 0 0 0.5rem 0;
-    font-size: 0.9rem;
+  ion-text p {
+    font-size: 0.95rem;
+    margin: 0 0 0.5rem;
   }
 
-  ion-button {
-    --color: var(--ion-color-primary);
+  .login-btn {
+    font-size: 1rem;
     font-weight: 600;
+    text-transform: none;
+    --color: var(--ion-color-primary);
+
+    &:hover {
+      --color: var(--ion-color-primary-shade);
+    }
   }
 }
 
-// Responsive adjustments
+// Responsive design
 @media (min-width: 768px) {
   .register-container {
     padding: 2rem;
     max-width: 500px;
   }
 
-  .logo-section h1 {
-    font-size: 2.5rem;
+  .logo-section {
+    margin-bottom: 2.5rem;
+
+    ion-icon {
+      font-size: 3.5rem;
+    }
+
+    h1 {
+      font-size: 2.8rem;
+    }
+
+    p {
+      font-size: 1.1rem;
+    }
   }
 
-  .name-row {
-    gap: 1rem;
+  .register-card {
+    ion-card-content {
+      padding: 2rem;
+
+      form {
+        .input-item {
+          --padding-start: 20px;
+          --padding-end: 20px;
+        }
+
+        .error-message {
+          margin-left: 20px;
+        }
+
+        .register-button {
+          height: 56px;
+          font-size: 1.1rem;
+        }
+      }
+    }
   }
 }
 
-// Form validation styles
-.form-item.ng-touched.ng-invalid {
-  --border-color: var(--ion-color-danger);
-
-  ion-input {
-    --highlight-color-focused: var(--ion-color-danger);
+// Animation
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
-.form-item.ng-touched.ng-valid {
-  --border-color: var(--ion-color-success);
+.logo-section,
+.register-card,
+.login-link {
+  animation: fadeInUp 0.6s ease-out;
+}
 
-  ion-input {
-    --highlight-color-focused: var(--ion-color-success);
+.register-card {
+  animation-delay: 0.1s;
+}
+
+.login-link {
+  animation-delay: 0.2s;
+}
+
+// Focus improvements
+.input-item ion-input {
+  &:focus {
+    outline: none;
   }
 }
 
-// Animation for validation feedback
-@keyframes shake {
-  0%,
-  100% {
-    transform: translateX(0);
-  }
-  25% {
-    transform: translateX(-4px);
-  }
-  75% {
-    transform: translateX(4px);
-  }
+// Button loading state
+.register-button[disabled] {
+  cursor: not-allowed;
 }
 
-.form-item.ng-invalid.ng-touched {
-  animation: shake 0.3s ease-in-out;
+// Error state styling
+.has-error ion-input {
+  --color: var(--ion-color-danger);
+}
+
+// Compact spacing for mobile
+@media (max-width: 480px) {
+  .register-container {
+    padding: 1rem 0.75rem;
+  }
+
+  .logo-section {
+    margin-bottom: 1.5rem;
+
+    ion-icon {
+      font-size: 2.5rem;
+    }
+
+    h1 {
+      font-size: 2rem;
+    }
+  }
+
+  .register-card {
+    ion-card-content {
+      padding: 1.25rem;
+    }
+  }
 }
