@@ -1,17 +1,26 @@
 <ion-tabs>
-  <ion-tab-bar slot="bottom" color="primary">
-    <ion-tab-button tab="favorites" href="/favorites">
-      <ion-icon name="heart"></ion-icon>
-      <ion-label>Favoritos</ion-label>
-    </ion-tab-button>
-
-    <ion-tab-button tab="explore" href="/explore">
-      <ion-icon name="search"></ion-icon>
+  <ion-tab-bar slot="bottom" color="primary" translucent="true">
+    <!-- Explorar Recetas -->
+    <ion-tab-button tab="explore" href="/tabs/explore">
+      <ion-icon name="search-outline"></ion-icon>
       <ion-label>Explorar</ion-label>
     </ion-tab-button>
 
-    <ion-tab-button tab="profile" href="/landing">
-      <ion-icon name="person"></ion-icon>
+    <!-- Mis Favoritos -->
+    <ion-tab-button tab="favorites" href="/tabs/favorites">
+      <ion-icon name="heart-outline"></ion-icon>
+      <ion-label>Favoritos</ion-label>
+    </ion-tab-button>
+
+    <!-- Crear Receta -->
+    <ion-tab-button tab="create" href="/tabs/create-recipe">
+      <ion-icon name="add-circle-outline"></ion-icon>
+      <ion-label>Crear</ion-label>
+    </ion-tab-button>
+
+    <!-- Mi Perfil -->
+    <ion-tab-button tab="profile" href="/tabs/profile">
+      <ion-icon name="person-outline"></ion-icon>
       <ion-label>Perfil</ion-label>
     </ion-tab-button>
   </ion-tab-bar>

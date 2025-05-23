@@ -1,20 +1,21 @@
 // Modern Auth Styles
 
 .auth-content {
-  --background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
+  --background: #f8f9fa;
+  --padding-start: 0;
+  --padding-end: 0;
+  --padding-top: 0;
+  --padding-bottom: 0;
 }
 
 .hero-section {
   background: linear-gradient(135deg, var(--ion-color-primary) 0%, var(--ion-color-secondary) 100%);
   color: white;
-  padding: 3rem 2rem 2rem;
+  padding: 2rem 1rem 3rem;
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 35vh;
+  min-height: 30vh;
   position: relative;
   overflow: hidden;
 
@@ -32,58 +33,66 @@
   .hero-content {
     text-align: center;
     z-index: 1;
-    position: relative;
   }
 
   .logo-container {
     margin-bottom: 1rem;
 
     .logo-icon {
-      font-size: 3.5rem;
+      font-size: 3rem;
       margin-bottom: 0.5rem;
       display: block;
       filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+      animation: logoFloat 3s ease-in-out infinite;
+    }
+
+    @keyframes logoFloat {
+      0%,
+      100% {
+        transform: translateY(0);
+      }
+      50% {
+        transform: translateY(-10px);
+      }
     }
 
     h1 {
-      font-size: 2.5rem;
+      font-size: 2rem;
       font-weight: 700;
       margin: 0;
       text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-      letter-spacing: -0.5px;
     }
   }
 
   .hero-subtitle {
-    font-size: 1.1rem;
+    font-size: 1rem;
     opacity: 0.9;
     margin: 0;
-    font-weight: 400;
   }
 }
 
 .form-section {
-  flex: 1;
   background: white;
   border-radius: 24px 24px 0 0;
   margin-top: -24px;
   z-index: 2;
   position: relative;
-  padding: 2rem;
+  padding: 1.5rem 1rem 2rem;
   box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
 }
 
 .form-container {
   max-width: 400px;
   margin: 0 auto;
+  width: 100%;
 }
 
 .form-header {
   text-align: center;
-  margin-bottom: 2rem;
+  margin-bottom: 1.5rem;
 
   h2 {
-    font-size: 1.75rem;
+    font-size: 1.5rem;
     font-weight: 600;
     color: var(--ion-color-dark);
     margin: 0 0 0.5rem 0;
@@ -91,129 +100,98 @@
 
   p {
     color: var(--ion-color-medium);
-    font-size: 1rem;
+    font-size: 0.9rem;
     margin: 0;
   }
 }
 
 .auth-form {
   .input-group {
-    margin-bottom: 1.5rem;
+    margin-bottom: 1.25rem;
 
     .modern-input {
       --background: #f8f9fa;
       --border-color: #e9ecef;
       --border-radius: 12px;
-      --padding-start: 16px;
-      --padding-end: 16px;
-      --min-height: 56px;
-      border: 2px solid var(--border-color);
+      --padding-start: 12px;
+      --padding-end: 12px;
+      --min-height: 52px;
+      border: 1px solid var(--border-color);
       border-radius: var(--border-radius);
       transition: all 0.3s ease;
-      overflow: hidden;
+      margin: 0;
 
       &.has-focus {
         --border-color: var(--ion-color-primary);
         --background: white;
-        box-shadow: 0 0 0 3px rgba(var(--ion-color-primary-rgb), 0.1);
-        transform: translateY(-1px);
+        border-color: var(--ion-color-primary);
+        box-shadow: 0 0 0 2px rgba(var(--ion-color-primary-rgb), 0.1);
       }
 
       &.has-error {
         --border-color: var(--ion-color-danger);
-        --background: rgba(var(--ion-color-danger-rgb), 0.02);
-      }
-
-      &.has-value {
-        --background: white;
+        border-color: var(--ion-color-danger);
       }
 
       ion-icon {
-        margin-right: 12px;
-        font-size: 1.2rem;
-      }
-
-      ion-input {
-        --padding-start: 0;
-        --padding-end: 0;
-        font-size: 1rem;
-        font-weight: 400;
-
-        input {
-          font-family: inherit !important;
-        }
-      }
-
-      ion-button {
-        margin: 0;
-        --padding-start: 8px;
-        --padding-end: 8px;
+        margin-right: 8px;
+        font-size: 1.1rem;
       }
     }
 
     .error-text {
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 4px;
       color: var(--ion-color-danger);
-      font-size: 0.875rem;
-      margin-top: 8px;
-      margin-left: 4px;
+      font-size: 0.75rem;
+      margin-top: 4px;
+      padding: 0 4px;
 
       ion-icon {
-        font-size: 1rem;
+        font-size: 0.9rem;
       }
     }
   }
 
   .forgot-password {
     text-align: right;
-    margin-bottom: 2rem;
+    margin-bottom: 1.5rem;
 
     ion-button {
       --color: var(--ion-color-medium);
-      font-size: 0.875rem;
-      text-decoration: none;
-
-      &:hover {
-        --color: var(--ion-color-primary);
-      }
+      font-size: 0.8rem;
+      font-weight: 500;
+      text-transform: none;
+      margin: 0;
+      height: auto;
+      --padding-top: 4px;
+      --padding-bottom: 4px;
     }
   }
 
   .primary-button {
-    --background: linear-gradient(135deg, var(--ion-color-primary), var(--ion-color-secondary));
+    --background: var(--ion-color-primary);
     --color: white;
     --border-radius: 12px;
-    --box-shadow: 0 4px 16px rgba(var(--ion-color-primary-rgb), 0.3);
-    --ripple-color: rgba(255, 255, 255, 0.2);
+    --box-shadow: 0 4px 12px rgba(var(--ion-color-primary-rgb), 0.3);
     font-weight: 600;
-    font-size: 1rem;
-    height: 56px;
-    margin: 0 0 2rem 0;
-    transition: all 0.3s ease;
+    margin-bottom: 1.5rem;
+    height: 48px;
 
-    &:not(.button-disabled):hover {
-      transform: translateY(-2px);
-      --box-shadow: 0 8px 24px rgba(var(--ion-color-primary-rgb), 0.4);
-    }
-
-    &.button-disabled {
-      --opacity: 0.6;
+    &:hover {
+      --background: var(--ion-color-primary-shade);
     }
 
     ion-icon {
+      margin-right: 8px;
       font-size: 1.1rem;
-    }
-
-    ion-spinner {
-      --color: white;
     }
   }
 
   .divider {
     text-align: center;
-    margin: 2rem 0;
+    margin: 1.5rem 0;
     position: relative;
 
     &::before {
@@ -229,8 +207,8 @@
     span {
       background: white;
       color: var(--ion-color-medium);
-      font-size: 0.875rem;
-      padding: 0 1rem;
+      font-size: 0.8rem;
+      padding: 0 0.75rem;
       position: relative;
       z-index: 1;
     }
@@ -239,104 +217,56 @@
   .auth-link {
     text-align: center;
     color: var(--ion-color-medium);
-    font-size: 0.95rem;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
 
     .link-button {
       --color: var(--ion-color-primary);
       font-weight: 600;
-      font-size: 0.95rem;
-      margin-left: 4px;
+      font-size: 0.9rem;
+      text-transform: none;
+      height: auto;
+      margin: 0;
+      --padding-top: 4px;
+      --padding-bottom: 4px;
     }
   }
 }
 
-// Floating Action Button
 ion-fab {
-  ion-fab-button {
-    --background: rgba(255, 255, 255, 0.9);
-    --color: var(--ion-color-dark);
-    --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-    --border-radius: 12px;
-    backdrop-filter: blur(10px);
-    width: 44px;
-    height: 44px;
-
-    ion-icon {
-      font-size: 1.2rem;
-    }
-  }
+  margin: 1rem;
 }
 
-// Responsive Design
-@media (max-width: 480px) {
+// Responsive styles
+@media (max-width: 360px) {
   .hero-section {
-    padding: 2rem 1rem 1.5rem;
-    min-height: 30vh;
-
-    .logo-container {
-      .logo-icon {
-        font-size: 3rem;
-      }
-
-      h1 {
-        font-size: 2rem;
-      }
-    }
-
-    .hero-subtitle {
-      font-size: 1rem;
-    }
+    min-height: 25vh;
+    padding: 1.5rem 1rem 2.5rem;
   }
 
   .form-section {
-    padding: 1.5rem;
+    padding: 1.25rem 0.75rem 1.5rem;
   }
 
-  .form-header {
-    h2 {
-      font-size: 1.5rem;
-    }
+  .form-header h2 {
+    font-size: 1.3rem;
   }
 
-  .auth-form {
-    .input-group {
-      margin-bottom: 1.25rem;
-
-      .modern-input {
-        --min-height: 52px;
-      }
-    }
-
-    .primary-button {
-      height: 52px;
-    }
+  .auth-form .primary-button {
+    height: 44px;
   }
 }
 
-// Dark mode support
-@media (prefers-color-scheme: dark) {
+@media (min-width: 768px) {
+  .hero-section {
+    min-height: 35vh;
+    padding: 3rem 2rem;
+  }
+
   .form-section {
-    background: var(--ion-color-step-50);
-  }
-
-  .auth-form .input-group .modern-input {
-    --background: var(--ion-color-step-100);
-    --border-color: var(--ion-color-step-200);
-
-    &.has-focus {
-      --background: var(--ion-color-step-50);
-    }
-
-    &.has-value {
-      --background: var(--ion-color-step-50);
-    }
-  }
-
-  .divider::before {
-    background: var(--ion-color-step-200);
-  }
-
-  .divider span {
-    background: var(--ion-color-step-50);
+    padding: 2rem;
   }
 }

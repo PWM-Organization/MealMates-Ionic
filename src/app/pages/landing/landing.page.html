@@ -16,7 +16,7 @@
     </div>
     <div class="hero-content">
       <div class="hero-logo">
-        <ion-icon name="restaurant-outline" class="logo-icon"></ion-icon>
+        <img src="assets/icon/apple-icon-120x120.png" alt="MealMates Logo" class="logo-image" />
         <h1>MealMates</h1>
       </div>
       <div class="hero-text">
@@ -27,17 +27,37 @@
       <!-- Quick Preview Stats -->
       <div class="stats-row">
         <div class="stat-item">
-          <ion-icon name="restaurant-outline" color="white"></ion-icon>
+          <ion-icon name="restaurant-outline"></ion-icon>
           <span>5+ Recetas</span>
         </div>
         <div class="stat-item">
-          <ion-icon name="people-outline" color="white"></ion-icon>
+          <ion-icon name="people-outline"></ion-icon>
           <span>Para todos</span>
         </div>
         <div class="stat-item">
-          <ion-icon name="heart-outline" color="white"></ion-icon>
+          <ion-icon name="heart-outline"></ion-icon>
           <span>Favoritos</span>
         </div>
+      </div>
+
+      <!-- CTA Buttons - MOVED UP HERE from the bottom of the page -->
+      <div class="hero-cta-buttons">
+        <ion-button expand="block" size="large" color="light" (click)="goToRegister()" class="primary-cta">
+          <ion-icon name="person-add-outline" slot="start"></ion-icon>
+          Crear Cuenta Gratis
+        </ion-button>
+
+        <ion-button
+          expand="block"
+          size="large"
+          fill="outline"
+          color="light"
+          (click)="goToLogin()"
+          class="secondary-cta"
+        >
+          <ion-icon name="log-in-outline" slot="start"></ion-icon>
+          Ya tengo cuenta
+        </ion-button>
       </div>
     </div>
   </div>
@@ -137,38 +157,17 @@
       </div>
     </div>
 
-    <!-- Call to Action -->
-    <div class="cta-section">
-      <div class="cta-content">
+    <!-- Explore Preview -->
+    <div class="section-block">
+      <div class="section-header">
         <h2>¡Comienza tu aventura culinaria!</h2>
         <p>Únete a nuestra comunidad y descubre el placer de cocinar</p>
 
-        <div class="cta-buttons">
-          <ion-button expand="block" size="large" color="primary" (click)="goToRegister()" class="primary-cta">
-            <ion-icon name="person-add-outline" slot="start"></ion-icon>
-            Crear Cuenta Gratis
+        <div class="preview-cta">
+          <ion-button expand="block" color="primary" (click)="goToRegister()">
+            <ion-icon name="arrow-forward-outline" slot="end"></ion-icon>
+            Comenzar ahora
           </ion-button>
-
-          <ion-button
-            expand="block"
-            size="large"
-            fill="outline"
-            color="primary"
-            (click)="goToLogin()"
-            class="secondary-cta"
-          >
-            <ion-icon name="log-in-outline" slot="start"></ion-icon>
-            Ya tengo cuenta
-          </ion-button>
-        </div>
-
-        <div class="login-hint">
-          <ion-text color="medium">
-            <small
-              >¿Quieres explorar sin registrarte?
-              <ion-button fill="clear" size="small" color="primary">Ver recetas</ion-button></small
-            >
-          </ion-text>
         </div>
       </div>
     </div>

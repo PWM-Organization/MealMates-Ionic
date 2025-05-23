@@ -1,0 +1,231 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-title>Mi Perfil</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="logout()">
+        <ion-icon name="log-out-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="profile-content">
+  <div *ngIf="currentUser()" class="profile-container">
+    <!-- Profile Header Card -->
+    <ion-card class="profile-header-card">
+      <ion-card-content>
+        <div class="profile-header">
+          <div class="avatar-section">
+            <ion-avatar class="profile-avatar" (click)="selectProfileImage()">
+              <img
+                [src]="currentUser()?.profileImageUrl || 'assets/icon/default-avatar.png'"
+                [alt]="currentUser()?.firstName"
+              />
+              <div class="avatar-overlay">
+                <ion-icon name="camera-outline"></ion-icon>
+              </div>
+              <div *ngIf="isUploadingImage()" class="upload-spinner">
+                <ion-spinner name="crescent" color="light"></ion-spinner>
+              </div>
+            </ion-avatar>
+          </div>
+
+          <div class="profile-info">
+            <h1>{{ currentUser()?.firstName }} {{ currentUser()?.lastName }}</h1>
+            <p class="email">{{ currentUser()?.email }}</p>
+            <p *ngIf="currentUser()?.bio" class="bio">{{ currentUser()?.bio }}</p>
+
+            <div class="profile-stats">
+              <div class="stat-item">
+                <ion-icon name="calendar-outline"></ion-icon>
+                <span>Miembro desde {{ getFormattedDate(currentUser()?.createdAt) }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Profile Form Card -->
+    <ion-card class="profile-form-card">
+      <ion-card-header>
+        <ion-card-title>
+          Información Personal
+          <ion-button fill="clear" size="small" (click)="toggleEdit()" class="edit-toggle-btn">
+            <ion-icon [name]="isEditing() ? 'close-outline' : 'create-outline'"></ion-icon>
+            {{ isEditing() ? 'Cancelar' : 'Editar' }}
+          </ion-button>
+        </ion-card-title>
+      </ion-card-header>
+
+      <ion-card-content>
+        <form [formGroup]="profileForm" (ngSubmit)="onSave()">
+          <!-- First Name -->
+          <div class="input-group">
+            <ion-item lines="none" class="modern-input" [class.has-error]="getFieldError('firstName')">
+              <ion-icon name="person-outline" slot="start" color="medium"></ion-icon>
+              <ion-input
+                type="text"
+                formControlName="firstName"
+                placeholder="Nombre"
+                [readonly]="!isEditing()"
+                fill="outline"
+              ></ion-input>
+            </ion-item>
+            <div class="error-text" *ngIf="getFieldError('firstName')">
+              <ion-icon name="alert-circle-outline" color="danger"></ion-icon>
+              {{ getFieldError('firstName') }}
+            </div>
+          </div>
+
+          <!-- Last Name -->
+          <div class="input-group">
+            <ion-item lines="none" class="modern-input" [class.has-error]="getFieldError('lastName')">
+              <ion-icon name="people-outline" slot="start" color="medium"></ion-icon>
+              <ion-input
+                type="text"
+                formControlName="lastName"
+                placeholder="Apellidos"
+                [readonly]="!isEditing()"
+                fill="outline"
+              ></ion-input>
+            </ion-item>
+            <div class="error-text" *ngIf="getFieldError('lastName')">
+              <ion-icon name="alert-circle-outline" color="danger"></ion-icon>
+              {{ getFieldError('lastName') }}
+            </div>
+          </div>
+
+          <!-- Email (readonly) -->
+          <div class="input-group">
+            <ion-item lines="none" class="modern-input readonly">
+              <ion-icon name="mail-outline" slot="start" color="medium"></ion-icon>
+              <ion-input
+                type="email"
+                formControlName="email"
+                placeholder="Email"
+                readonly="true"
+                fill="outline"
+              ></ion-input>
+              <ion-note slot="end" color="medium">No editable</ion-note>
+            </ion-item>
+          </div>
+
+          <!-- Phone -->
+          <div class="input-group">
+            <ion-item lines="none" class="modern-input">
+              <ion-icon name="call-outline" slot="start" color="medium"></ion-icon>
+              <ion-input
+                type="tel"
+                formControlName="phone"
+                placeholder="Teléfono (opcional)"
+                [readonly]="!isEditing()"
+                fill="outline"
+              ></ion-input>
+            </ion-item>
+          </div>
+
+          <!-- Location -->
+          <div class="input-group">
+            <ion-item lines="none" class="modern-input">
+              <ion-icon name="location-outline" slot="start" color="medium"></ion-icon>
+              <ion-input
+                type="text"
+                formControlName="location"
+                placeholder="Ubicación (opcional)"
+                [readonly]="!isEditing()"
+                fill="outline"
+              ></ion-input>
+            </ion-item>
+          </div>
+
+          <!-- Bio -->
+          <div class="input-group">
+            <ion-item lines="none" class="modern-input textarea-item">
+              <ion-icon name="chatbubble-outline" slot="start" color="medium"></ion-icon>
+              <ion-label position="stacked">Biografía (opcional)</ion-label>
+              <ion-input
+                type="text"
+                formControlName="bio"
+                placeholder="Cuéntanos sobre ti..."
+                [readonly]="!isEditing()"
+                fill="outline"
+              ></ion-input>
+            </ion-item>
+            <div class="char-count" *ngIf="isEditing()">{{ profileForm.get('bio')?.value?.length || 0 }}/200</div>
+            <div class="error-text" *ngIf="getFieldError('bio')">
+              <ion-icon name="alert-circle-outline" color="danger"></ion-icon>
+              {{ getFieldError('bio') }}
+            </div>
+          </div>
+
+          <!-- Save Button -->
+          <ion-button
+            *ngIf="isEditing()"
+            expand="block"
+            type="submit"
+            [disabled]="profileForm.invalid || isLoading()"
+            class="save-button"
+            size="large"
+          >
+            <ion-icon *ngIf="!isLoading()" name="checkmark-outline" slot="start"></ion-icon>
+            <ion-spinner *ngIf="isLoading()" name="crescent" slot="start"></ion-spinner>
+            {{ isLoading() ? 'Guardando...' : 'Guardar Cambios' }}
+          </ion-button>
+        </form>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Additional Options Card -->
+    <ion-card class="options-card">
+      <ion-card-header>
+        <ion-card-title>Configuración</ion-card-title>
+      </ion-card-header>
+
+      <ion-card-content>
+        <ion-list lines="none">
+          <ion-item button detail="false" class="option-item">
+            <ion-icon name="notifications-outline" slot="start" color="primary"></ion-icon>
+            <ion-label>
+              <h3>Notificaciones</h3>
+              <p>Configura tus preferencias</p>
+            </ion-label>
+            <ion-icon name="chevron-forward-outline" slot="end" color="medium"></ion-icon>
+          </ion-item>
+
+          <ion-item button detail="false" class="option-item">
+            <ion-icon name="shield-outline" slot="start" color="primary"></ion-icon>
+            <ion-label>
+              <h3>Privacidad</h3>
+              <p>Controla tu información</p>
+            </ion-label>
+            <ion-icon name="chevron-forward-outline" slot="end" color="medium"></ion-icon>
+          </ion-item>
+
+          <ion-item button detail="false" class="option-item">
+            <ion-icon name="help-circle-outline" slot="start" color="primary"></ion-icon>
+            <ion-label>
+              <h3>Ayuda y Soporte</h3>
+              <p>¿Necesitas ayuda?</p>
+            </ion-label>
+            <ion-icon name="chevron-forward-outline" slot="end" color="medium"></ion-icon>
+          </ion-item>
+
+          <ion-item button detail="false" class="option-item danger" (click)="logout()">
+            <ion-icon name="log-out-outline" slot="start" color="danger"></ion-icon>
+            <ion-label color="danger">
+              <h3>Cerrar Sesión</h3>
+              <p>Salir de tu cuenta</p>
+            </ion-label>
+          </ion-item>
+        </ion-list>
+      </ion-card-content>
+    </ion-card>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="!currentUser()" class="loading-container">
+    <ion-spinner name="crescent" color="primary"></ion-spinner>
+    <p>Cargando perfil...</p>
+  </div>
+</ion-content>

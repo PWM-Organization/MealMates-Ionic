@@ -117,7 +117,7 @@ export class RegisterPage {
 
         await loading.dismiss();
         await this.showToast('¡Cuenta creada exitosamente!', 'checkmark-circle');
-        this.router.navigate(['/favorites']);
+        this.router.navigate(['/tabs/explore']);
       } catch (error: any) {
         await loading.dismiss();
         console.error('Registration error:', error);

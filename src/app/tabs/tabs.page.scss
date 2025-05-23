@@ -1,0 +1,56 @@
+// Modern Tabs Styling
+
+ion-tab-bar {
+  --background: rgba(255, 255, 255, 0.95);
+  --border: 1px solid rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(20px);
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(var(--ion-color-primary-rgb), 0.2), transparent);
+  }
+}
+
+ion-tab-button {
+  --color: var(--ion-color-medium);
+  --color-selected: var(--ion-color-primary);
+  --ripple-color: rgba(var(--ion-color-primary-rgb), 0.2);
+
+  ion-icon {
+    font-size: 1.4rem;
+    transition: all 0.3s ease;
+  }
+
+  ion-label {
+    font-size: 0.75rem;
+    font-weight: 500;
+    margin-top: 4px;
+    transition: all 0.3s ease;
+  }
+
+  &.tab-selected {
+    ion-icon {
+      transform: scale(1.1);
+      filter: drop-shadow(0 2px 4px rgba(var(--ion-color-primary-rgb), 0.3));
+    }
+
+    ion-label {
+      font-weight: 600;
+    }
+  }
+}
+
+// Dark mode support
+@media (prefers-color-scheme: dark) {
+  ion-tab-bar {
+    --background: rgba(var(--ion-color-step-100-rgb), 0.95);
+    --border: 1px solid rgba(255, 255, 255, 0.1);
+    border-top-color: rgba(255, 255, 255, 0.1);
+  }
+}

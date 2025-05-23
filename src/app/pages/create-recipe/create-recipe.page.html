@@ -1,0 +1,316 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-button (click)="goBack()">
+        <ion-icon name="chevron-back-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title>Crear Receta</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="create-recipe-content">
+  <div class="form-container">
+    <form [formGroup]="recipeForm" (ngSubmit)="onSubmit()">
+      <!-- Recipe Image Section -->
+      <ion-card class="image-card">
+        <ion-card-content>
+          <div class="image-upload-section" (click)="selectRecipeImage()">
+            <div *ngIf="!selectedImage()" class="image-placeholder">
+              <ion-icon name="camera-outline" size="large"></ion-icon>
+              <h3>Agregar foto de la receta</h3>
+              <p>Toca para seleccionar una imagen</p>
+            </div>
+
+            <div *ngIf="selectedImage()" class="selected-image">
+              <img [src]="selectedImage()" alt="Recipe image" />
+              <div class="image-overlay">
+                <ion-button fill="clear" size="small" color="light">
+                  <ion-icon name="create-outline"></ion-icon>
+                  Cambiar
+                </ion-button>
+              </div>
+              <div *ngIf="isUploadingImage()" class="upload-spinner">
+                <ion-spinner name="crescent" color="light"></ion-spinner>
+              </div>
+            </div>
+          </div>
+        </ion-card-content>
+      </ion-card>
+
+      <!-- Basic Information -->
+      <ion-card class="form-card">
+        <ion-card-header>
+          <ion-card-title>Información Básica</ion-card-title>
+        </ion-card-header>
+
+        <ion-card-content>
+          <!-- Title -->
+          <div class="input-group">
+            <ion-item lines="none" class="modern-input" [class.has-error]="getFieldError('title')">
+              <ion-icon name="restaurant-outline" slot="start" color="medium"></ion-icon>
+              <ion-input
+                type="text"
+                formControlName="title"
+                placeholder="Nombre de la receta"
+                fill="outline"
+              ></ion-input>
+            </ion-item>
+            <div class="error-text" *ngIf="getFieldError('title')">
+              <ion-icon name="alert-circle-outline" color="danger"></ion-icon>
+              {{ getFieldError('title') }}
+            </div>
+          </div>
+
+          <!-- Description -->
+          <div class="input-group">
+            <ion-item lines="none" class="modern-input textarea-item">
+              <ion-icon name="document-text-outline" slot="start" color="medium"></ion-icon>
+              <ion-label position="stacked">Descripción</ion-label>
+              <ion-textarea
+                formControlName="description"
+                placeholder="Describe tu receta..."
+                rows="3"
+                fill="outline"
+              ></ion-textarea>
+            </ion-item>
+            <div class="error-text" *ngIf="getFieldError('description')">
+              <ion-icon name="alert-circle-outline" color="danger"></ion-icon>
+              {{ getFieldError('description') }}
+            </div>
+          </div>
+
+          <!-- Category and Difficulty -->
+          <div class="row-inputs">
+            <div class="input-group half-width">
+              <ion-item lines="none" class="modern-input">
+                <ion-icon name="apps-outline" slot="start" color="medium"></ion-icon>
+                <ion-select formControlName="category" placeholder="Categoría" fill="outline">
+                  <ion-select-option *ngFor="let category of categories" [value]="category">
+                    {{ getCategoryLabel(category) }}
+                  </ion-select-option>
+                </ion-select>
+              </ion-item>
+              <div class="error-text" *ngIf="getFieldError('category')">
+                <ion-icon name="alert-circle-outline" color="danger"></ion-icon>
+                {{ getFieldError('category') }}
+              </div>
+            </div>
+
+            <div class="input-group half-width">
+              <ion-item lines="none" class="modern-input">
+                <ion-icon name="speedometer-outline" slot="start" color="medium"></ion-icon>
+                <ion-select formControlName="difficulty" placeholder="Dificultad" fill="outline">
+                  <ion-select-option *ngFor="let diff of difficulties" [value]="diff.value">
+                    {{ diff.label }}
+                  </ion-select-option>
+                </ion-select>
+              </ion-item>
+            </div>
+          </div>
+
+          <!-- Cooking Time and Servings -->
+          <div class="row-inputs">
+            <div class="input-group half-width">
+              <ion-item lines="none" class="modern-input">
+                <ion-icon name="time-outline" slot="start" color="medium"></ion-icon>
+                <ion-input
+                  type="number"
+                  formControlName="cookingTime"
+                  placeholder="Tiempo (min)"
+                  fill="outline"
+                ></ion-input>
+              </ion-item>
+              <div class="error-text" *ngIf="getFieldError('cookingTime')">
+                <ion-icon name="alert-circle-outline" color="danger"></ion-icon>
+                {{ getFieldError('cookingTime') }}
+              </div>
+            </div>
+
+            <div class="input-group half-width">
+              <ion-item lines="none" class="modern-input">
+                <ion-icon name="people-outline" slot="start" color="medium"></ion-icon>
+                <ion-input type="number" formControlName="servings" placeholder="Porciones" fill="outline"></ion-input>
+              </ion-item>
+              <div class="error-text" *ngIf="getFieldError('servings')">
+                <ion-icon name="alert-circle-outline" color="danger"></ion-icon>
+                {{ getFieldError('servings') }}
+              </div>
+            </div>
+          </div>
+        </ion-card-content>
+      </ion-card>
+
+      <!-- Ingredients Section -->
+      <ion-card class="form-card">
+        <ion-card-header>
+          <ion-card-title>
+            Ingredientes
+            <ion-button fill="clear" size="small" (click)="addIngredient()" class="add-button">
+              <ion-icon name="add-outline"></ion-icon>
+              Agregar
+            </ion-button>
+          </ion-card-title>
+        </ion-card-header>
+
+        <ion-card-content>
+          <div formArrayName="ingredients">
+            <div
+              *ngFor="let ingredient of ingredients.controls; let i = index"
+              [formGroupName]="i"
+              class="ingredient-row"
+            >
+              <div class="ingredient-inputs">
+                <div class="input-group amount-input">
+                  <ion-input
+                    type="text"
+                    formControlName="amount"
+                    placeholder="Cant."
+                    fill="outline"
+                    class="small-input"
+                  ></ion-input>
+                  <div class="error-text" *ngIf="getIngredientError(i, 'amount')">
+                    {{ getIngredientError(i, 'amount') }}
+                  </div>
+                </div>
+
+                <div class="input-group unit-input">
+                  <ion-input
+                    type="text"
+                    formControlName="unit"
+                    placeholder="Unidad"
+                    fill="outline"
+                    class="small-input"
+                  ></ion-input>
+                  <div class="error-text" *ngIf="getIngredientError(i, 'unit')">
+                    {{ getIngredientError(i, 'unit') }}
+                  </div>
+                </div>
+
+                <div class="input-group name-input">
+                  <ion-input type="text" formControlName="name" placeholder="Ingrediente" fill="outline"></ion-input>
+                  <div class="error-text" *ngIf="getIngredientError(i, 'name')">
+                    {{ getIngredientError(i, 'name') }}
+                  </div>
+                </div>
+
+                <ion-button
+                  fill="clear"
+                  color="danger"
+                  size="small"
+                  (click)="removeIngredient(i)"
+                  [disabled]="ingredients.length <= 1"
+                  class="remove-button"
+                >
+                  <ion-icon name="trash-outline"></ion-icon>
+                </ion-button>
+              </div>
+            </div>
+          </div>
+        </ion-card-content>
+      </ion-card>
+
+      <!-- Instructions Section -->
+      <ion-card class="form-card">
+        <ion-card-header>
+          <ion-card-title>
+            Instrucciones
+            <ion-button fill="clear" size="small" (click)="addInstruction()" class="add-button">
+              <ion-icon name="add-outline"></ion-icon>
+              Agregar
+            </ion-button>
+          </ion-card-title>
+        </ion-card-header>
+
+        <ion-card-content>
+          <ion-reorder-group
+            formArrayName="instructions"
+            (ionItemReorder)="reorderInstructions($event)"
+            disabled="false"
+          >
+            <div *ngFor="let instruction of instructions.controls; let i = index" class="instruction-row">
+              <ion-reorder slot="start">
+                <ion-icon name="reorder-two-outline"></ion-icon>
+              </ion-reorder>
+
+              <div class="instruction-content">
+                <div class="step-number">{{ i + 1 }}</div>
+                <div class="input-group instruction-input">
+                  <ion-textarea
+                    [formControlName]="i"
+                    placeholder="Describe el paso..."
+                    rows="2"
+                    fill="outline"
+                  ></ion-textarea>
+                  <div class="error-text" *ngIf="getInstructionError(i)">
+                    <ion-icon name="alert-circle-outline" color="danger"></ion-icon>
+                    {{ getInstructionError(i) }}
+                  </div>
+                </div>
+
+                <ion-button
+                  fill="clear"
+                  color="danger"
+                  size="small"
+                  (click)="removeInstruction(i)"
+                  [disabled]="instructions.length <= 1"
+                  class="remove-button"
+                >
+                  <ion-icon name="trash-outline"></ion-icon>
+                </ion-button>
+              </div>
+            </div>
+          </ion-reorder-group>
+        </ion-card-content>
+      </ion-card>
+
+      <!-- Additional Information -->
+      <ion-card class="form-card">
+        <ion-card-header>
+          <ion-card-title>Información Adicional</ion-card-title>
+        </ion-card-header>
+
+        <ion-card-content>
+          <!-- Tags -->
+          <div class="input-group">
+            <ion-item lines="none" class="modern-input">
+              <ion-icon name="pricetags-outline" slot="start" color="medium"></ion-icon>
+              <ion-input
+                type="text"
+                formControlName="tags"
+                placeholder="Tags (separados por comas)"
+                fill="outline"
+              ></ion-input>
+            </ion-item>
+            <ion-note color="medium" class="input-note"> Ejemplo: vegetariano, fácil, rápido </ion-note>
+          </div>
+
+          <!-- Public/Private -->
+          <ion-item lines="none" class="visibility-item">
+            <ion-icon name="globe-outline" slot="start" color="medium"></ion-icon>
+            <ion-label>
+              <h3>Hacer pública</h3>
+              <p>Otros usuarios podrán ver esta receta</p>
+            </ion-label>
+            <ion-toggle formControlName="isPublic" slot="end"></ion-toggle>
+          </ion-item>
+        </ion-card-content>
+      </ion-card>
+
+      <!-- Submit Button -->
+      <div class="submit-section">
+        <ion-button
+          expand="block"
+          type="submit"
+          [disabled]="recipeForm.invalid || isLoading()"
+          class="submit-button"
+          size="large"
+        >
+          <ion-icon *ngIf="!isLoading()" name="checkmark-outline" slot="start"></ion-icon>
+          <ion-spinner *ngIf="isLoading()" name="crescent" slot="start"></ion-spinner>
+          {{ isLoading() ? 'Creando receta...' : 'Crear Receta' }}
+        </ion-button>
+      </div>
+    </form>
+  </div>
+</ion-content>

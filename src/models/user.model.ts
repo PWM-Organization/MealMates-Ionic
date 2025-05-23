@@ -19,7 +19,10 @@ export interface User {
   firstName: string; // Added for form compatibility
   lastName: string; // Added for form compatibility
   photoURL?: string;
+  profileImageUrl?: string; // Firebase Storage URL for profile image
   bio?: string;
+  phone?: string; // Phone number
+  location?: string; // User location
   preferences: UserPreferences;
   dietaryRestrictions: string[];
   favoriteRecipes: string[]; // Array of recipe IDs
@@ -32,7 +35,6 @@ export interface User {
   updatedAt?: Timestamp | Date;
   isVerified: boolean;
   isPremium: boolean;
-  profileImageUrl?: string; // For compatibility
 }
 
 // Helper type for creating new users (without generated fields)

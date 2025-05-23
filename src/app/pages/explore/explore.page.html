@@ -1,19 +1,59 @@
 <ion-header>
   <ion-toolbar color="primary">
-    <ion-buttons slot="start">
-      <ion-back-button defaultHref="/favorites"></ion-back-button>
-    </ion-buttons>
-    <ion-title>Explorar Recetas</ion-title>
+    <ion-title>Explorar</ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content>
+<ion-content class="explore-content">
   <ion-refresher slot="fixed" (ionRefresh)="handleRefresh($event)">
     <ion-refresher-content></ion-refresher-content>
   </ion-refresher>
 
   <!-- Search Bar -->
-  <ion-searchbar placeholder="Buscar recetas..." (ionInput)="onSearchChange($event)" debounce="300"> </ion-searchbar>
+  <div class="search-container">
+    <ion-searchbar
+      placeholder="Buscar recetas"
+      (ionInput)="onSearchChange($event)"
+      [value]="searchTerm()"
+      animated="true"
+      show-clear-button="focus"
+      class="custom-searchbar"
+    ></ion-searchbar>
+  </div>
+
+  <!-- Categories Filter -->
+  <div class="categories-filter">
+    <div class="filter-row">
+      <div class="category-chip" [class.active]="activeCategory() === 'all'" (click)="filterByCategory('all')">
+        <ion-icon name="apps-outline"></ion-icon>
+        <span>Todas</span>
+      </div>
+
+      <div
+        class="category-chip"
+        [class.active]="activeCategory() === 'breakfast'"
+        (click)="filterByCategory('breakfast')"
+      >
+        <ion-icon name="cafe-outline"></ion-icon>
+        <span>Desayuno</span>
+      </div>
+
+      <div class="category-chip" [class.active]="activeCategory() === 'lunch'" (click)="filterByCategory('lunch')">
+        <ion-icon name="restaurant-outline"></ion-icon>
+        <span>Almuerzo</span>
+      </div>
+
+      <div class="category-chip" [class.active]="activeCategory() === 'dinner'" (click)="filterByCategory('dinner')">
+        <ion-icon name="pizza-outline"></ion-icon>
+        <span>Cena</span>
+      </div>
+
+      <div class="category-chip" [class.active]="activeCategory() === 'dessert'" (click)="filterByCategory('dessert')">
+        <ion-icon name="ice-cream-outline"></ion-icon>
+        <span>Postre</span>
+      </div>
+    </div>
+  </div>
 
   <!-- Loading State -->
   <div *ngIf="isLoading()" class="loading-container">
@@ -21,69 +61,74 @@
     <p>Cargando recetas...</p>
   </div>
 
-  <!-- Recipes List -->
-  <ion-list *ngIf="!isLoading()">
-    <ion-item
-      *ngFor="let recipe of filteredRecipes(); trackBy: trackByRecipeId"
-      button
-      (click)="goToRecipeDetail(recipe)"
-    >
-      <ion-thumbnail slot="start">
-        <img [src]="recipe.imageUrl" [alt]="recipe.title" />
-      </ion-thumbnail>
-
-      <ion-label>
-        <h2>{{ recipe.title }}</h2>
-        <p>{{ recipe?.description }}</p>
-        <div class="recipe-chips">
-          <ion-chip [color]="getDifficultyColor(recipe.difficulty)" outline>
-            <ion-icon name="speedometer-outline"></ion-icon>
-            <ion-label>{{ recipe.difficulty }}</ion-label>
-          </ion-chip>
-          <ion-chip color="primary" outline>
-            <ion-icon name="time-outline"></ion-icon>
-            <ion-label>{{ recipe.cookingTime }}min</ion-label>
-          </ion-chip>
-          <ion-chip color="secondary" outline>
-            <ion-icon name="people-outline"></ion-icon>
-            <ion-label>{{ recipe.servings }} porciones</ion-label>
-          </ion-chip>
-        </div>
-      </ion-label>
-
-      <ion-button
-        slot="end"
-        fill="clear"
-        (click)="toggleFavorite(recipe, $event)"
-        [color]="isFavorite(recipe.id) ? 'danger' : 'medium'"
-      >
-        <ion-icon [name]="isFavorite(recipe.id) ? 'heart' : 'heart-outline'"></ion-icon>
-      </ion-button>
-    </ion-item>
-  </ion-list>
-
   <!-- Empty State -->
   <div *ngIf="!isLoading() && filteredRecipes().length === 0" class="empty-state">
-    <ion-icon name="search-outline" size="large" color="medium"></ion-icon>
+    <ion-icon name="search-outline" color="medium"></ion-icon>
     <h2>No se encontraron recetas</h2>
-    <p>Intenta con otros términos de búsqueda</p>
+    <p>Intenta con otra búsqueda o categoría</p>
+
+    <ion-button expand="block" fill="outline" (click)="resetFilters()" class="reset-button">
+      <ion-icon name="refresh-outline" slot="start"></ion-icon>
+      Restablecer filtros
+    </ion-button>
   </div>
 
-  <!-- Tab Bar -->
-  <ion-tab-bar slot="bottom" color="primary">
-    <ion-tab-button tab="favorites" href="/favorites">
-      <ion-icon name="heart-outline"></ion-icon>
-      <ion-label>Favoritos</ion-label>
-    </ion-tab-button>
+  <!-- Recipe Grid -->
+  <div *ngIf="!isLoading() && filteredRecipes().length > 0" class="recipe-grid">
+    <div *ngFor="let recipe of filteredRecipes(); trackBy: trackByRecipeId" class="recipe-card">
+      <div class="card-image" (click)="goToRecipeDetail(recipe)">
+        <img [src]="recipe.imageUrl || 'assets/icon/recipe-placeholder.png'" [alt]="recipe.title" />
+        <div class="card-badge" [class]="getDifficultyColor(recipe.difficulty)">{{ recipe.difficulty }}</div>
+        <button
+          class="favorite-button"
+          [class.is-favorite]="isFavorite(recipe.id)"
+          (click)="toggleFavorite(recipe, $event)"
+        >
+          <ion-icon [name]="isFavorite(recipe.id) ? 'heart' : 'heart-outline'"></ion-icon>
+        </button>
+      </div>
 
-    <ion-tab-button tab="explore" href="/explore">
+      <div class="card-content" (click)="goToRecipeDetail(recipe)">
+        <h3 class="card-title">{{ recipe.title }}</h3>
+
+        <div class="card-meta">
+          <div class="meta-item">
+            <ion-icon name="time-outline"></ion-icon>
+            <span>{{ recipe.cookingTime }} min</span>
+          </div>
+          <div class="meta-item">
+            <ion-icon name="people-outline"></ion-icon>
+            <span>{{ recipe.servings }}</span>
+          </div>
+        </div>
+
+        <p class="card-description">{{ recipe.description }}</p>
+      </div>
+    </div>
+  </div>
+</ion-content>
+
+<!-- Tab Bar -->
+<ion-tabs>
+  <ion-tab-bar slot="bottom" color="primary">
+    <ion-tab-button tab="explore" href="/tabs/explore" selected="true">
       <ion-icon name="search"></ion-icon>
       <ion-label>Explorar</ion-label>
     </ion-tab-button>
 
-    <ion-tab-button tab="landing" href="/landing">
-      <ion-icon name="home-outline"></ion-icon>
-      <ion-label>Inicio</ion-label>
+    <ion-tab-button tab="favorites" href="/tabs/favorites">
+      <ion-icon name="heart-outline"></ion-icon>
+      <ion-label>Favoritos</ion-label>
+    </ion-tab-button>
+
+    <ion-tab-button tab="create" href="/tabs/create-recipe">
+      <ion-icon name="add-circle-outline"></ion-icon>
+      <ion-label>Crear</ion-label>
+    </ion-tab-button>
+
+    <ion-tab-button tab="profile" href="/tabs/profile">
+      <ion-icon name="person-outline"></ion-icon>
+      <ion-label>Perfil</ion-label>
     </ion-tab-button>
   </ion-tab-bar>
-</ion-content>
+</ion-tabs>

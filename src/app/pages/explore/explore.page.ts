@@ -21,6 +21,7 @@ import {
   IonBackButton,
   IonTabBar,
   IonTabButton,
+  IonTabs,
   RefresherCustomEvent,
   ToastController,
 } from '@ionic/angular/standalone';
@@ -28,6 +29,8 @@ import { AuthService } from '../../services/auth.service';
 import { RecipeService } from '../../services/recipe.service';
 import { SqliteService } from '../../services/sqlite.service';
 import { Recipe } from '../../../models/recipe.model';
+
+type RecipeCategory = 'all' | 'breakfast' | 'lunch' | 'dinner' | 'dessert' | 'snack' | 'beverage';
 
 @Component({
   selector: 'app-explore',
@@ -53,6 +56,7 @@ import { Recipe } from '../../../models/recipe.model';
     IonBackButton,
     IonTabBar,
     IonTabButton,
+    IonTabs,
   ],
   templateUrl: './explore.page.html',
   styleUrls: ['./explore.page.scss'],
@@ -69,6 +73,7 @@ export class ExplorePage implements OnInit {
   favoriteRecipeIds = signal<string[]>([]);
   isLoading = signal(true);
   searchTerm = signal('');
+  activeCategory = signal<RecipeCategory>('all');
 
   currentUser = computed(() => this.authService.currentUser());
 
@@ -83,7 +88,7 @@ export class ExplorePage implements OnInit {
       // Load all public recipes from Firestore
       const recipes = await this.recipeService.loadRecipes();
       this.allRecipes.set(recipes);
-      this.filteredRecipes.set(recipes);
+      this.applyFilters();
 
       // Load favorite IDs from SQLite
       const user = this.currentUser();
@@ -108,19 +113,41 @@ export class ExplorePage implements OnInit {
   onSearchChange(event: any) {
     const searchTerm = event.detail.value.toLowerCase();
     this.searchTerm.set(searchTerm);
+    this.applyFilters();
+  }
 
-    if (!searchTerm) {
-      this.filteredRecipes.set(this.allRecipes());
-      return;
+  filterByCategory(category: RecipeCategory) {
+    this.activeCategory.set(category);
+    this.applyFilters();
+  }
+
+  applyFilters() {
+    let filtered = [...this.allRecipes()];
+    const searchTerm = this.searchTerm();
+    const category = this.activeCategory();
+
+    // Apply search term filter
+    if (searchTerm) {
+      filtered = filtered.filter(
+        (recipe) =>
+          recipe.title.toLowerCase().includes(searchTerm) ||
+          (recipe.description && recipe.description.toLowerCase().includes(searchTerm)) ||
+          recipe.category.toLowerCase().includes(searchTerm),
+      );
     }
 
-    const filtered = this.allRecipes().filter(
-      (recipe) =>
-        recipe.title.toLowerCase().includes(searchTerm) ||
-        (recipe.description && recipe.description.toLowerCase().includes(searchTerm)) ||
-        recipe.category.toLowerCase().includes(searchTerm),
-    );
+    // Apply category filter
+    if (category !== 'all') {
+      filtered = filtered.filter((recipe) => recipe.category === category);
+    }
+
     this.filteredRecipes.set(filtered);
+  }
+
+  resetFilters() {
+    this.searchTerm.set('');
+    this.activeCategory.set('all');
+    this.filteredRecipes.set(this.allRecipes());
   }
 
   async toggleFavorite(recipe: Recipe, event: Event) {

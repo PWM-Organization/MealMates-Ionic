@@ -90,7 +90,7 @@ export class LoginPage {
 
         await loading.dismiss();
         await this.showToast('¡Bienvenido de vuelta!', 'checkmark-circle');
-        this.router.navigate(['/favorites']);
+        this.router.navigate(['/tabs/explore']);
       } catch (error: any) {
         await loading.dismiss();
         console.error('Login error:', error);

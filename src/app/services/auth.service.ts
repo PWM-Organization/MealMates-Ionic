@@ -213,4 +213,52 @@ export class AuthService {
       throw error;
     }
   }
+
+  /**
+   * Update user profile with form data
+   */
+  async updateUserProfile(updates: {
+    firstName?: string;
+    lastName?: string;
+    bio?: string;
+    phone?: string;
+    location?: string;
+    profileImageUrl?: string;
+  }): Promise<void> {
+    const user = this.currentUser();
+    if (!user) throw new Error('User not authenticated');
+
+    try {
+      // Prepare updates object
+      const profileUpdates: Partial<User> = {
+        ...updates,
+        updatedAt: serverTimestamp() as Timestamp,
+      };
+
+      // Update displayName if first or last name changed
+      if (updates.firstName || updates.lastName) {
+        const currentProfile = this.userProfile();
+        const firstName = updates.firstName || currentProfile?.firstName || '';
+        const lastName = updates.lastName || currentProfile?.lastName || '';
+        profileUpdates.displayName = `${firstName} ${lastName}`;
+      }
+
+      // Update Firestore
+      const userRef = doc(firestore, 'users', user.uid);
+      await updateDoc(userRef, profileUpdates);
+
+      // Update Firebase Auth profile if displayName changed
+      if (profileUpdates.displayName) {
+        await updateProfile(user, {
+          displayName: profileUpdates.displayName,
+        });
+      }
+
+      // Reload user profile to get fresh data
+      await this.loadUserProfile(user.uid);
+    } catch (error) {
+      console.error('Error updating user profile:', error);
+      throw error;
+    }
+  }
 }
