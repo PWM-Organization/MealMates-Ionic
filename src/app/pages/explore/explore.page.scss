@@ -61,3 +61,366 @@
     line-height: 1.4;
   }
 }
+
+// Variables
+:host {
+  --card-radius: 10px;
+  --card-shadow: 0 4px 16px rgba(0, 0, 0, 0.07);
+  --card-bg: var(--ion-card-background, #fff);
+  --transition-speed: 0.3s;
+}
+
+// Global styles
+.explore-content {
+  --padding-top: 0;
+  --padding-start: 0;
+  --padding-end: 0;
+}
+
+// Search Container
+.search-container {
+  padding: 12px 16px;
+  background: var(--ion-color-light);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.custom-searchbar {
+  --background: #fff;
+  --border-radius: 8px;
+  --box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+  --placeholder-opacity: 0.5;
+  --clear-button-color: var(--ion-color-medium);
+}
+
+// Categories filter
+.categories-filter {
+  padding: 0 8px 12px;
+  margin-bottom: 4px;
+  background: var(--ion-color-light);
+  overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+.filter-row {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 8px;
+  padding: 0 8px;
+}
+
+.category-chip {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 12px 4px;
+  min-width: 72px;
+  background: white;
+  border-radius: 12px;
+  transition: all var(--transition-speed) ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  opacity: 0.7;
+
+  &.active {
+    background: var(--ion-color-primary-contrast);
+    color: var(--ion-color-primary);
+    box-shadow: 0 2px 8px rgba(var(--ion-color-primary-rgb), 0.2);
+    opacity: 1;
+    font-weight: 500;
+  }
+
+  ion-icon {
+    font-size: 22px;
+    margin-bottom: 6px;
+  }
+
+  span {
+    font-size: 12px;
+    white-space: nowrap;
+  }
+}
+
+// Recipe Grid
+.recipe-grid {
+  display: grid;
+  grid-template-columns: repeat(1, 1fr);
+  gap: 16px;
+  padding: 16px;
+
+  @media (min-width: 500px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @media (min-width: 768px) {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    padding: 20px;
+  }
+
+  @media (min-width: 1200px) {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+// Recipe Card
+.recipe-card {
+  background: var(--card-bg);
+  border-radius: var(--card-radius);
+  overflow: hidden;
+  box-shadow: var(--card-shadow);
+  transition: transform var(--transition-speed);
+
+  &:active {
+    transform: scale(0.98);
+  }
+}
+
+.card-image {
+  position: relative;
+  padding-top: 70%;
+  overflow: hidden;
+
+  img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform var(--transition-speed);
+  }
+
+  &:hover img {
+    transform: scale(1.05);
+  }
+}
+
+.card-badge {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  background: rgba(0, 0, 0, 0.6);
+  color: white;
+  z-index: 2;
+
+  &.success {
+    background: var(--ion-color-success);
+  }
+
+  &.warning {
+    background: var(--ion-color-warning);
+  }
+
+  &.danger {
+    background: var(--ion-color-danger);
+  }
+}
+
+.favorite-button {
+  position: absolute;
+  right: 12px;
+  top: 12px;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.9);
+  border: none;
+  cursor: pointer;
+  z-index: 2;
+
+  ion-icon {
+    font-size: 18px;
+    color: #999;
+  }
+
+  &.is-favorite ion-icon {
+    color: var(--ion-color-danger);
+  }
+}
+
+.card-content {
+  padding: 12px 16px 16px;
+}
+
+.card-title {
+  font-size: 16px;
+  font-weight: 600;
+  margin: 0 0 8px;
+  color: var(--ion-text-color);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-height: 40px;
+}
+
+.card-meta {
+  display: flex;
+  margin-bottom: 8px;
+
+  .meta-item {
+    display: flex;
+    align-items: center;
+    margin-right: 12px;
+    font-size: 13px;
+    color: var(--ion-color-medium);
+
+    ion-icon {
+      margin-right: 4px;
+      font-size: 16px;
+    }
+  }
+}
+
+.card-description {
+  font-size: 13px;
+  color: var(--ion-color-medium);
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-height: 40px;
+}
+
+// Loading Skeleton
+.skeleton-container {
+  display: grid;
+  grid-template-columns: repeat(1, 1fr);
+  gap: 16px;
+  padding: 16px;
+
+  @media (min-width: 500px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @media (min-width: 768px) {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  @media (min-width: 1200px) {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.skeleton-card {
+  border-radius: var(--card-radius);
+  overflow: hidden;
+  background: var(--card-bg);
+  box-shadow: var(--card-shadow);
+}
+
+.skeleton-image {
+  height: 150px;
+  width: 100%;
+
+  ion-skeleton-text {
+    height: 100%;
+    width: 100%;
+    margin: 0;
+    --border-radius: 0;
+  }
+}
+
+.skeleton-content {
+  padding: 12px 16px 16px;
+
+  ion-skeleton-text {
+    height: 16px;
+    margin-bottom: 8px;
+    --border-radius: 4px;
+  }
+}
+
+// Error State
+.error-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 2rem;
+  text-align: center;
+  min-height: 40vh;
+
+  ion-icon {
+    margin-bottom: 1.5rem;
+    font-size: 4rem;
+    color: var(--ion-color-danger);
+  }
+
+  h2 {
+    color: var(--ion-text-color);
+    margin-bottom: 0.5rem;
+    font-size: 1.5rem;
+  }
+
+  p {
+    color: var(--ion-color-medium);
+    margin-bottom: 2rem;
+    font-size: 1rem;
+    line-height: 1.4;
+  }
+
+  ion-button {
+    margin-top: 1rem;
+    --border-radius: 8px;
+  }
+}
+
+// Empty State
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 2rem;
+  text-align: center;
+  min-height: 40vh;
+
+  ion-icon {
+    margin-bottom: 1.5rem;
+    font-size: 4rem;
+  }
+
+  h2 {
+    color: var(--ion-text-color);
+    margin-bottom: 0.5rem;
+    font-size: 1.5rem;
+  }
+
+  p {
+    color: var(--ion-color-medium);
+    margin-bottom: 2rem;
+    font-size: 1rem;
+    line-height: 1.4;
+  }
+
+  .reset-button {
+    margin-top: 1rem;
+    --border-radius: 8px;
+  }
+}
+
+// Custom Toast
+::ng-deep .custom-toast {
+  --border-radius: 8px !important;
+  --min-height: auto !important;
+  --padding-top: 12px !important;
+  --padding-bottom: 12px !important;
+  font-size: 14px !important;
+}

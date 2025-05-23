@@ -1,18 +1,18 @@
-<ion-header>
+<ion-header class="ion-no-border">
   <ion-toolbar color="primary">
     <ion-title>Explorar</ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content class="explore-content">
-  <ion-refresher slot="fixed" (ionRefresh)="handleRefresh($event)">
-    <ion-refresher-content></ion-refresher-content>
+  <ion-refresher slot="fixed" (ionRefresh)="handleRefresh($event)" pull-factor="0.8">
+    <ion-refresher-content refreshingSpinner="circles"></ion-refresher-content>
   </ion-refresher>
 
   <!-- Search Bar -->
   <div class="search-container">
     <ion-searchbar
-      placeholder="Buscar recetas"
+      placeholder="Buscar recetas o ingredientes"
       (ionInput)="onSearchChange($event)"
       [value]="searchTerm()"
       animated="true"
@@ -55,14 +55,33 @@
     </div>
   </div>
 
-  <!-- Loading State -->
-  <div *ngIf="isLoading()" class="loading-container">
-    <ion-spinner name="crescent" color="primary"></ion-spinner>
-    <p>Cargando recetas...</p>
+  <!-- Loading Skeleton -->
+  <div *ngIf="isLoading()" class="skeleton-container">
+    <div class="skeleton-card" *ngFor="let i of [1,2,3,4,5,6]">
+      <div class="skeleton-image">
+        <ion-skeleton-text [animated]="true"></ion-skeleton-text>
+      </div>
+      <div class="skeleton-content">
+        <ion-skeleton-text [animated]="true" style="width: 80%"></ion-skeleton-text>
+        <ion-skeleton-text [animated]="true" style="width: 60%"></ion-skeleton-text>
+        <ion-skeleton-text [animated]="true" style="width: 90%"></ion-skeleton-text>
+      </div>
+    </div>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="hasError()" class="error-state">
+    <ion-icon name="alert-circle-outline" color="danger"></ion-icon>
+    <h2>Oops! Algo salió mal</h2>
+    <p>{{ errorMessage() || 'No pudimos cargar las recetas. Intenta de nuevo.' }}</p>
+    <ion-button expand="block" (click)="loadData()" color="primary">
+      <ion-icon name="refresh-outline" slot="start"></ion-icon>
+      Reintentar
+    </ion-button>
   </div>
 
   <!-- Empty State -->
-  <div *ngIf="!isLoading() && filteredRecipes().length === 0" class="empty-state">
+  <div *ngIf="isEmpty()" class="empty-state">
     <ion-icon name="search-outline" color="medium"></ion-icon>
     <h2>No se encontraron recetas</h2>
     <p>Intenta con otra búsqueda o categoría</p>
@@ -74,15 +93,16 @@
   </div>
 
   <!-- Recipe Grid -->
-  <div *ngIf="!isLoading() && filteredRecipes().length > 0" class="recipe-grid">
+  <div *ngIf="hasRecipes()" class="recipe-grid">
     <div *ngFor="let recipe of filteredRecipes(); trackBy: trackByRecipeId" class="recipe-card">
       <div class="card-image" (click)="goToRecipeDetail(recipe)">
-        <img [src]="recipe.imageUrl || 'assets/icon/recipe-placeholder.png'" [alt]="recipe.title" />
+        <img [src]="recipe.imageUrl || 'assets/icon/recipe-placeholder.png'" [alt]="recipe.title" loading="lazy" />
         <div class="card-badge" [class]="getDifficultyColor(recipe.difficulty)">{{ recipe.difficulty }}</div>
         <button
           class="favorite-button"
           [class.is-favorite]="isFavorite(recipe.id)"
           (click)="toggleFavorite(recipe, $event)"
+          aria-label="Agregar a favoritos"
         >
           <ion-icon [name]="isFavorite(recipe.id) ? 'heart' : 'heart-outline'"></ion-icon>
         </button>
@@ -110,7 +130,7 @@
 
 <!-- Tab Bar -->
 <ion-tabs>
-  <ion-tab-bar slot="bottom" color="primary">
+  <ion-tab-bar slot="bottom">
     <ion-tab-button tab="explore" href="/tabs/explore" selected="true">
       <ion-icon name="search"></ion-icon>
       <ion-label>Explorar</ion-label>

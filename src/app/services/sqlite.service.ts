@@ -1,5 +1,6 @@
-import { Injectable, signal } from '@angular/core';
+import { Injectable, signal, isDevMode } from '@angular/core';
 import { CapacitorSQLite, SQLiteConnection, SQLiteDBConnection } from '@capacitor-community/sqlite';
+import { Capacitor } from '@capacitor/core';
 import { Favorite } from '../../models/favorite.model';
 
 @Injectable({ providedIn: 'root' })
@@ -8,17 +9,41 @@ export class SqliteService {
   private db: SQLiteDBConnection | null = null;
   private readonly DB_NAME = 'mealmates.db';
   private readonly DB_VERSION = 1;
+  private platform: string = Capacitor.getPlatform();
 
+  // State signals
   private isInitializedSignal = signal(false);
+  private isWebPlatformSignal = signal(this.platform === 'web');
+  private isAvailableSignal = signal(true);
+
+  // Public readonly signals
   readonly isInitialized = this.isInitializedSignal.asReadonly();
+  readonly isWebPlatform = this.isWebPlatformSignal.asReadonly();
+  readonly isAvailable = this.isAvailableSignal.asReadonly();
 
   /**
-   * Initialize SQLite database
+   * Initialize SQLite database with better web platform support
    */
   async initializeDB(): Promise<void> {
     try {
       // Check if already initialized
       if (this.db && this.isInitialized()) {
+        return;
+      }
+
+      // If we're on the web platform but SQLite hasn't been initialized properly
+      // in the AppComponent, we need to handle this gracefully
+      if (this.isWebPlatform() && !document.querySelector('jeep-sqlite')) {
+        console.warn('SQLite web platform not fully initialized. Local storage fallback will be used.');
+        this.isAvailableSignal.set(false);
+
+        // In dev mode, provide more helpful message
+        if (isDevMode()) {
+          console.info('For web testing, some features that rely on SQLite will be disabled or use mock data.');
+        }
+
+        // Mark as initialized to prevent repeated attempts
+        this.isInitializedSignal.set(true);
         return;
       }
 
@@ -32,11 +57,17 @@ export class SqliteService {
       await this.createTables();
 
       this.isInitializedSignal.set(true);
+      this.isAvailableSignal.set(true);
       console.log('SQLite database initialized successfully');
     } catch (error) {
       console.error('Error initializing SQLite:', error);
       this.isInitializedSignal.set(false);
-      throw error;
+      this.isAvailableSignal.set(false);
+
+      // Don't throw error - instead, allow app to continue with limited functionality
+      if (isDevMode()) {
+        console.warn('SQLite initialization failed. Using localStorage fallback for development.');
+      }
     }
   }
 
@@ -44,7 +75,10 @@ export class SqliteService {
    * Create database tables
    */
   private async createTables(): Promise<void> {
-    if (!this.db) throw new Error('Database not initialized');
+    if (!this.db) {
+      console.warn('Cannot create tables, database not initialized');
+      return;
+    }
 
     const createFavoritesTable = `
       CREATE TABLE IF NOT EXISTS favorites (
@@ -72,79 +106,234 @@ export class SqliteService {
   }
 
   /**
-   * Add a recipe to favorites
+   * Add a recipe to favorites - with localStorage fallback for web
    */
   async addFavorite(recipeId: string, userId: string): Promise<void> {
-    if (!this.db) {
+    // Try to initialize if not already
+    if (!this.isInitialized()) {
       await this.initializeDB();
     }
 
     try {
-      const query = `
-        INSERT OR REPLACE INTO favorites (recipeId, userId, addedAt) 
-        VALUES (?, ?, ?)
-      `;
+      // If SQLite is available, use it
+      if (this.isAvailable() && this.db) {
+        const query = `
+          INSERT OR REPLACE INTO favorites (recipeId, userId, addedAt) 
+          VALUES (?, ?, ?)
+        `;
+        await this.db.run(query, [recipeId, userId, new Date().toISOString()]);
+      }
+      // Otherwise, use localStorage as fallback for web development
+      else if (this.isWebPlatform()) {
+        this._saveFavoriteToLocalStorage(recipeId, userId);
+      }
 
-      await this.db!.run(query, [recipeId, userId, new Date().toISOString()]);
       console.log(`Recipe ${recipeId} added to favorites for user ${userId}`);
     } catch (error) {
       console.error('Error adding favorite:', error);
-      throw error;
+      // Use localStorage as fallback if SQLite fails
+      if (this.isWebPlatform()) {
+        this._saveFavoriteToLocalStorage(recipeId, userId);
+      }
     }
   }
 
   /**
-   * Remove a recipe from favorites
+   * Remove a recipe from favorites - with localStorage fallback for web
    */
   async removeFavorite(recipeId: string, userId: string): Promise<void> {
-    if (!this.db) {
+    // Try to initialize if not already
+    if (!this.isInitialized()) {
       await this.initializeDB();
     }
 
     try {
-      const query = `DELETE FROM favorites WHERE recipeId = ? AND userId = ?`;
-      await this.db!.run(query, [recipeId, userId]);
+      // If SQLite is available, use it
+      if (this.isAvailable() && this.db) {
+        const query = `DELETE FROM favorites WHERE recipeId = ? AND userId = ?`;
+        await this.db.run(query, [recipeId, userId]);
+      }
+      // Otherwise, use localStorage as fallback for web development
+      else if (this.isWebPlatform()) {
+        this._removeFavoriteFromLocalStorage(recipeId, userId);
+      }
+
       console.log(`Recipe ${recipeId} removed from favorites for user ${userId}`);
     } catch (error) {
       console.error('Error removing favorite:', error);
-      throw error;
+      // Use localStorage as fallback if SQLite fails
+      if (this.isWebPlatform()) {
+        this._removeFavoriteFromLocalStorage(recipeId, userId);
+      }
     }
   }
 
   /**
-   * Get all favorite recipe IDs for a user
+   * Get all favorite recipe IDs for a user - with localStorage fallback for web
    */
   async getFavorites(userId: string): Promise<string[]> {
-    if (!this.db) {
+    // Try to initialize if not already
+    if (!this.isInitialized()) {
       await this.initializeDB();
     }
 
     try {
-      const query = `SELECT recipeId FROM favorites WHERE userId = ? ORDER BY addedAt DESC`;
-      const result = await this.db!.query(query, [userId]);
-      return result.values?.map((row) => row.recipeId) || [];
+      // If SQLite is available, use it
+      if (this.isAvailable() && this.db) {
+        const query = `SELECT recipeId FROM favorites WHERE userId = ? ORDER BY addedAt DESC`;
+        const result = await this.db.query(query, [userId]);
+        return result.values?.map((row) => row.recipeId) || [];
+      }
+      // Otherwise, use localStorage as fallback for web development
+      else if (this.isWebPlatform()) {
+        return this._getFavoritesFromLocalStorage(userId);
+      }
+
+      return [];
     } catch (error) {
       console.error('Error getting favorites:', error);
+      // Use localStorage as fallback if SQLite fails
+      if (this.isWebPlatform()) {
+        return this._getFavoritesFromLocalStorage(userId);
+      }
       return [];
     }
   }
 
   /**
-   * Check if a recipe is favorited by a user
+   * Check if a recipe is favorited by a user - with localStorage fallback for web
    */
   async isFavorite(recipeId: string, userId: string): Promise<boolean> {
-    if (!this.db) {
+    // Try to initialize if not already
+    if (!this.isInitialized()) {
       await this.initializeDB();
     }
 
     try {
-      const query = `SELECT COUNT(*) as count FROM favorites WHERE recipeId = ? AND userId = ?`;
-      const result = await this.db!.query(query, [recipeId, userId]);
-      return result.values?.[0]?.count > 0;
+      // If SQLite is available, use it
+      if (this.isAvailable() && this.db) {
+        const query = `SELECT COUNT(*) as count FROM favorites WHERE recipeId = ? AND userId = ?`;
+        const result = await this.db.query(query, [recipeId, userId]);
+        return result.values?.[0]?.count > 0;
+      }
+      // Otherwise, use localStorage as fallback for web development
+      else if (this.isWebPlatform()) {
+        return this._isFavoriteInLocalStorage(recipeId, userId);
+      }
+
+      return false;
     } catch (error) {
       console.error('Error checking favorite status:', error);
+      // Use localStorage as fallback if SQLite fails
+      if (this.isWebPlatform()) {
+        return this._isFavoriteInLocalStorage(recipeId, userId);
+      }
       return false;
     }
+  }
+
+  /**
+   * Toggle favorite status (add if not exists, remove if exists)
+   */
+  async toggleFavorite(recipeId: string, userId: string): Promise<boolean> {
+    try {
+      const isFav = await this.isFavorite(recipeId, userId);
+
+      if (isFav) {
+        await this.removeFavorite(recipeId, userId);
+        return false;
+      } else {
+        await this.addFavorite(recipeId, userId);
+        return true;
+      }
+    } catch (error) {
+      console.error('Error toggling favorite:', error);
+      return false;
+    }
+  }
+
+  /**
+   * Close database connection
+   */
+  async closeConnection(): Promise<void> {
+    try {
+      if (this.db) {
+        await this.db.close();
+        this.db = null;
+        this.isInitializedSignal.set(false);
+        console.log('SQLite connection closed');
+      }
+    } catch (error) {
+      console.error('Error closing SQLite connection:', error);
+    }
+  }
+
+  // PRIVATE HELPER METHODS FOR LOCALSTORAGE FALLBACK
+
+  /**
+   * Save favorite to localStorage (web fallback)
+   */
+  private _saveFavoriteToLocalStorage(recipeId: string, userId: string): void {
+    try {
+      const key = this._getLocalStorageKey(userId);
+      const favorites = this._getFavoritesFromLocalStorage(userId);
+
+      if (!favorites.includes(recipeId)) {
+        favorites.push(recipeId);
+        localStorage.setItem(key, JSON.stringify(favorites));
+      }
+    } catch (error) {
+      console.error('Error saving to localStorage:', error);
+    }
+  }
+
+  /**
+   * Remove favorite from localStorage (web fallback)
+   */
+  private _removeFavoriteFromLocalStorage(recipeId: string, userId: string): void {
+    try {
+      const key = this._getLocalStorageKey(userId);
+      const favorites = this._getFavoritesFromLocalStorage(userId);
+
+      const updatedFavorites = favorites.filter((id) => id !== recipeId);
+      localStorage.setItem(key, JSON.stringify(updatedFavorites));
+    } catch (error) {
+      console.error('Error removing from localStorage:', error);
+    }
+  }
+
+  /**
+   * Get favorites from localStorage (web fallback)
+   */
+  private _getFavoritesFromLocalStorage(userId: string): string[] {
+    try {
+      const key = this._getLocalStorageKey(userId);
+      const data = localStorage.getItem(key);
+      return data ? JSON.parse(data) : [];
+    } catch (error) {
+      console.error('Error reading from localStorage:', error);
+      return [];
+    }
+  }
+
+  /**
+   * Check if recipe is favorite in localStorage (web fallback)
+   */
+  private _isFavoriteInLocalStorage(recipeId: string, userId: string): boolean {
+    try {
+      const favorites = this._getFavoritesFromLocalStorage(userId);
+      return favorites.includes(recipeId);
+    } catch (error) {
+      console.error('Error checking favorite in localStorage:', error);
+      return false;
+    }
+  }
+
+  /**
+   * Get localStorage key for favorites
+   */
+  private _getLocalStorageKey(userId: string): string {
+    return `mealmates_favorites_${userId}`;
   }
 
   /**
@@ -212,42 +401,6 @@ export class SqliteService {
     } catch (error) {
       console.error('Error clearing favorites:', error);
       throw error;
-    }
-  }
-
-  /**
-   * Toggle favorite status (add if not exists, remove if exists)
-   */
-  async toggleFavorite(recipeId: string, userId: string): Promise<boolean> {
-    try {
-      const isFav = await this.isFavorite(recipeId, userId);
-
-      if (isFav) {
-        await this.removeFavorite(recipeId, userId);
-        return false;
-      } else {
-        await this.addFavorite(recipeId, userId);
-        return true;
-      }
-    } catch (error) {
-      console.error('Error toggling favorite:', error);
-      throw error;
-    }
-  }
-
-  /**
-   * Close database connection
-   */
-  async closeConnection(): Promise<void> {
-    try {
-      if (this.db) {
-        await this.db.close();
-        this.db = null;
-        this.isInitializedSignal.set(false);
-        console.log('SQLite connection closed');
-      }
-    } catch (error) {
-      console.error('Error closing SQLite connection:', error);
     }
   }
 
