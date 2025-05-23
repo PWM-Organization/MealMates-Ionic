@@ -15,27 +15,52 @@
     <meta name="msapplication-tap-highlight" content="no" />
     <meta name="description" content="MealMates - Descubre, guarda y comparte recetas fácilmente" />
 
-    <link rel="icon" type="image/png" href="assets/icon/favicon.ico" />
+    <link rel="icon" type="image/png" href="assets/icon/favicon.png" />
 
     <!-- add to homescreen for ios -->
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black" />
 
-    <!-- SQLite Web dependencies -->
-    <script type="module" src="https://cdn.jsdelivr.net/npm/@ionic/core/dist/ionic/ionic.esm.js"></script>
-    <script type="module" src="https://cdn.jsdelivr.net/npm/ionicons/dist/ionicons/ionicons.esm.js"></script>
-    <script nomodule src="https://cdn.jsdelivr.net/npm/ionicons/dist/ionicons/ionicons.js"></script>
-    <script type="module" src="https://cdn.jsdelivr.net/npm/@capacitor-community/sqlite@4.8.0/dist/esm/web.js"></script>
-    <style>
-      /* Hide jeep-sqlite element but keep it in DOM */
-      jeep-sqlite {
-        display: none;
-      }
-    </style>
+    <!-- Web App Manifest -->
+    <link rel="manifest" href="manifest.json" />
+
+    <!-- Theme color -->
+    <meta name="theme-color" content="#3880ff" />
   </head>
 
   <body>
     <app-root></app-root>
+
+    <!-- Capacitor scripts for web -->
+    <script type="module">
+      // Module resolution fix
+      if (!window.process) {
+        window.process = { env: { NODE_ENV: 'production' } };
+      }
+      if (!window.global) {
+        window.global = window;
+      }
+    </script>
+
+    <!-- SQLite Web Dependencies (only load if needed) -->
+    <script>
+      // Only load SQLite dependencies in web mode if needed
+      if (window.location.protocol === 'http:' || window.location.protocol === 'https:') {
+        // Create jeep-sqlite element for web compatibility
+        if (!customElements.get('jeep-sqlite')) {
+          const script = document.createElement('script');
+          script.type = 'module';
+          script.src = 'https://cdn.jsdelivr.net/npm/jeep-sqlite@2.8.3/dist/jeep-sqlite/jeep-sqlite.esm.js';
+          script.onload = () => {
+            console.log('SQLite web module loaded successfully');
+          };
+          script.onerror = () => {
+            console.warn('SQLite web module failed to load - fallback to localStorage');
+          };
+          document.head.appendChild(script);
+        }
+      }
+    </script>
   </body>
 </html>

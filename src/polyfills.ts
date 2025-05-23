@@ -53,11 +53,22 @@ import 'zone.js'; // Included with Angular CLI.
  * APPLICATION IMPORTS
  */
 
-// Import needed polyfills for Capacitor
-(window as any).global = window;
-(window as any).process = {
-  env: { DEBUG: undefined },
-};
+// Capacitor polyfills for web environment
+if (typeof global === 'undefined') {
+  (window as any).global = window;
+}
+
+if (typeof process === 'undefined') {
+  (window as any).process = {
+    env: { DEBUG: undefined },
+    platform: 'web',
+  };
+}
+
+// Additional polyfills for web compatibility
+if (typeof Buffer === 'undefined') {
+  (window as any).Buffer = { from: () => null };
+}
 
 /**
  * Zone JS is required by default for Angular

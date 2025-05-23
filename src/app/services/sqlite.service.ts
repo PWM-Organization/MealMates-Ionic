@@ -1,4 +1,4 @@
-import { Injectable, signal, isDevMode } from '@angular/core';
+import { Injectable, signal, isDevMode, computed } from '@angular/core';
 import { CapacitorSQLite, SQLiteConnection, SQLiteDBConnection } from '@capacitor-community/sqlite';
 import { Capacitor } from '@capacitor/core';
 import { Favorite } from '../../models/favorite.model';
@@ -15,18 +15,45 @@ export class SqliteService {
   // State signals
   private isInitializedSignal = signal(false);
   private isWebPlatformSignal = signal(this.platform === 'web');
-  private isAvailableSignal = signal(true);
 
-  // Public readonly signals
+  // Public readonly computed signals for state management
   readonly isInitialized = this.isInitializedSignal.asReadonly();
   readonly isWebPlatform = this.isWebPlatformSignal.asReadonly();
-  readonly isAvailable = this.isAvailableSignal.asReadonly();
+  readonly isAvailable = computed(() => this.isInitialized() || this.isWebPlatform());
+
+  /**
+   * Wait for SQLite web module to be available
+   */
+  private async waitForSQLiteWeb(timeout: number = 3000): Promise<void> {
+    return new Promise((resolve, reject) => {
+      const startTime = Date.now();
+
+      const checkForSQLite = () => {
+        // Check if jeep-sqlite custom element is defined
+        if (customElements.get('jeep-sqlite')) {
+          resolve();
+          return;
+        }
+
+        // Check timeout
+        if (Date.now() - startTime > timeout) {
+          reject(new Error('Timeout waiting for SQLite web module'));
+          return;
+        }
+
+        // Check again in 100ms
+        setTimeout(checkForSQLite, 100);
+      };
+
+      checkForSQLite();
+    });
+  }
 
   /**
    * Initialize SQLite database with better web platform support
    */
   async initializeDB(): Promise<void> {
-    // Skip if we've already attempted initialization
+    // Prevent multiple initialization attempts
     if (this.initializationAttempted) {
       return;
     }
@@ -34,45 +61,38 @@ export class SqliteService {
     this.initializationAttempted = true;
 
     try {
-      // Check if already initialized with a connection
-      if (this.db && this.isInitialized()) {
-        return;
+      if (this.platform === 'web') {
+        // Wait for SQLite web module to load
+        await this.waitForSQLiteWeb();
       }
 
-      // Check for the presence of the jeep-sqlite element if we're on web
-      if (this.isWebPlatform()) {
-        const jeepSqliteElement = document.querySelector('jeep-sqlite');
-        if (!jeepSqliteElement) {
-          throw new Error('The jeep-sqlite element is not present in the DOM! Using localStorage fallback.');
-        }
+      // Check if CapacitorSQLite is available
+      if (!CapacitorSQLite) {
+        throw new Error('CapacitorSQLite not available');
       }
 
-      // Create connection
       this.db = await this.sqlite.createConnection(this.DB_NAME, false, 'no-encryption', this.DB_VERSION, false);
 
-      // Open database
-      await this.db.open();
+      if (!this.db) {
+        throw new Error('Failed to create SQLite connection');
+      }
 
-      // Create tables
+      await this.db.open();
       await this.createTables();
 
       this.isInitializedSignal.set(true);
-      this.isAvailableSignal.set(true);
-      console.log('SQLite database initialized successfully');
-    } catch (error) {
-      console.error('Error initializing SQLite:', error);
-      this.isInitializedSignal.set(false);
-
-      // We'll still consider it "available" if we're on web platform
-      // This means we'll use localStorage as fallback
-      this.isAvailableSignal.set(this.isWebPlatform());
 
       if (isDevMode()) {
-        console.warn('SQLite initialization failed. Using localStorage fallback for development.');
+        console.log(`✅ SQLite initialized successfully on ${this.platform}`);
+      }
+    } catch (error: any) {
+      this.isInitializedSignal.set(false);
+
+      if (isDevMode()) {
+        console.warn('⚠️ SQLite initialization failed, using localStorage fallback:', error.message);
       }
 
-      // Re-throw the error so the caller can handle it appropriately
-      throw error;
+      // Don't throw error, just set as not available so localStorage fallback is used
     }
   }
 

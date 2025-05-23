@@ -194,40 +194,11 @@ export class AppComponent implements OnInit {
    * Creates a developer-friendly alert for SQLite initialization issues
    */
   private createSQLiteFallbackAlert(): void {
-    // In development mode, show friendly error instead of crashing
+    // In development mode, just log a warning instead of showing popup
     if (isDevMode()) {
-      // Create a fallback to avoid crashes during development
-      const appEl = document.querySelector('app-root');
-      if (appEl) {
-        if (!document.querySelector('#sqlite-fallback-alert')) {
-          const alertEl = document.createElement('div');
-          alertEl.id = 'sqlite-fallback-alert';
-          alertEl.style.padding = '12px';
-          alertEl.style.margin = '10px';
-          alertEl.style.backgroundColor = '#ffeeba';
-          alertEl.style.color = '#856404';
-          alertEl.style.borderRadius = '4px';
-          alertEl.style.border = '1px solid #ffeeba';
-          alertEl.style.position = 'fixed';
-          alertEl.style.bottom = '10px';
-          alertEl.style.right = '10px';
-          alertEl.style.zIndex = '9999';
-          alertEl.style.maxWidth = '400px';
-          alertEl.style.boxShadow = '0 2px 10px rgba(0,0,0,0.1)';
-          alertEl.innerHTML = `
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px">
-              <span style="font-weight: bold;">SQLite Web Initialization Warning</span>
-              <button style="background: none; border: none; font-size: 16px; cursor: pointer; color: #856404;" 
-                      onclick="document.getElementById('sqlite-fallback-alert').remove()">×</button>
-            </div>
-            <div>SQLite funcionará en dispositivos reales pero necesita configuración adicional para web.</div>
-            <div style="margin-top: 8px">
-              <small>Esta alerta solo aparece en desarrollo. La app usará localStorage como alternativa.</small>
-            </div>
-          `;
-          document.body.appendChild(alertEl);
-        }
-      }
+      console.warn(
+        'SQLite Web Initialization: SQLite funcionará en dispositivos reales pero necesita configuración adicional para web. La app usará localStorage como alternativa.',
+      );
     }
   }
 }
