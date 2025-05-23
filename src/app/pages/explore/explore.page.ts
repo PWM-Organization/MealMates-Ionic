@@ -69,6 +69,7 @@ export class ExplorePage implements OnInit {
   errorMessage = signal('');
   searchTerm = signal('');
   activeCategory = signal<RecipeCategory>('all');
+  sqliteInitialized = signal(false);
 
   // Derived state
   currentUser = computed(() => this.authService.currentUser());
@@ -98,9 +99,18 @@ export class ExplorePage implements OnInit {
       if (!this.sqliteService.isInitialized()) {
         try {
           await this.sqliteService.initializeDB();
-        } catch (error) {
-          console.warn('SQLite initialization skipped in web mode - using fallback');
+          this.sqliteInitialized.set(true);
+        } catch (error: any) {
+          console.warn('SQLite initialization failed in web mode - using localStorage fallback', error);
+          this.sqliteInitialized.set(false);
+
+          // Show brief notification only in development mode
+          if (error.message?.includes('jeep-sqlite element is not present')) {
+            await this.showToast('Usando almacenamiento local para favoritos en modo web', 'information-circle');
+          }
         }
+      } else {
+        this.sqliteInitialized.set(true);
       }
 
       // 3. Load favorite IDs (with fallback)

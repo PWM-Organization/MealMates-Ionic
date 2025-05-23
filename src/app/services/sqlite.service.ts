@@ -10,6 +10,7 @@ export class SqliteService {
   private readonly DB_NAME = 'mealmates.db';
   private readonly DB_VERSION = 1;
   private platform: string = Capacitor.getPlatform();
+  private initializationAttempted = false;
 
   // State signals
   private isInitializedSignal = signal(false);
@@ -25,26 +26,25 @@ export class SqliteService {
    * Initialize SQLite database with better web platform support
    */
   async initializeDB(): Promise<void> {
+    // Skip if we've already attempted initialization
+    if (this.initializationAttempted) {
+      return;
+    }
+
+    this.initializationAttempted = true;
+
     try {
-      // Check if already initialized
+      // Check if already initialized with a connection
       if (this.db && this.isInitialized()) {
         return;
       }
 
-      // If we're on the web platform but SQLite hasn't been initialized properly
-      // in the AppComponent, we need to handle this gracefully
-      if (this.isWebPlatform() && !document.querySelector('jeep-sqlite')) {
-        console.warn('SQLite web platform not fully initialized. Local storage fallback will be used.');
-        this.isAvailableSignal.set(false);
-
-        // In dev mode, provide more helpful message
-        if (isDevMode()) {
-          console.info('For web testing, some features that rely on SQLite will be disabled or use mock data.');
+      // Check for the presence of the jeep-sqlite element if we're on web
+      if (this.isWebPlatform()) {
+        const jeepSqliteElement = document.querySelector('jeep-sqlite');
+        if (!jeepSqliteElement) {
+          throw new Error('The jeep-sqlite element is not present in the DOM! Using localStorage fallback.');
         }
-
-        // Mark as initialized to prevent repeated attempts
-        this.isInitializedSignal.set(true);
-        return;
       }
 
       // Create connection
@@ -62,12 +62,17 @@ export class SqliteService {
     } catch (error) {
       console.error('Error initializing SQLite:', error);
       this.isInitializedSignal.set(false);
-      this.isAvailableSignal.set(false);
 
-      // Don't throw error - instead, allow app to continue with limited functionality
+      // We'll still consider it "available" if we're on web platform
+      // This means we'll use localStorage as fallback
+      this.isAvailableSignal.set(this.isWebPlatform());
+
       if (isDevMode()) {
         console.warn('SQLite initialization failed. Using localStorage fallback for development.');
       }
+
+      // Re-throw the error so the caller can handle it appropriately
+      throw error;
     }
   }
 
@@ -109,22 +114,17 @@ export class SqliteService {
    * Add a recipe to favorites - with localStorage fallback for web
    */
   async addFavorite(recipeId: string, userId: string): Promise<void> {
-    // Try to initialize if not already
-    if (!this.isInitialized()) {
-      await this.initializeDB();
-    }
-
     try {
-      // If SQLite is available, use it
-      if (this.isAvailable() && this.db) {
+      // If SQLite is available and initialized, use it
+      if (this.isInitialized() && this.db) {
         const query = `
           INSERT OR REPLACE INTO favorites (recipeId, userId, addedAt) 
           VALUES (?, ?, ?)
         `;
         await this.db.run(query, [recipeId, userId, new Date().toISOString()]);
       }
-      // Otherwise, use localStorage as fallback for web development
-      else if (this.isWebPlatform()) {
+      // Otherwise, always use localStorage as fallback
+      else {
         this._saveFavoriteToLocalStorage(recipeId, userId);
       }
 
@@ -132,9 +132,7 @@ export class SqliteService {
     } catch (error) {
       console.error('Error adding favorite:', error);
       // Use localStorage as fallback if SQLite fails
-      if (this.isWebPlatform()) {
-        this._saveFavoriteToLocalStorage(recipeId, userId);
-      }
+      this._saveFavoriteToLocalStorage(recipeId, userId);
     }
   }
 
@@ -142,19 +140,14 @@ export class SqliteService {
    * Remove a recipe from favorites - with localStorage fallback for web
    */
   async removeFavorite(recipeId: string, userId: string): Promise<void> {
-    // Try to initialize if not already
-    if (!this.isInitialized()) {
-      await this.initializeDB();
-    }
-
     try {
-      // If SQLite is available, use it
-      if (this.isAvailable() && this.db) {
+      // If SQLite is available and initialized, use it
+      if (this.isInitialized() && this.db) {
         const query = `DELETE FROM favorites WHERE recipeId = ? AND userId = ?`;
         await this.db.run(query, [recipeId, userId]);
       }
-      // Otherwise, use localStorage as fallback for web development
-      else if (this.isWebPlatform()) {
+      // Otherwise, always use localStorage as fallback
+      else {
         this._removeFavoriteFromLocalStorage(recipeId, userId);
       }
 
@@ -162,9 +155,7 @@ export class SqliteService {
     } catch (error) {
       console.error('Error removing favorite:', error);
       // Use localStorage as fallback if SQLite fails
-      if (this.isWebPlatform()) {
-        this._removeFavoriteFromLocalStorage(recipeId, userId);
-      }
+      this._removeFavoriteFromLocalStorage(recipeId, userId);
     }
   }
 
@@ -172,31 +163,19 @@ export class SqliteService {
    * Get all favorite recipe IDs for a user - with localStorage fallback for web
    */
   async getFavorites(userId: string): Promise<string[]> {
-    // Try to initialize if not already
-    if (!this.isInitialized()) {
-      await this.initializeDB();
-    }
-
     try {
-      // If SQLite is available, use it
-      if (this.isAvailable() && this.db) {
+      // If SQLite is available and initialized, use it
+      if (this.isInitialized() && this.db) {
         const query = `SELECT recipeId FROM favorites WHERE userId = ? ORDER BY addedAt DESC`;
         const result = await this.db.query(query, [userId]);
         return result.values?.map((row) => row.recipeId) || [];
       }
-      // Otherwise, use localStorage as fallback for web development
-      else if (this.isWebPlatform()) {
-        return this._getFavoritesFromLocalStorage(userId);
-      }
-
-      return [];
+      // Otherwise, always use localStorage as fallback
+      return this._getFavoritesFromLocalStorage(userId);
     } catch (error) {
       console.error('Error getting favorites:', error);
       // Use localStorage as fallback if SQLite fails
-      if (this.isWebPlatform()) {
-        return this._getFavoritesFromLocalStorage(userId);
-      }
-      return [];
+      return this._getFavoritesFromLocalStorage(userId);
     }
   }
 
@@ -204,31 +183,19 @@ export class SqliteService {
    * Check if a recipe is favorited by a user - with localStorage fallback for web
    */
   async isFavorite(recipeId: string, userId: string): Promise<boolean> {
-    // Try to initialize if not already
-    if (!this.isInitialized()) {
-      await this.initializeDB();
-    }
-
     try {
-      // If SQLite is available, use it
-      if (this.isAvailable() && this.db) {
+      // If SQLite is available and initialized, use it
+      if (this.isInitialized() && this.db) {
         const query = `SELECT COUNT(*) as count FROM favorites WHERE recipeId = ? AND userId = ?`;
         const result = await this.db.query(query, [recipeId, userId]);
         return result.values?.[0]?.count > 0;
       }
-      // Otherwise, use localStorage as fallback for web development
-      else if (this.isWebPlatform()) {
-        return this._isFavoriteInLocalStorage(recipeId, userId);
-      }
-
-      return false;
+      // Otherwise, always use localStorage as fallback
+      return this._isFavoriteInLocalStorage(recipeId, userId);
     } catch (error) {
       console.error('Error checking favorite status:', error);
       // Use localStorage as fallback if SQLite fails
-      if (this.isWebPlatform()) {
-        return this._isFavoriteInLocalStorage(recipeId, userId);
-      }
-      return false;
+      return this._isFavoriteInLocalStorage(recipeId, userId);
     }
   }
 
@@ -261,6 +228,7 @@ export class SqliteService {
         await this.db.close();
         this.db = null;
         this.isInitializedSignal.set(false);
+        this.initializationAttempted = false;
         console.log('SQLite connection closed');
       }
     } catch (error) {
