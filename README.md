@@ -1,448 +1,377 @@
-# 🍳 MealMates - App de Recetas Ionic + Firebase
+# 🍳 MealMates - Sprint 4: Firebase + SQLite Recipe App
 
-## 📱 Descripción del Proyecto
+> **Una app híbrida que conecta foodies a través de recetas, con Firebase en la nube y SQLite local** 🚀
 
-MealMates es una aplicación móvil desarrollada con **Ionic 8** y **Angular 19** que permite a los usuarios explorar recetas, guardar favoritos y gestionar su perfil culinario. La app integra **Firebase** para autenticación y almacenamiento de datos, junto con **SQLite** para gestión local de favoritos.
+## 🎯 Sprint 4: Las 4 Pantallas Fundamentales
 
-## ✨ Características Principales
+Este proyecto implementa **exactamente las 4 pantallas requeridas** para el Sprint 4, creando una experiencia completa de descubrimiento y gestión de recetas:
 
-### 🔐 **Autenticación**
+### 📱 **1. Registro de Usuarios**
 
-- Registro de usuarios con Firebase Auth
-- Inicio de sesión con email/password
-- Gestión de perfiles de usuario
-- Cierre de sesión seguro
-
-### 🍽️ **Gestión de Recetas**
-
-- Exploración de recetas públicas desde Firestore
-- Visualización detallada de recetas con ingredientes e instrucciones
-- Información nutricional completa
-- Categorización por dificultad, tiempo y tipo de comida
-
-### ❤️ **Sistema de Favoritos**
-
-- Almacenamiento local con SQLite
-- Marcado/desmarcado de recetas favoritas
-- Lista personalizada de favoritos por usuario
-- Sincronización offline
-
-### 🎨 **Diseño y UX**
-
-- Tema naranja cálido (#ff6b35) como color principal
-- Componentes nativos de Ionic para consistencia
-- Navegación por tabs en la parte inferior
-- Splash screen personalizada
-- Responsive design para móviles y tablets
-
-## 🚀 Tecnologías Utilizadas
-
-### **Frontend**
-
-- **Ionic 8** - Framework de aplicaciones híbridas
-- **Angular 19** - Framework web con señales (signals)
-- **TypeScript** - Lenguaje de programación
-- **SCSS** - Preprocesador CSS
-
-### **Backend & Base de Datos**
-
-- **Firebase Auth** - Autenticación de usuarios
-- **Cloud Firestore** - Base de datos NoSQL en tiempo real
-- **SQLite** (Capacitor Community) - Base de datos local para favoritos
-
-### **Herramientas de Desarrollo**
-
-- **Capacitor** - Capa nativa para dispositivos móviles
-- **ESLint** - Linting de código
-- **Prettier** - Formateo de código
-
-## 📂 Estructura del Proyecto
-
-```
-src/
-├── app/
-│   ├── guards/
-│   │   └── auth.guard.ts           # Protección de rutas
-│   ├── pages/
-│   │   ├── landing/                # Página de bienvenida
-│   │   ├── login/                  # Inicio de sesión
-│   │   ├── register/               # Registro de usuario
-│   │   ├── favorites/              # Lista de favoritos
-│   │   ├── explore/                # Exploración de recetas
-│   │   └── recipe-detail/          # Detalle de receta
-│   ├── services/
-│   │   ├── auth.service.ts         # Servicio de autenticación
-│   │   ├── recipe.service.ts       # Servicio de recetas
-│   │   └── sqlite.service.ts       # Servicio SQLite
-│   └── tabs/                       # Navegación por tabs
-├── models/
-│   ├── user.model.ts               # Modelo de usuario
-│   ├── recipe.model.ts             # Modelo de receta
-│   └── favorite.model.ts           # Modelo de favorito
-├── assets/
-│   └── icon/                       # Iconos de la aplicación
-├── theme/
-│   └── variables.scss              # Variables de tema
-└── firebase.config.ts              # Configuración Firebase
+```typescript
+// 🔥 Firebase Auth + Firestore Profile Storage
+✅ Formulario completo con email/password
+✅ Datos adicionales: nombre, apellidos, foto de perfil
+✅ Validación en tiempo real
+✅ Almacenamiento seguro en Firestore
 ```
 
-## 🔧 Configuración e Instalación
+### 🔐 **2. Autenticación de Usuarios**
 
-### **Prerrequisitos**
+```typescript
+// 🚪 Login con Firebase Authentication
+✅ Email/password authentication
+✅ Gestión de estados de autenticación
+✅ Redirección automática post-login
+✅ Manejo de errores elegante
+```
+
+### ❤️ **3. Pantalla de Favoritos**
+
+```typescript
+// 📱 SQLite + Firebase Hybrid Architecture
+✅ Lista de recetas desde Firebase Firestore
+✅ Marcado visual de favoritos (desde SQLite)
+✅ Solo accesible para usuarios autenticados
+✅ Navegación a detalle con un clic
+✅ Sincronización automática local/remota
+```
+
+### 🍽️ **4. Pantalla de Detalle**
+
+```typescript
+// 🎨 Vista completa con toggle de favoritos
+✅ Información completa de la receta
+✅ Imagen característica de alta calidad
+✅ Botón para agregar/quitar de favoritos
+✅ Almacenamiento instantáneo en SQLite
+✅ Feedback visual inmediato
+```
+
+---
+
+## ⚡ Stack Tecnológico de Vanguardia
+
+### **Frontend Híbrido**
+
+- **Ionic 8** + **Angular 19** con **Standalone Components**
+- **TypeScript** con **Signals** para reactividad óptima
+- **SCSS** con variables CSS customizadas
+- **Capacitor** para acceso nativo a dispositivos
+
+### **Backend & Bases de Datos**
+
+- **🔥 Firebase Auth** - Autenticación de usuarios
+- **🔥 Cloud Firestore** - Base de datos NoSQL en tiempo real
+- **📱 SQLite** - Almacenamiento local de favoritos
+- **🔥 Firebase Storage** - Imágenes de recetas y perfiles
+
+### **Arquitectura Híbrida Inteligente**
+
+```mermaid
+graph TD
+    A[Usuario] --> B[Ionic App]
+    B --> C[Firebase Auth]
+    B --> D[Firestore - Recetas]
+    B --> E[SQLite - Favoritos]
+    B --> F[Firebase Storage - Imágenes]
+```
+
+---
+
+## 🚀 Setup Rápido
+
+### **Instalación Express**
 
 ```bash
-# Node.js 20.x
-# npm 10.x
-# Ionic CLI
-npm install -g @ionic/cli
-
-# Capacitor CLI
-npm install -g @capacitor/cli
-```
-
-### **Instalación**
-
-```bash
-# Clonar el repositorio
+# 📦 Clonar e instalar
 git clone [url-del-repositorio]
 cd MealMates-Ionic
-
-# Instalar dependencias
 npm install
 
-# Sincronizar Capacitor
+# 🔧 Configurar Capacitor
 npx cap sync
+
+# 🌐 Ejecutar en desarrollo
+ionic serve
 ```
 
 ### **Configuración Firebase**
 
-1. Crear proyecto en [Firebase Console](https://console.firebase.google.com)
-2. Configurar Authentication con Email/Password
-3. Crear base de datos Firestore
-4. Actualizar `src/firebase.config.ts` con las credenciales del proyecto
+```typescript
+// src/firebase.config.ts
+export const firebaseConfig = {
+  projectId: 'pwm-angular', // ✅ Proyecto configurado
+  // ... resto de credenciales
+};
+```
 
-### **Configuración SQLite**
+### **SQLite para Móviles**
 
 ```bash
-# Instalar plugin SQLite
+# 📱 Agregar soporte SQLite
 npm install @capacitor-community/sqlite
-npm install @ionic/storage-angular
-
-# Sincronizar
-npx cap sync
+npx cap sync android  # o ios
 ```
 
-## 🏃‍♂️ Ejecución del Proyecto
+---
 
-### **Desarrollo Web**
+## 📂 Arquitectura del Proyecto
+
+```
+📁 src/app/
+├── 🔐 pages/
+│   ├── 📝 register/           # Sprint 4.1 - Registro
+│   ├── 🚪 login/              # Sprint 4.2 - Autenticación
+│   ├── ❤️ favorites/          # Sprint 4.3 - Lista Favoritos
+│   └── 🍽️ recipe-detail/      # Sprint 4.4 - Detalle + Toggle
+├── 🛠️ services/
+│   ├── auth.service.ts        # Firebase Authentication
+│   ├── recipe.service.ts      # Firestore Operations
+│   └── sqlite.service.ts      # Local Favorites Storage
+└── 📊 models/
+    ├── user.model.ts          # Interfaz Usuario
+    ├── recipe.model.ts        # Interfaz Receta
+    └── favorite.model.ts      # Interfaz Favorito Local
+```
+
+---
+
+## 🎨 Funcionalidades Implementadas
+
+### **🔥 Autenticación Completa**
+
+- [x] Registro con datos adicionales
+- [x] Login con email/password
+- [x] Gestión de sesiones
+- [x] Guards de protección de rutas
+- [x] Persistencia de estado
+
+### **📱 Gestión de Favoritos Híbrida**
+
+- [x] Lista de recetas desde Firestore
+- [x] Favoritos almacenados en SQLite
+- [x] Sincronización automática
+- [x] Indicadores visuales de favoritos
+- [x] Acceso solo para usuarios autenticados
+
+### **🍽️ Experiencia de Recetas**
+
+- [x] Visualización detallada con imágenes
+- [x] Toggle de favoritos en tiempo real
+- [x] Información completa (ingredientes, instrucciones)
+- [x] Metadatos (tiempo, dificultad, porciones)
+- [x] Navegación fluida entre pantallas
+
+### **💾 Persistencia Inteligente**
+
+- [x] Firebase para datos compartidos
+- [x] SQLite para preferencias locales
+- [x] Sincronización offline
+- [x] Fallbacks automáticos
+
+---
+
+## 🔧 Scripts de Desarrollo
 
 ```bash
-# Servidor de desarrollo
-ionic serve
+# 🌐 Desarrollo Web
+npm run start              # ionic serve
 
-# Build para web
-ionic build
+# 📱 Build para Móviles
+npm run build              # ionic build
+npx cap sync android       # Sincronizar Android
+npx cap open android       # Abrir Android Studio
+
+# 🧪 Testing & Calidad
+npm run test               # Unit tests
+npm run lint               # Code linting
 ```
 
-### **Desarrollo Móvil**
-
-```bash
-# Agregar plataformas
-ionic capacitor add android
-ionic capacitor add ios
-
-# Build y abrir en IDE nativo
-ionic capacitor build android
-ionic capacitor open android
-
-ionic capacitor build ios
-ionic capacitor open ios
-```
-
-### **Generar APK**
-
-```bash
-# Build de producción
-ionic build --prod
-
-# Sincronizar con Capacitor
-npx cap sync android
-
-# Abrir Android Studio
-npx cap open android
-# En Android Studio: Build → Generate Signed Bundle/APK
-```
+---
 
 ## 📊 Modelos de Datos
 
-### **Usuario (Firestore)**
+### **👤 Usuario (Firestore)**
 
 ```typescript
 interface User {
-  id: string;
-  email: string;
-  firstName: string;
-  lastName: string;
-  profileImageUrl?: string;
-  preferences: UserPreferences;
-  dietaryRestrictions: string[];
-  favoriteRecipes: string[];
+  id: string; // UID de Firebase Auth
+  email: string; // Email de registro
+  firstName: string; // ✅ Dato adicional requerido
+  lastName: string; // ✅ Dato adicional requerido
+  profileImageUrl?: string; // ✅ Imagen de perfil
   createdAt: Timestamp;
   updatedAt: Timestamp;
 }
 ```
 
-### **Receta (Firestore)**
+### **🍽️ Receta (Firestore)**
 
 ```typescript
 interface Recipe {
-  id: string;
-  title: string;
-  description: string;
-  ingredients: Ingredient[];
-  instructions: string[];
-  cookingTime: number;
-  servings: number;
+  id: string; // ID único
+  title: string; // Nombre de la receta
+  description: string; // Descripción
+  ingredients: Ingredient[]; // Lista de ingredientes
+  instructions: string[]; // Pasos detallados
+  imageUrl: string; // ✅ Imagen característica
+  cookingTime: number; // Tiempo en minutos
   difficulty: 'easy' | 'medium' | 'hard';
-  category: string;
-  imageUrl: string;
-  authorId: string;
-  nutritionInfo?: NutritionInfo;
-  isPublic: boolean;
-  likes: number;
-  saves: number;
+  authorId: string; // Creador
+  isPublic: boolean; // Visibilidad
 }
 ```
 
-### **Favorito (SQLite)**
+### **❤️ Favorito (SQLite Local)**
 
 ```typescript
 interface Favorite {
-  id: number;
-  recipeId: string;
-  userId: string;
-  addedAt: Date;
+  id: number; // ID local
+  recipeId: string; // Referencia a receta
+  userId: string; // Usuario propietario
+  addedAt: Date; // Fecha de marcado
 }
 ```
 
-## 🔐 Reglas de Seguridad Firestore
+---
+
+## 🔐 Seguridad Firebase
+
+### **Reglas Firestore**
 
 ```javascript
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Usuarios solo pueden leer/escribir su propio perfil
+    // 👤 Usuarios: solo su propio perfil
     match /users/{userId} {
-      allow read, write: if request.auth != null && request.auth.uid == userId;
+      allow read, write: if request.auth.uid == userId;
     }
 
-    // Recetas públicas son legibles para usuarios autenticados
+    // 🍽️ Recetas: lectura pública, escritura propia
     match /recipes/{recipeId} {
-      allow read: if request.auth != null && resource.data.isPublic == true;
-      allow write: if request.auth != null && request.auth.uid == resource.data.authorId;
+      allow read: if request.auth != null && resource.data.isPublic;
+      allow write: if request.auth.uid == resource.data.authorId;
     }
   }
 }
 ```
 
-## 🎨 Sistema de Diseño
+---
 
-### **Colores Principales**
+## 🎯 Cumplimiento Sprint 4
 
-- **Primary**: `#ff6b35` (Naranja cálido)
-- **Secondary**: `#ff8a65` (Naranja claro)
-- **Success**: `#2dd36f` (Verde fresco)
-- **Warning**: `#ffc409` (Amarillo cálido)
-- **Danger**: `#eb445a` (Rojo)
-
-### **Componentes**
-
-- **Cards**: Bordes redondeados (16px), sombras suaves
-- **Buttons**: Altura 48px, bordes redondeados (12px)
-- **Chips**: Tamaño compacto para metadatos
-- **Tab Bar**: Posición inferior con iconos nativos
-
-## 📱 Navegación
-
-### **Flujo de Autenticación**
-
-```
-Landing → Login/Register → Favorites (Home)
-```
-
-### **Navegación Principal (Tabs)**
-
-- **Favoritos**: Lista de recetas guardadas
-- **Explorar**: Búsqueda y exploración de recetas
-- **Inicio**: Landing page y perfil
-
-### **Navegación Secundaria**
-
-- **Detalle de Receta**: Información completa + toggle favoritos
-- **Perfil**: Configuración de usuario (futuro)
-
-## 🔧 Scripts Disponibles
-
-```bash
-# Desarrollo
-npm run start              # ionic serve
-npm run build              # ionic build
-npm run test               # ng test
-npm run lint               # ng lint
-
-# Capacitor
-npm run cap:sync           # npx cap sync
-npm run cap:android        # npx cap open android
-npm run cap:ios            # npx cap open ios
-
-# Firebase
-npm run deploy:functions   # firebase deploy --only functions
-npm run deploy:rules       # firebase deploy --only firestore:rules
-```
-
-## 🚀 Deployment
-
-### **Web (Firebase Hosting)**
-
-```bash
-# Build de producción
-ionic build --prod
-
-# Deploy a Firebase Hosting
-firebase deploy --only hosting
-```
-
-### **Android Play Store**
-
-1. Generar APK firmado en Android Studio
-2. Crear cuenta de desarrollador en Google Play Console
-3. Subir APK y completar información de la app
-4. Publicar para revisión
-
-### **iOS App Store**
-
-1. Abrir proyecto en Xcode
-2. Configurar certificados de desarrollo
-3. Crear archivo en App Store Connect
-4. Subir build con Xcode o Transporter
-
-## 🧪 Testing
-
-### **Unit Tests**
-
-```bash
-# Ejecutar tests unitarios
-ng test
-
-# Tests con coverage
-ng test --code-coverage
-```
-
-### **E2E Tests**
-
-```bash
-# Instalar Cypress
-npm install --save-dev cypress
-
-# Ejecutar tests E2E
-npx cypress open
-```
-
-## 📈 Performance
-
-### **Optimizaciones Implementadas**
-
-- Lazy loading de páginas
-- Preload de módulos principales
-- Imágenes optimizadas de Unsplash
-- Componentes standalone para menor bundle
-- SQLite para datos críticos offline
-
-### **Métricas Objetivo**
-
-- First Contentful Paint: < 2s
-- Time to Interactive: < 3s
-- Bundle size: < 2MB
-
-## 🐛 Troubleshooting
-
-### **Errores Comunes**
-
-**Error de compilación TypeScript**
-
-```bash
-# Limpiar cache
-rm -rf node_modules
-npm install
-npx cap sync
-```
-
-**Problemas con SQLite**
-
-```bash
-# Reinstalar plugin
-npm uninstall @capacitor-community/sqlite
-npm install @capacitor-community/sqlite
-npx cap sync
-```
-
-**Firebase no conecta**
-
-- Verificar credenciales en `firebase.config.ts`
-- Comprobar reglas de Firestore
-- Revisar configuración de Authentication
-
-## 🔮 Roadmap Futuro
-
-### **Sprint 5**
-
-- [ ] Creación de recetas por usuarios
-- [ ] Sistema de comentarios y valoraciones
-- [ ] Filtros avanzados de búsqueda
-- [ ] Categorías personalizadas
-
-### **Sprint 6**
-
-- [ ] Planificación de menús semanales
-- [ ] Listas de compras generadas automáticamente
-- [ ] Modo offline completo
-- [ ] Notificaciones push
-
-### **Sprint 7**
-
-- [ ] Red social (seguir usuarios)
-- [ ] Compartir recetas en redes sociales
-- [ ] Modo oscuro
-- [ ] Soporte multiidioma
-
-## 👥 Contribución
-
-### **Guías de Desarrollo**
-
-1. Fork del repositorio
-2. Crear rama feature: `git checkout -b feature/nueva-funcionalidad`
-3. Commit cambios: `git commit -m 'Añadir nueva funcionalidad'`
-4. Push a la rama: `git push origin feature/nueva-funcionalidad`
-5. Crear Pull Request
-
-### **Estándares de Código**
-
-- Usar ESLint y Prettier
-- Comentarios en español
-- Nombres de variables/funciones en inglés
-- Commits descriptivos en español
-
-## 📄 Licencia
-
-Este proyecto está bajo la Licencia MIT. Ver `LICENSE` para más detalles.
-
-## 📞 Soporte
-
-- **Email**: jdelhorno@gmail.com
-- **Firebase Project**: pwm-angular
-- **Ionic Version**: 8.x
-- **Angular Version**: 19.x
+| Requisito                 | ✅ Status   | Implementación                       |
+| ------------------------- | ----------- | ------------------------------------ |
+| **Registro Firebase**     | ✅ Completo | `register.page.ts` + Firestore       |
+| **Autenticación**         | ✅ Completo | `login.page.ts` + Firebase Auth      |
+| **Lista Favoritos**       | ✅ Completo | `favorites.page.ts` + SQLite híbrido |
+| **Detalle + Toggle**      | ✅ Completo | `recipe-detail.page.ts` + SQLite     |
+| **Solo usuarios auth**    | ✅ Completo | `AuthGuard` + Route protection       |
+| **Información adicional** | ✅ Completo | Perfil completo en Firestore         |
+| **Imagen característica** | ✅ Completo | Firebase Storage + URLs              |
+| **SQLite favoritos**      | ✅ Completo | Capacitor SQLite + fallbacks         |
 
 ---
 
-**Desarrollado con ❤️ usando Ionic + Firebase**
+## 🚀 Demo & Testing
+
+### **Credenciales de Prueba**
+
+```bash
+Email: test@mealmates.com
+Password: test123456
+```
+
+### **Flujo de Prueba Completo**
+
+1. 📱 **Registro**: Crear cuenta con datos adicionales
+2. 🚪 **Login**: Autenticarse con credenciales
+3. ❤️ **Favoritos**: Ver lista de recetas, favoritos marcados
+4. 🍽️ **Detalle**: Seleccionar receta, toggle favoritos
+5. 💾 **Persistencia**: Verificar SQLite + Firebase sync
+
+---
+
+## 🏆 Características Destacadas
+
+### **🎨 UX/UI Premium**
+
+- Material Design con tema personalizado
+- Animaciones fluidas nativas
+- Feedback visual inmediato
+- Responsive design adaptativo
+
+### **⚡ Performance Optimizada**
+
+- Lazy loading de componentes
+- SQLite con fallbacks automáticos
+- Compresión de imágenes
+- Caché inteligente
+
+### **🔧 Arquitectura Escalable**
+
+- Standalone components modulares
+- Signals para reactividad
+- Servicios desacoplados
+- Testing integrado
+
+---
+
+## 📱 Deploy & Distribución
+
+### **Android APK**
+
+```bash
+ionic build --prod
+npx cap sync android
+npx cap open android
+# Build → Generate Signed Bundle/APK
+```
+
+### **Firebase Hosting**
+
+```bash
+ionic build --prod
+firebase deploy --only hosting
+```
+
+---
+
+## 🎯 Roadmap Futuro
+
+### **Sprint 5+**
+
+- [ ] 👥 Sistema social (seguir usuarios)
+- [ ] 📝 Creación de recetas por usuarios
+- [ ] 🔍 Búsqueda avanzada con filtros
+- [ ] 📊 Analytics de uso
+- [ ] 🌙 Modo oscuro
+- [ ] 🌍 Internacionalización
+
+---
+
+## 🤝 Contribución
+
+### **Estándares del Proyecto**
+
+- 🎯 **Foco**: Sprint 4 core functionality
+- 📱 **Mobile-first**: Diseño pensado para móvil
+- 🔥 **Firebase-centric**: Aprovecha todo el ecosistema
+- 📊 **Data-driven**: SQLite + Firestore híbrido
+
+---
+
+## 📞 Información del Proyecto
+
+- **🎓 Curso**: Programación Web y Movil
+- **🚀 Sprint**: 4 - Firebase + SQLite Integration
+- **🔥 Firebase Project**: `pwm-angular`
+- **📱 Tecnologías**: Ionic 8 + Angular 19 + Firebase + SQLite
+
+---
+
+**🎉 ¡Sprint 4 completado con éxito! Una app híbrida que demuestra la perfecta integración entre Firebase y SQLite en el ecosistema Ionic/Angular.**
+
+_Desarrollado con ❤️ y mucho ☕ usando las mejores prácticas de desarrollo móvil híbrido_
