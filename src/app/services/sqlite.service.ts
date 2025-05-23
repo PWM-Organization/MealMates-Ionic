@@ -24,7 +24,7 @@ export class SqliteService {
   /**
    * Wait for SQLite web module to be available
    */
-  private async waitForSQLiteWeb(timeout: number = 2000): Promise<void> {
+  private async waitForSQLiteWeb(timeout: number = 1000): Promise<void> {
     return new Promise((resolve, reject) => {
       const startTime = Date.now();
 
@@ -66,6 +66,19 @@ export class SqliteService {
       if (this.platform === 'web') {
         // Wait for SQLite web module to load
         await this.waitForSQLiteWeb();
+
+        // Initialize the WebStore for web platform
+        try {
+          await this.sqlite.initWebStore();
+          if (isDevMode()) {
+            console.log('✅ SQLite WebStore initialized');
+          }
+        } catch (webStoreError: any) {
+          // WebStore might already be initialized, check if it's just a duplicate call
+          if (!webStoreError.message?.includes('already initialized')) {
+            throw webStoreError;
+          }
+        }
       }
 
       // Check if CapacitorSQLite is available
