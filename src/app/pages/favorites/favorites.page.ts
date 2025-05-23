@@ -171,7 +171,7 @@ export class FavoritesPage implements OnInit {
       await this.showToast('Receta eliminada de favoritos', 'heart-dislike');
     } catch (error) {
       console.error('Error removing favorite:', error);
-      await this.showToast('Error al eliminar favorito', 'alert-circle');
+      await this.showToast('Error al eliminar favorito', 'alert-circle-outline');
     }
   }
 
