@@ -246,7 +246,7 @@ export class CreateRecipePage {
         }
 
         await loading.dismiss();
-        await this.showToast('¡Receta creada exitosamente!', 'checkmark-circle');
+        await this.showToast('¡Receta creada exitosamente!', 'checkmark-circle-outline');
         this.router.navigate(['/tabs/explore']);
       } catch (error: any) {
         await loading.dismiss();

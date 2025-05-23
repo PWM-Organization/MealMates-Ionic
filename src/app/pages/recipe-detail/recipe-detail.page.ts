@@ -133,7 +133,7 @@ export class RecipeDetailPage implements OnInit {
     const recipe = this.recipe();
 
     if (!user) {
-      await this.showToast('Debes iniciar sesión para guardar favoritos', 'alert-circle');
+      await this.showToast('Debes iniciar sesión para guardar favoritos', 'alert-circle-outline');
       return;
     }
 
@@ -149,7 +149,7 @@ export class RecipeDetailPage implements OnInit {
       await this.showToast(message, icon);
     } catch (error) {
       console.error('Error toggling favorite:', error);
-      await this.showToast('Error al actualizar favoritos', 'alert-circle');
+      await this.showToast('Error al actualizar favoritos', 'alert-circle-outline');
     }
   }
 

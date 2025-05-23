@@ -116,7 +116,7 @@ export class RegisterPage {
         await this.authService.register(formValue.email!, formValue.password!, userData);
 
         await loading.dismiss();
-        await this.showToast('¡Cuenta creada exitosamente!', 'checkmark-circle');
+        await this.showToast('¡Cuenta creada exitosamente!', 'checkmark-circle-outline');
         this.router.navigate(['/tabs/explore']);
       } catch (error: any) {
         await loading.dismiss();

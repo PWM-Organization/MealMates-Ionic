@@ -89,7 +89,7 @@ export class LoginPage {
         await this.authService.login(formValue.email!, formValue.password!);
 
         await loading.dismiss();
-        await this.showToast('¡Bienvenido de vuelta!', 'checkmark-circle');
+        await this.showToast('¡Bienvenido de vuelta!', 'checkmark-circle-outline');
         this.router.navigate(['/tabs/explore']);
       } catch (error: any) {
         await loading.dismiss();

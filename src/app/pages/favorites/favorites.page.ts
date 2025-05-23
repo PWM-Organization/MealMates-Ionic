@@ -105,7 +105,7 @@ export class FavoritesPage implements OnInit {
       this.isSqliteInitialized.set(true);
     } catch (error) {
       console.error('Error initializing SQLite:', error);
-      await this.showToast('Error initializing local database', 'alert-circle');
+      await this.showToast('Error initializing local database', 'alert-circle-outline');
     }
 
     await this.loadData();
@@ -129,7 +129,7 @@ export class FavoritesPage implements OnInit {
       }
     } catch (error) {
       console.error('Error loading data:', error);
-      await this.showToast('Error cargando datos', 'alert-circle');
+      await this.showToast('Error cargando datos', 'alert-circle-outline');
     } finally {
       this.isLoading.set(false);
     }

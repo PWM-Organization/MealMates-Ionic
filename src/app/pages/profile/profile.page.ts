@@ -136,7 +136,7 @@ export class ProfilePage implements OnInit {
         });
 
         await loading.dismiss();
-        await this.showToast('Perfil actualizado exitosamente', 'checkmark-circle');
+        await this.showToast('Perfil actualizado exitosamente', 'checkmark-circle-outline');
         this.isEditing.set(false);
         await this.loadUserProfile();
       } catch (error: any) {
@@ -224,7 +224,7 @@ export class ProfilePage implements OnInit {
       await this.authService.updateUserProfile({ profileImageUrl: imageUrl });
 
       await loading.dismiss();
-      await this.showToast('Imagen actualizada exitosamente', 'checkmark-circle');
+      await this.showToast('Imagen actualizada exitosamente', 'checkmark-circle-outline');
       await this.loadUserProfile();
     } catch (error: any) {
       await loading.dismiss();

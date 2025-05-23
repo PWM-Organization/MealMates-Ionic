@@ -80,34 +80,23 @@ export class ExplorePage implements OnInit {
       this.hasError.set(false);
       this.errorMessage.set('');
 
-      // 1. Load all public recipes from Firestore
+      // 1. Load all public recipes from Firestore FIRST (don't wait for SQLite)
       const recipes = await this.recipeService.loadRecipes();
       this.allRecipes.set(recipes);
       this.applyFilters();
 
-      // 2. Initialize SQLite (with fallback)
-      if (!this.sqliteService.isInitialized()) {
-        try {
-          await this.sqliteService.initializeDB();
-          this.sqliteInitialized.set(true);
-        } catch (error: any) {
-          console.warn('SQLite initialization failed in web mode - using localStorage fallback', error);
-          this.sqliteInitialized.set(false);
+      // 2. Initialize SQLite in background (non-blocking)
+      this.initializeSQLiteInBackground();
 
-          // Show brief notification only in development mode
-          if (error.message?.includes('jeep-sqlite element is not present')) {
-            await this.showToast('Usando almacenamiento local para favoritos en modo web', 'information-circle');
-          }
-        }
-      } else {
-        this.sqliteInitialized.set(true);
-      }
-
-      // 3. Load favorite IDs (with fallback)
+      // 3. Load favorite IDs (with fallback) - this can happen after recipes are shown
       const user = this.currentUser();
       if (user) {
+        // Use a short timeout to not block UI
         try {
-          const favoriteIds = await this.sqliteService.getFavorites(user.uid);
+          const favoriteIds = await Promise.race([
+            this.sqliteService.getFavorites(user.uid),
+            new Promise<string[]>((resolve) => setTimeout(() => resolve([]), 1000)), // 1 second timeout
+          ]);
           this.favoriteRecipeIds.set(favoriteIds);
         } catch (error) {
           console.warn('Error loading favorites - using empty list', error);
@@ -118,9 +107,51 @@ export class ExplorePage implements OnInit {
       console.error('Error loading data:', error);
       this.hasError.set(true);
       this.errorMessage.set('Error al cargar las recetas. Intenta de nuevo.');
-      await this.showToast('Error cargando datos', 'alert-circle');
+      await this.showToast('Error cargando datos', 'alert-circle-outline');
     } finally {
       this.isLoading.set(false);
+    }
+  }
+
+  /**
+   * Initialize SQLite in background without blocking UI
+   */
+  private async initializeSQLiteInBackground() {
+    if (!this.sqliteService.isInitialized()) {
+      try {
+        // Don't await this - let it happen in background
+        this.sqliteService
+          .initializeDB()
+          .then(() => {
+            this.sqliteInitialized.set(true);
+            // Reload favorites after SQLite is ready
+            this.loadFavoritesAfterSQLiteInit();
+          })
+          .catch((error) => {
+            console.warn('SQLite background initialization failed', error);
+            this.sqliteInitialized.set(false);
+          });
+      } catch (error) {
+        console.warn('Error starting SQLite background initialization', error);
+        this.sqliteInitialized.set(false);
+      }
+    } else {
+      this.sqliteInitialized.set(true);
+    }
+  }
+
+  /**
+   * Load favorites after SQLite is initialized
+   */
+  private async loadFavoritesAfterSQLiteInit() {
+    const user = this.currentUser();
+    if (user && this.sqliteService.isInitialized()) {
+      try {
+        const favoriteIds = await this.sqliteService.getFavorites(user.uid);
+        this.favoriteRecipeIds.set(favoriteIds);
+      } catch (error) {
+        console.warn('Error loading favorites after SQLite init', error);
+      }
     }
   }
 
@@ -207,7 +238,7 @@ export class ExplorePage implements OnInit {
     // Require authentication
     const user = this.currentUser();
     if (!user) {
-      await this.showToast('Debes iniciar sesión para guardar favoritos', 'alert-circle');
+      await this.showToast('Debes iniciar sesión para guardar favoritos', 'alert-circle-outline');
       return;
     }
 
@@ -216,7 +247,7 @@ export class ExplorePage implements OnInit {
       if (!this.isSqliteAvailable() && !this.sqliteService.isWebPlatform()) {
         await this.showToast(
           'La función de favoritos está disponible sólo en dispositivos móviles o después de instalar la app web',
-          'information-circle',
+          'information-circle-outline',
         );
         return;
       }
@@ -240,7 +271,7 @@ export class ExplorePage implements OnInit {
       await this.showToast(message, icon);
     } catch (error) {
       console.error('Error toggling favorite:', error);
-      await this.showToast('Error al actualizar favoritos', 'alert-circle');
+      await this.showToast('Error al actualizar favoritos', 'alert-circle-outline');
 
       // Revert to original state on error
       await this.loadData();
