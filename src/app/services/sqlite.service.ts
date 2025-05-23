@@ -24,7 +24,7 @@ export class SqliteService {
   /**
    * Wait for SQLite web module to be available
    */
-  private async waitForSQLiteWeb(timeout: number = 3000): Promise<void> {
+  private async waitForSQLiteWeb(timeout: number = 2000): Promise<void> {
     return new Promise((resolve, reject) => {
       const startTime = Date.now();
 
@@ -35,14 +35,16 @@ export class SqliteService {
           return;
         }
 
-        // Check timeout
+        // Check timeout - be more forgiving and just resolve after timeout
         if (Date.now() - startTime > timeout) {
-          reject(new Error('Timeout waiting for SQLite web module'));
+          // Instead of rejecting, just resolve and let the fallback handle it
+          console.warn('SQLite web module timed out, proceeding with localStorage fallback');
+          resolve();
           return;
         }
 
-        // Check again in 100ms
-        setTimeout(checkForSQLite, 100);
+        // Check again in 50ms (faster polling)
+        setTimeout(checkForSQLite, 50);
       };
 
       checkForSQLite();

@@ -29,7 +29,7 @@
  *
  * The flags allowed in zone-flags.ts are listed here.
  *
- * The following flags will work for all browsers.
+ * The flags will work for all browsers.
  *
  * (window as any).__Zone_disable_requestAnimationFrame = true; // disable patch requestAnimationFrame
  * (window as any).__Zone_disable_on_property = true; // disable patch onProperty such as onclick
@@ -54,20 +54,22 @@ import 'zone.js'; // Included with Angular CLI.
  */
 
 // Capacitor polyfills for web environment
-if (typeof global === 'undefined') {
-  (window as any).global = window;
+const globalWindow = window as any;
+
+if (!globalWindow.global) {
+  globalWindow.global = window;
 }
 
-if (typeof process === 'undefined') {
-  (window as any).process = {
+if (!globalWindow.process) {
+  globalWindow.process = {
     env: { DEBUG: undefined },
     platform: 'web',
   };
 }
 
 // Additional polyfills for web compatibility
-if (typeof Buffer === 'undefined') {
-  (window as any).Buffer = { from: () => null };
+if (!globalWindow.Buffer) {
+  globalWindow.Buffer = { from: () => null };
 }
 
 /**

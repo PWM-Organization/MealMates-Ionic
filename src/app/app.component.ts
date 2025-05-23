@@ -31,6 +31,8 @@ import {
   cameraOutline,
   addOutline,
   checkmarkOutline,
+  checkmarkCircle,
+  checkmarkCircleOutline,
   createOutline,
   closeOutline,
   trashOutline,
@@ -39,6 +41,7 @@ import {
   reorderTwoOutline,
   helpCircleOutline,
   alertCircleOutline,
+  informationCircleOutline,
   cloudUploadOutline,
   gridOutline,
   locationOutline,
@@ -63,6 +66,8 @@ import {
   phonePortraitOutline,
   shareOutline,
   person,
+  heartDislike,
+  heartDislikeOutline,
 } from 'ionicons/icons';
 
 @Component({
@@ -108,6 +113,8 @@ export class AppComponent implements OnInit {
       cameraOutline,
       addOutline,
       checkmarkOutline,
+      checkmarkCircle,
+      checkmarkCircleOutline,
       createOutline,
       closeOutline,
       trashOutline,
@@ -116,6 +123,7 @@ export class AppComponent implements OnInit {
       reorderTwoOutline,
       helpCircleOutline,
       alertCircleOutline,
+      informationCircleOutline,
       cloudUploadOutline,
       gridOutline,
       locationOutline,
@@ -140,6 +148,8 @@ export class AppComponent implements OnInit {
       phonePortraitOutline,
       shareOutline,
       person,
+      heartDislike,
+      heartDislikeOutline,
     });
   }
 
