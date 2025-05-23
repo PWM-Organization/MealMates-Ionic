@@ -1,0 +1,223 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# Ionic Angular Standalone Components Guide
+
+## Overview
+MealMates uses Ionic's standalone component architecture, which requires explicit import and registration of each component in every page file. This guide covers the common patterns and best practices for working with Ionic components in this project.
+
+## Importing Ionic Components
+
+```typescript
+// Example component imports pattern
+import {
+  IonHeader,
+  IonToolbar,
+  IonTitle,
+  IonContent,
+  IonButton,
+  IonIcon,
+  // other components...
+} from '@ionic/angular/standalone';
+```
+
+## Component Registration
+
+Each standalone component must be registered in the component's `imports` array:
+
+```typescript
+@Component({
+  selector: 'app-example',
+  standalone: true,
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    IonHeader,
+    IonToolbar,
+    IonTitle,
+    IonContent,
+    // other components...
+  ],
+  templateUrl: './example.page.html',
+  styleUrls: ['./example.page.scss'],
+})
+```
+
+## Icon System
+
+Icons are registered in [src/app/app.component.ts](mdc:src/app/app.component.ts) and used throughout the app:
+
+```typescript
+// In HTML templates
+<ion-icon name="heart-outline"></ion-icon>
+
+// Dynamic icons
+<ion-icon [name]="isFavorite ? 'heart' : 'heart-outline'"></ion-icon>
+```
+
+## Common Component Patterns
+
+### Form Controls
+```html
+<ion-item [class.ion-invalid]="isInvalid">
+  <ion-label position="stacked">Email</ion-label>
+  <ion-input type="email" formControlName="email" placeholder="example@mail.com">
+    <ion-icon name="mail-outline" slot="start"></ion-icon>
+  </ion-input>
+</ion-item>
+<ion-note color="danger" *ngIf="isInvalid">
+  Error message here
+</ion-note>
+```
+
+### Cards
+```html
+<ion-card>
+  <img [src]="recipe.imageUrl" />
+  <ion-card-header>
+    <ion-card-title>{{ recipe.title }}</ion-card-title>
+    <ion-card-subtitle>{{ recipe.category }}</ion-card-subtitle>
+  </ion-card-header>
+  <ion-card-content>
+    {{ recipe.description }}
+    
+    <div class="recipe-meta">
+      <ion-chip [color]="getDifficultyColor(recipe.difficulty)">
+        <ion-icon name="speedometer-outline"></ion-icon>
+        <ion-label>{{ recipe.difficulty }}</ion-label>
+      </ion-chip>
+    </div>
+  </ion-card-content>
+</ion-card>
+```
+
+### Lists
+```html
+<ion-list>
+  <ion-item-sliding *ngFor="let recipe of favoriteRecipes()">
+    <ion-item (click)="openRecipe(recipe)">
+      <ion-thumbnail slot="start">
+        <img [src]="recipe.imageUrl" />
+      </ion-thumbnail>
+      <ion-label>
+        <h2>{{ recipe.title }}</h2>
+        <p>{{ recipe.description }}</p>
+      </ion-label>
+    </ion-item>
+    
+    <ion-item-options side="end">
+      <ion-item-option color="danger" (click)="removeFromFavorites(recipe)">
+        <ion-icon name="trash" slot="icon-only"></ion-icon>
+      </ion-item-option>
+    </ion-item-options>
+  </ion-item-sliding>
+</ion-list>
+```
+
+### Tabs
+```html
+<ion-tabs>
+  <ion-tab-bar slot="bottom">
+    <ion-tab-button tab="explore">
+      <ion-icon name="search-outline"></ion-icon>
+      <ion-label>Explorar</ion-label>
+    </ion-tab-button>
+    
+    <ion-tab-button tab="favorites">
+      <ion-icon name="heart-outline"></ion-icon>
+      <ion-label>Favoritos</ion-label>
+    </ion-tab-button>
+    
+    <!-- More tabs -->
+  </ion-tab-bar>
+</ion-tabs>
+```
+
+### Loading States
+```typescript
+// In component
+isLoading = signal(true);
+
+// In template
+<div *ngIf="isLoading()" class="loading-container">
+  <ion-spinner name="crescent"></ion-spinner>
+  <p>Cargando...</p>
+</div>
+```
+
+### Alerts and Toasts
+```typescript
+// Alert example
+async showAlert(message: string) {
+  const alert = await this.alertCtrl.create({
+    header: 'Error',
+    message: message,
+    buttons: ['OK']
+  });
+  await alert.present();
+}
+
+// Toast example
+async showToast(message: string, icon: string) {
+  const toast = await this.toastCtrl.create({
+    message: message,
+    duration: 2000,
+    position: 'bottom',
+    icon: icon,
+    color: 'success'
+  });
+  await toast.present();
+}
+```
+
+## Common CSS Patterns
+
+### Variable Usage
+```scss
+:host {
+  --ion-color-favorite: #e31b23;
+  --ion-item-background: #ffffff;
+}
+
+.custom-item {
+  background: var(--ion-item-background);
+  color: var(--ion-color-primary);
+}
+```
+
+### Flexbox Layouts
+```scss
+.container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+}
+
+.row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+```
+
+### Responsive Media Queries
+```scss
+.recipe-grid {
+  display: grid;
+  grid-template-columns: repeat(1, 1fr);
+  gap: 16px;
+  
+  @media (min-width: 768px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  @media (min-width: 992px) {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+```

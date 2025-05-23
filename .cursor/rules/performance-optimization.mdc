@@ -1,0 +1,128 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# Performance Optimization & Best Practices
+
+## Critical Performance Fixes Applied
+
+### SQLite Non-Blocking Initialization
+**Problem Solved**: SQLite was blocking explore page loading for several seconds.
+
+**Solution**: Background initialization with fallbacks
+```typescript
+// ❌ WRONG - Blocks UI
+async ngOnInit() {
+  await this.sqliteService.initializeDB(); // Blocks page load
+  await this.loadRecipes();
+}
+
+// ✅ CORRECT - Non-blocking
+async ngOnInit() {
+  // Load recipes immediately
+  this.loadRecipes();
+  
+  // Initialize SQLite in background
+  this.initializeSQLiteInBackground();
+}
+
+private async initializeSQLiteInBackground() {
+  try {
+    await this.sqliteService.initializeDB();
+    // Sync favorites after SQLite is ready
+    await this.syncFavorites();
+  } catch (error) {
+    console.warn('SQLite initialization failed, using localStorage fallback');
+  }
+}
+```
+
+## Performance Rules
+
+### 1. Lazy Loading
+Always use lazy loading for pages:
+```typescript
+{ 
+  path: 'page', 
+  loadComponent: () => import('./pages/page/page.page').then(m => m.PageComponent)
+}
+```
+
+### 2. Signal-Based Reactivity
+Use signals for optimal performance:
+```typescript
+// Reactive data
+data = signal<DataType[]>([]);
+isLoading = signal(false);
+
+// Computed values
+filteredData = computed(() => this.data().filter(item => condition));
+```
+
+### 3. Timeouts for Database Operations
+Prevent hanging operations:
+```typescript
+const timeoutPromise = new Promise((_, reject) => 
+  setTimeout(() => reject(new Error('Timeout')), 1000)
+);
+
+try {
+  const result = await Promise.race([
+    this.databaseOperation(),
+    timeoutPromise
+  ]);
+  return result;
+} catch (error) {
+  return this.fallbackOperation();
+}
+```
+
+### 4. Image Optimization
+Compress images before upload:
+```typescript
+// In StorageService
+async compressImage(file: File, maxWidth: number, quality: number): Promise<File> {
+  // Implement image compression
+}
+```
+
+### 5. Efficient Imports
+Only import needed Ionic components:
+```typescript
+// ❌ WRONG - Imports everything
+import { IonicModule } from '@ionic/angular';
+
+// ✅ CORRECT - Selective imports
+import { 
+  IonHeader, 
+  IonToolbar, 
+  IonTitle,
+  // ... only what's needed
+} from '@ionic/angular/standalone';
+```
+
+## CDN and Resource Loading
+Use specific versions for external resources:
+```html
+<!-- ❌ WRONG - Can break -->
+<script src="https://cdn.jsdelivr.net/npm/@capacitor-community/sqlite@latest/dist/plugin.js">
+
+<!-- ✅ CORRECT - Pinned version -->
+<script src="https://cdn.jsdelivr.net/npm/@capacitor-community/sqlite@2.8.2/dist/plugin.js">
+```
+
+## Progressive Enhancement
+Design for graceful degradation:
+1. **Core functionality** works without SQLite
+2. **Enhanced features** add value when available
+3. **Fallback mechanisms** ensure reliability
+4. **User feedback** indicates current state
+
+## Monitoring Performance
+Track key metrics:
+- Time to first meaningful paint
+- SQLite initialization time
+- Recipe loading time
+- Favorites sync time
+- Image upload time

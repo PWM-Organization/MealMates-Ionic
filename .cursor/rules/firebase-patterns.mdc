@@ -1,0 +1,63 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# Firebase Patterns & Collections
+
+## Firebase Project
+- **Project ID**: `pwm-angular`
+- **Project Name**: `MealMates`
+- **Authenticated User**: `jdelhorno@gmail.com`
+- **Config**: [firebase.config.ts](mdc:firebase.config.ts)
+- **Service Account**: [serviceAccountKey.json](mdc:serviceAccountKey.json)
+
+## Firestore Collections
+
+### `recipes` Collection
+Primary collection for recipe data with structure:
+```typescript
+interface Recipe {
+  id: string;                    // Auto-generated document ID
+  title: string;                 // Recipe name
+  description?: string;          // Short description
+  ingredients: Ingredient[];     // List of ingredients
+  instructions: string[];        // Step-by-step instructions
+  cookingTime: number;          // Time in minutes
+  servings: number;             // Number of servings
+  difficulty: 'easy' | 'medium' | 'hard';
+  category: RecipeCategory;     // Main category
+  tags: string[];               // Additional tags
+  authorId: string;             // Reference to user who created
+  imageUrl?: string;            // Firebase Storage URL
+  createdAt: Timestamp;
+  updatedAt: Timestamp;
+  isPublic: boolean;            // Visibility setting
+  likes: number;                // Like count
+  saves: number;                // Save count
+}
+```
+
+### `users` Collection
+User profiles and preferences with structure:
+```typescript
+interface User {
+  id: string;                   // Same as Auth UID
+  email: string;
+  displayName: string;
+  photoURL?: string;
+  bio?: string;
+  preferences: UserPreferences;
+  favoriteRecipes: string[];    // Array of recipe IDs
+  savedRecipes: string[];       // Array of recipe IDs
+  createdAt: Timestamp;
+  lastActiveAt: Timestamp;
+}
+```
+
+## Service Patterns
+- Use Angular `inject()` function for dependency injection
+- Use Angular signals for reactive state management
+- Implement proper error handling with user-friendly messages
+- Use Firebase serverTimestamp() for consistent timestamps
+- Follow the patterns established in [SPRINT4_PLAN.md](mdc:SPRINT4_PLAN.md)

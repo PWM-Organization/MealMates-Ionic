@@ -1,0 +1,79 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# Routing & Navigation Patterns
+
+## Route Configuration
+Main routes are defined in [src/app/app.routes.ts](mdc:src/app/app.routes.ts) using lazy loading:
+
+```typescript
+export const routes: Routes = [
+  { path: '', redirectTo: '/landing', pathMatch: 'full' },
+  { path: 'landing', loadComponent: () => import('./pages/landing/landing.page') },
+  { path: 'login', loadComponent: () => import('./pages/login/login.page') },
+  { path: 'register', loadComponent: () => import('./pages/register/register.page') },
+  {
+    path: 'tabs',
+    loadComponent: () => import('./tabs/tabs.page'),
+    children: [
+      { path: '', redirectTo: '/tabs/explore', pathMatch: 'full' },
+      { path: 'explore', loadComponent: () => import('./pages/explore/explore.page') },
+      { path: 'favorites', loadComponent: () => import('./pages/favorites/favorites.page') },
+      { path: 'create-recipe', loadComponent: () => import('./pages/create-recipe/create-recipe.page') },
+      { path: 'profile', loadComponent: () => import('./pages/profile/profile.page') },
+    ],
+  },
+  { path: 'recipe-detail/:id', loadComponent: () => import('./pages/recipe-detail/recipe-detail.page') },
+];
+```
+
+## Tab Navigation
+Tab structure in [src/app/tabs/tabs.page.html](mdc:src/app/tabs/tabs.page.html):
+
+**CRITICAL**: Tab `tab` attribute must match route path exactly:
+- `tab="explore"` → `/tabs/explore`
+- `tab="favorites"` → `/tabs/favorites`  
+- `tab="create-recipe"` → `/tabs/create-recipe`
+- `tab="profile"` → `/tabs/profile`
+
+## Navigation Patterns
+
+### Programmatic Navigation
+```typescript
+// Navigate to specific tab
+this.router.navigate(['/tabs/explore']);
+
+// Navigate with parameters
+this.router.navigate(['/recipe-detail', recipeId]);
+
+// Navigate back
+this.location.back();
+// or
+this.router.navigate(['/tabs/favorites']);
+```
+
+### Guards
+Use AuthGuard for protected routes:
+```typescript
+{
+  path: 'tabs',
+  loadComponent: () => import('./tabs/tabs.page'),
+  canActivate: [AuthGuard],
+  children: [...]
+}
+```
+
+## Common Navigation Issues
+1. **Tab mismatch**: Ensure tab attribute matches route
+2. **Missing route**: All tab targets must exist in routes
+3. **Auth protection**: Protected routes need AuthGuard
+4. **Deep linking**: Support direct navigation to recipe details
+
+## URL Structure
+- Public: `/landing`, `/login`, `/register`
+- Protected tabs: `/tabs/explore`, `/tabs/favorites`, `/tabs/create-recipe`, `/tabs/profile`
+- Detail views: `/recipe-detail/:id`
+
+See [src/app/tabs/tabs.page.html](mdc:src/app/tabs/tabs.page.html) for tab implementation example.

@@ -1,0 +1,87 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# SQLite Service Patterns
+
+## SQLite Configuration
+SQLite is used for local favorites storage with graceful fallback to localStorage.
+
+## Service Implementation Pattern
+Key principles for SQLite service:
+
+### Background Initialization
+SQLite should initialize in background, not blocking UI:
+```typescript
+async initializeDB(): Promise<void> {
+  try {
+    // Initialize WebStore for web platform
+    await this.sqlite.initWebStore();
+    
+    this.db = await this.sqlite.createConnection(
+      this.DB_NAME, 
+      false, 
+      'no-encryption', 
+      1, 
+      false
+    );
+    
+    await this.db.open();
+    await this.createTables();
+  } catch (error) {
+    console.error('SQLite initialization failed, using fallback:', error);
+    // Fallback to localStorage
+  }
+}
+```
+
+### Non-Blocking Operations
+Always provide timeouts and fallbacks:
+```typescript
+async getFavorites(userId: string): Promise<string[]> {
+  if (!this.db) {
+    // Fallback to localStorage
+    return this.getLocalStorageFavorites(userId);
+  }
+  
+  try {
+    // SQLite operation with timeout
+    return await Promise.race([
+      this.getFavoritesFromSQLite(userId),
+      new Promise<string[]>((_, reject) => 
+        setTimeout(() => reject(new Error('Timeout')), 1000)
+      )
+    ]);
+  } catch (error) {
+    console.warn('SQLite operation failed, using fallback:', error);
+    return this.getLocalStorageFavorites(userId);
+  }
+}
+```
+
+## Web Platform Setup
+For web compatibility, ensure proper module loading in [src/index.html](mdc:src/index.html):
+```html
+<script type="module" 
+        src="https://cdn.jsdelivr.net/npm/@capacitor-community/sqlite@2.8.2/dist/plugin.js">
+</script>
+```
+
+## Critical Performance Rules
+1. **Never block page loading** - SQLite initializes in background
+2. **Always provide fallbacks** - localStorage for web platform
+3. **Use timeouts** - 1 second max for database operations
+4. **Graceful degradation** - App works even if SQLite fails
+5. **Background sync** - Sync favorites after SQLite is ready
+
+## Error Handling
+Always catch and handle SQLite errors gracefully:
+```typescript
+try {
+  await this.sqliteOperation();
+} catch (error) {
+  console.warn('SQLite error, using fallback:', error);
+  return this.fallbackOperation();
+}
+```

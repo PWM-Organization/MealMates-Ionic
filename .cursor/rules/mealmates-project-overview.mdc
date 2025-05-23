@@ -1,0 +1,39 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# MealMates-Ionic Project Overview
+
+## Project Description
+MealMates is an Ionic/Angular recipe discovery and management app with Firebase backend and SQLite local storage. The app uses standalone components and follows modern Angular patterns.
+
+## Key Technologies
+- **Frontend**: Ionic 8+ with Angular 19+ standalone components
+- **Backend**: Firebase Auth, Firestore, Storage
+- **Local Storage**: SQLite via @capacitor-community/sqlite
+- **Build System**: Capacitor for native builds
+- **PWA**: Progressive Web App with [manifest.json](mdc:src/manifest.json)
+
+## Project Structure
+- **Main Config**: [angular.json](mdc:angular.json), [capacitor.config.ts](mdc:capacitor.config.ts)
+- **Firebase**: [firebase.config.ts](mdc:firebase.config.ts), [firebase.json](mdc:firebase.json)
+- **Routes**: [src/app/app.routes.ts](mdc:src/app/app.routes.ts)
+- **Services**: `src/app/services/` - Auth, SQLite, Recipe services
+- **Pages**: `src/app/pages/` - All page components
+- **Models**: `src/models/` - TypeScript interfaces
+- **Assets**: `src/assets/` - Icons, images, static files
+
+## Key Features
+- User authentication with Firebase Auth
+- Recipe browsing and management
+- Favorites stored locally with SQLite
+- Tab-based navigation
+- Profile management
+- Recipe creation with image upload
+- PWA capabilities
+
+## Critical Files
+- [src/app/app.component.ts](mdc:src/app/app.component.ts) - Icon registration, SQLite initialization
+- [src/app/tabs/tabs.page.html](mdc:src/app/tabs/tabs.page.html) - Main navigation
+- [SPRINT4_PLAN.md](mdc:SPRINT4_PLAN.md) - Implementation plan and architecture guide

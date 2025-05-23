@@ -1,0 +1,242 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# Firebase Integration Guide for MealMates
+
+## Project Configuration
+- **Firebase Project:** MealMates (ID: `pwm-angular`)
+- **Configuration:** [firebase.config.ts](mdc:src/firebase.config.ts)
+
+## Data Model Architecture
+
+### Firestore Collections
+
+#### 📝 `recipes` Collection
+Primary collection storing recipe data.
+
+```typescript
+interface Recipe {
+  id: string;                    // Auto-generated document ID
+  title: string;                 // Recipe name
+  description?: string;          // Short description
+  ingredients: Ingredient[];     // List of ingredients
+  instructions: string[];        // Step-by-step instructions
+  cookingTime: number;           // Time in minutes
+  servings: number;              // Number of servings
+  difficulty: 'easy' | 'medium' | 'hard';
+  category: RecipeCategory;      // Main category
+  tags: string[];                // Additional tags
+  authorId: string;              // Reference to user who created
+  imageUrl?: string;             // Firebase Storage URL
+  nutritionInfo?: NutritionInfo;
+  createdAt: Timestamp;
+  updatedAt: Timestamp;
+  isPublic: boolean;             // Visibility setting
+  likes: number;                 // Like count
+  saves: number;                 // Save count
+}
+
+type RecipeCategory = 
+  | 'breakfast' 
+  | 'lunch' 
+  | 'dinner' 
+  | 'snack' 
+  | 'dessert' 
+  | 'beverage';
+```
+
+#### 👤 `users` Collection
+User profiles and preferences.
+
+```typescript
+interface User {
+  id: string;                   // Same as Auth UID
+  email: string;
+  displayName: string;
+  photoURL?: string;
+  bio?: string;
+  favoriteRecipes: string[];    // Array of recipe IDs
+  savedRecipes: string[];       // Array of recipe IDs
+  createdAt: Timestamp;
+  lastActiveAt: Timestamp;
+  isVerified: boolean;
+}
+```
+
+## Authentication
+
+### Implementation in [AuthService](mdc:src/app/services/auth.service.ts)
+
+```typescript
+export class AuthService {
+  private currentUserSignal = signal<FirebaseUser | null>(null);
+  private userProfileSignal = signal<User | null>(null);
+
+  // Reactive state
+  readonly currentUser = this.currentUserSignal.asReadonly();
+  readonly userProfile = this.userProfileSignal.asReadonly();
+  readonly isAuthenticated = computed(() => !!this.currentUser());
+
+  // Auth state monitoring
+  constructor() {
+    onAuthStateChanged(auth, async (user) => {
+      this.currentUserSignal.set(user);
+      if (user) {
+        await this.loadUserProfile(user.uid);
+      } else {
+        this.userProfileSignal.set(null);
+      }
+    });
+  }
+
+  // Registration with profile creation
+  async register(email, password, userData) {
+    const credential = await createUserWithEmailAndPassword(auth, email, password);
+    const user = {
+      id: credential.user.uid,
+      ...userData,
+      createdAt: serverTimestamp(),
+    };
+    await setDoc(doc(firestore, 'users', user.id), user);
+  }
+
+  // Login
+  async login(email, password) {
+    await signInWithEmailAndPassword(auth, email, password);
+  }
+
+  // Logout
+  async logout() {
+    await signOut(auth);
+  }
+}
+```
+
+## Firestore Data Operations
+
+### Recipe Service
+
+```typescript
+export class RecipeService {
+  // Create new recipe
+  async createRecipe(recipe: Omit<Recipe, 'id' | 'createdAt' | 'updatedAt'>): Promise<string> {
+    const user = this.auth.currentUser;
+    if (!user) throw new Error('User not authenticated');
+    
+    const recipeData = {
+      ...recipe,
+      authorId: user.uid,
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp(),
+      likes: 0,
+      saves: 0
+    };
+    
+    const docRef = await addDoc(collection(this.firestore, 'recipes'), recipeData);
+    return docRef.id;
+  }
+  
+  // Get recipes with filters
+  getRecipes(filters: RecipeFilters): Observable<Recipe[]> {
+    let q = query(collection(this.firestore, 'recipes'));
+    
+    if (filters.category) {
+      q = query(q, where('category', '==', filters.category));
+    }
+    
+    if (filters.difficulty) {
+      q = query(q, where('difficulty', '==', filters.difficulty));
+    }
+    
+    q = query(q, orderBy('createdAt', 'desc'), limit(filters.limit || 20));
+    
+    return collectionData(q, { idField: 'id' }) as Observable<Recipe[]>;
+  }
+}
+```
+
+## Firebase Storage
+
+### Storage Service
+
+```typescript
+export class StorageService {
+  // Upload profile image
+  async uploadProfileImage(file: File, userId: string): Promise<string> {
+    const fileName = `profile-${Date.now()}.${file.name.split('.').pop()}`;
+    const path = `users/profile-images/${userId}/${fileName}`;
+    return this.uploadFile(file, path);
+  }
+
+  // Upload recipe image
+  async uploadRecipeImage(file: File, userId: string, recipeId?: string): Promise<string> {
+    const fileName = `recipe-${Date.now()}.${file.name.split('.').pop()}`;
+    const recipeFolder = recipeId || 'temp';
+    const path = `recipes/${userId}/${recipeFolder}/${fileName}`;
+    return this.uploadFile(file, path);
+  }
+
+  // Generic file upload
+  private async uploadFile(file: File, path: string): Promise<string> {
+    const storageRef = ref(this.storage, path);
+    const snapshot = await uploadBytes(storageRef, file);
+    return getDownloadURL(snapshot.ref);
+  }
+}
+```
+
+## Local Storage with SQLite
+
+### SQLite Service for Favorites
+
+```typescript
+export class SqliteService {
+  // Add recipe to favorites
+  async addFavorite(recipeId: string, userId: string): Promise<void> {
+    const query = `
+      INSERT OR REPLACE INTO favorites (recipeId, userId, addedAt) 
+      VALUES (?, ?, ?)
+    `;
+    await this.db!.run(query, [recipeId, userId, new Date().toISOString()]);
+  }
+
+  // Remove from favorites
+  async removeFavorite(recipeId: string, userId: string): Promise<void> {
+    const query = `DELETE FROM favorites WHERE recipeId = ? AND userId = ?`;
+    await this.db!.run(query, [recipeId, userId]);
+  }
+
+  // Get user's favorites
+  async getFavorites(userId: string): Promise<string[]> {
+    const query = `SELECT recipeId FROM favorites WHERE userId = ?`;
+    const result = await this.db!.query(query, [userId]);
+    return result.values?.map((row) => row.recipeId) || [];
+  }
+}
+```
+
+## Security Rules Pattern
+
+### Recipe Access Rules
+
+```javascript
+// Allow read if public or user is owner
+allow read: if resource.data.isPublic == true 
+            || request.auth.uid == resource.data.authorId;
+
+// Allow write only to owner
+allow write: if request.auth.uid == resource.data.authorId;
+```
+
+### User Access Rules
+
+```javascript
+// Users can only read/write their own profile
+allow read, write: if request.auth.uid == resource.id;
+
+// Allow read of basic profile info for discovery
+allow read: if request.auth != null 
+            && resource.data.keys().hasOnly(['displayName', 'photoURL', 'bio']);
+```

@@ -1,0 +1,94 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# Ionic Component Patterns
+
+## Standalone Components
+All components use Angular standalone pattern with explicit imports:
+
+```typescript
+@Component({
+  selector: 'app-component-name',
+  standalone: true,
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    // Ionic imports
+    IonHeader,
+    IonToolbar,
+    IonTitle,
+    IonContent,
+    // ... other needed Ionic components
+  ],
+  templateUrl: './component.page.html',
+  styleUrls: ['./component.page.scss'],
+})
+```
+
+## Dependency Injection
+Use the `inject()` function for all services:
+```typescript
+export class ComponentPage {
+  private authService = inject(AuthService);
+  private router = inject(Router);
+  private loadingCtrl = inject(LoadingController);
+  private alertCtrl = inject(AlertController);
+}
+```
+
+## State Management
+Use Angular signals for reactive state:
+```typescript
+isLoading = signal(false);
+data = signal<DataType[]>([]);
+computed = computed(() => this.data().filter(item => condition));
+```
+
+## Icon Usage
+**CRITICAL**: Only use registered icons or standard Ionic icons. 
+Common patterns:
+- `checkmark-circle-outline` (not `checkmark-circle`)
+- `alert-circle-outline` (not `alert-circle`)
+- `information-circle-outline` (not `information-circle`)
+
+See [src/app/app.component.ts](mdc:src/app/app.component.ts) for registered icons.
+
+## Tab Navigation
+Tab buttons must have matching `tab` attributes and route paths:
+```html
+<ion-tab-button tab="explore" href="/tabs/explore">
+<ion-tab-button tab="favorites" href="/tabs/favorites">
+<ion-tab-button tab="create-recipe" href="/tabs/create-recipe">
+<ion-tab-button tab="profile" href="/tabs/profile">
+```
+
+## Forms
+Use reactive forms with proper validation:
+```typescript
+form = this.fb.group({
+  field: ['', [Validators.required, Validators.minLength(3)]],
+});
+```
+
+## Loading & Error Handling
+Always provide user feedback for async operations:
+```typescript
+async performAction() {
+  const loading = await this.loadingCtrl.create({
+    message: 'Processing...',
+    spinner: 'crescent',
+  });
+  await loading.present();
+  
+  try {
+    // async operation
+    await loading.dismiss();
+    await this.showToast('Success!', 'checkmark-circle-outline');
+  } catch (error) {
+    await loading.dismiss();
+    await this.showAlert('Error', error.message);
+  }
+}
+```

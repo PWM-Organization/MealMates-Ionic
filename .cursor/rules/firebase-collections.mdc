@@ -1,0 +1,289 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# Firebase Collections & Data Models Guide
+
+## Project Configuration
+- **Firebase Project:** `MealMates` (ID: `pwm-angular`)
+- **Service Account:** [serviceAccountKey.json](mdc:serviceAccountKey.json)
+- **Configuration:** [firebase.json](mdc:firebase.json)
+- **Authenticated User:** `jdelhorno@gmail.com`
+
+## Firestore Collections
+
+### 📝 `recipes` Collection
+Primary collection for storing recipe data.
+
+**Document Structure:**
+```typescript
+interface Recipe {
+  id: string;                    // Auto-generated document ID
+  title: string;                 // Recipe name
+  description?: string;          // Short description
+  ingredients: Ingredient[];     // List of ingredients
+  instructions: string[];        // Step-by-step instructions
+  cookingTime: number;          // Time in minutes
+  servings: number;             // Number of servings
+  difficulty: 'easy' | 'medium' | 'hard';
+  category: RecipeCategory;     // Main category
+  tags: string[];               // Additional tags
+  authorId: string;             // Reference to user who created
+  imageUrl?: string;            // Firebase Storage URL
+  nutritionInfo?: NutritionInfo;
+  createdAt: Timestamp;
+  updatedAt: Timestamp;
+  isPublic: boolean;            // Visibility setting
+  likes: number;                // Like count
+  saves: number;                // Save count
+}
+
+interface Ingredient {
+  name: string;
+  amount: number;
+  unit: string;
+  optional?: boolean;
+}
+
+interface NutritionInfo {
+  calories: number;
+  protein: number;    // grams
+  carbs: number;      // grams
+  fat: number;        // grams
+  fiber?: number;     // grams
+}
+
+type RecipeCategory = 
+  | 'breakfast' 
+  | 'lunch' 
+  | 'dinner' 
+  | 'snack' 
+  | 'dessert' 
+  | 'beverage';
+```
+
+**Query Examples:**
+```typescript
+// Get user's recipes
+const userRecipes = query(
+  collection(firestore, 'recipes'),
+  where('authorId', '==', userId),
+  orderBy('createdAt', 'desc')
+);
+
+// Get public recipes by category
+const categoryRecipes = query(
+  collection(firestore, 'recipes'),
+  where('isPublic', '==', true),
+  where('category', '==', 'dinner'),
+  orderBy('likes', 'desc'),
+  limit(10)
+);
+```
+
+### 👤 `users` Collection
+User profiles and preferences.
+
+**Document Structure:**
+```typescript
+interface User {
+  id: string;                   // Same as Auth UID
+  email: string;
+  displayName: string;
+  photoURL?: string;
+  bio?: string;
+  preferences: UserPreferences;
+  dietaryRestrictions: string[];
+  favoriteRecipes: string[];    // Array of recipe IDs
+  savedRecipes: string[];       // Array of recipe IDs
+  followersCount: number;
+  followingCount: number;
+  recipesCount: number;
+  createdAt: Timestamp;
+  lastActiveAt: Timestamp;
+  isVerified: boolean;
+  isPremium: boolean;
+}
+
+interface UserPreferences {
+  defaultServings: number;
+  measurementSystem: 'metric' | 'imperial';
+  skillLevel: 'beginner' | 'intermediate' | 'advanced';
+  cookingTime: 'quick' | 'medium' | 'long' | 'any';
+  notifications: {
+    newRecipes: boolean;
+    weeklyPlanner: boolean;
+    social: boolean;
+  };
+}
+```
+
+**Subcollections:**
+- `users/{userId}/weeklyPlans` - Weekly meal plans
+- `users/{userId}/shoppingLists` - Generated shopping lists
+- `users/{userId}/cookingHistory` - Recipes user has cooked
+
+## Security Rules Patterns
+
+### Recipe Access Rules
+```javascript
+// Allow read if public or user is owner
+allow read: if resource.data.isPublic == true 
+            || request.auth.uid == resource.data.authorId;
+
+// Allow write only to owner
+allow write: if request.auth.uid == resource.data.authorId;
+```
+
+### User Access Rules
+```javascript
+// Users can only read/write their own profile
+allow read, write: if request.auth.uid == resource.id;
+
+// Allow read of basic profile info for discovery
+allow read: if request.auth != null 
+            && resource.data.keys().hasOnly(['displayName', 'photoURL', 'bio']);
+```
+
+## Service Implementation Examples
+
+### Recipe Service
+```typescript
+@Injectable({ providedIn: 'root' })
+export class RecipeService {
+  private firestore = inject(Firestore);
+  private auth = inject(Auth);
+  
+  // Create new recipe
+  async createRecipe(recipe: Omit<Recipe, 'id' | 'createdAt' | 'updatedAt'>): Promise<string> {
+    const user = this.auth.currentUser;
+    if (!user) throw new Error('User not authenticated');
+    
+    const recipeData = {
+      ...recipe,
+      authorId: user.uid,
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp(),
+      likes: 0,
+      saves: 0
+    };
+    
+    const docRef = await addDoc(collection(this.firestore, 'recipes'), recipeData);
+    return docRef.id;
+  }
+  
+  // Get recipes with filters
+  getRecipes(filters: RecipeFilters): Observable<Recipe[]> {
+    let q = query(collection(this.firestore, 'recipes'));
+    
+    if (filters.category) {
+      q = query(q, where('category', '==', filters.category));
+    }
+    
+    if (filters.difficulty) {
+      q = query(q, where('difficulty', '==', filters.difficulty));
+    }
+    
+    if (filters.maxCookingTime) {
+      q = query(q, where('cookingTime', '<=', filters.maxCookingTime));
+    }
+    
+    q = query(q, orderBy('createdAt', 'desc'), limit(filters.limit || 20));
+    
+    return collectionData(q, { idField: 'id' }) as Observable<Recipe[]>;
+  }
+}
+```
+
+### User Service
+```typescript
+@Injectable({ providedIn: 'root' })
+export class UserService {
+  private firestore = inject(Firestore);
+  private auth = inject(Auth);
+  
+  // Create user profile after registration
+  async createUserProfile(user: User): Promise<void> {
+    const userRef = doc(this.firestore, 'users', user.id);
+    await setDoc(userRef, {
+      ...user,
+      createdAt: serverTimestamp(),
+      lastActiveAt: serverTimestamp()
+    });
+  }
+  
+  // Update user preferences
+  async updatePreferences(preferences: Partial<UserPreferences>): Promise<void> {
+    const user = this.auth.currentUser;
+    if (!user) throw new Error('User not authenticated');
+    
+    const userRef = doc(this.firestore, 'users', user.uid);
+    await updateDoc(userRef, {
+      preferences: preferences,
+      updatedAt: serverTimestamp()
+    });
+  }
+  
+  // Add recipe to favorites
+  async toggleFavoriteRecipe(recipeId: string): Promise<void> {
+    const user = this.auth.currentUser;
+    if (!user) throw new Error('User not authenticated');
+    
+    const userRef = doc(this.firestore, 'users', user.uid);
+    const userDoc = await getDoc(userRef);
+    
+    if (userDoc.exists()) {
+      const userData = userDoc.data() as User;
+      const favorites = userData.favoriteRecipes || [];
+      
+      if (favorites.includes(recipeId)) {
+        // Remove from favorites
+        await updateDoc(userRef, {
+          favoriteRecipes: arrayRemove(recipeId)
+        });
+      } else {
+        // Add to favorites
+        await updateDoc(userRef, {
+          favoriteRecipes: arrayUnion(recipeId)
+        });
+      }
+    }
+  }
+}
+```
+
+## Data Validation
+
+### Recipe Validation
+```typescript
+export function validateRecipe(recipe: Partial<Recipe>): string[] {
+  const errors: string[] = [];
+  
+  if (!recipe.title?.trim()) {
+    errors.push('Title is required');
+  }
+  
+  if (!recipe.ingredients?.length) {
+    errors.push('At least one ingredient is required');
+  }
+  
+  if (!recipe.instructions?.length) {
+    errors.push('At least one instruction is required');
+  }
+  
+  if (typeof recipe.cookingTime !== 'number' || recipe.cookingTime <= 0) {
+    errors.push('Cooking time must be a positive number');
+  }
+  
+  return errors;
+}
+```
+
+## Migration & Data Management
+
+### Data Import/Export
+- Use Firebase Admin SDK for bulk operations
+- Implement proper backup strategies
+- Use batch operations for multiple writes
+- Consider offline data sync with Angular PWA

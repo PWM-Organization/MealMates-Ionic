@@ -1,0 +1,128 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# MealMates-Ionic Project Guide
+
+## Project Overview
+MealMates is an Ionic/Angular mobile app for discovering, saving, and sharing recipes. The app uses Firebase for authentication and data storage, with SQLite for local favorites storage.
+
+## Key Technologies
+- **Ionic 6+**: UI framework with standalone components
+- **Angular 16+**: Framework with signals for state management
+- **Firebase**: Auth, Firestore, Storage
+- **Capacitor**: Native APIs including SQLite
+
+## Project Structure
+
+### Core Components
+- **App Component**: [src/app/app.component.ts](mdc:src/app/app.component.ts) - Main app entry point with icon registration
+- **Routes**: [src/app/app.routes.ts](mdc:src/app/app.routes.ts) - App routing configuration
+
+### Pages
+The app uses a standalone component architecture with these main pages:
+- **Landing**: [src/app/pages/landing/landing.page.ts](mdc:src/app/pages/landing/landing.page.ts) - Welcome screen
+- **Auth**: 
+  - [src/app/pages/login/login.page.ts](mdc:src/app/pages/login/login.page.ts)
+  - [src/app/pages/register/register.page.ts](mdc:src/app/pages/register/register.page.ts)
+- **Main Tabs**: [src/app/tabs/tabs.page.ts](mdc:src/app/tabs/tabs.page.ts) - Tab navigation
+- **Features**:
+  - [src/app/pages/explore/explore.page.ts](mdc:src/app/pages/explore/explore.page.ts) - Browse recipes
+  - [src/app/pages/favorites/favorites.page.ts](mdc:src/app/pages/favorites/favorites.page.ts) - Saved recipes
+  - [src/app/pages/recipe-detail/recipe-detail.page.ts](mdc:src/app/pages/recipe-detail/recipe-detail.page.ts) - Recipe view
+  - [src/app/pages/create-recipe/create-recipe.page.ts](mdc:src/app/pages/create-recipe/create-recipe.page.ts) - Add recipe
+  - [src/app/pages/profile/profile.page.ts](mdc:src/app/pages/profile/profile.page.ts) - User profile
+
+### Services
+- **Auth**: [src/app/services/auth.service.ts](mdc:src/app/services/auth.service.ts) - Firebase authentication
+- **Recipe**: [src/app/services/recipe.service.ts](mdc:src/app/services/recipe.service.ts) - Recipe CRUD operations
+- **Storage**: [src/app/services/storage.service.ts](mdc:src/app/services/storage.service.ts) - Firebase Storage for images
+- **SQLite**: [src/app/services/sqlite.service.ts](mdc:src/app/services/sqlite.service.ts) - Local favorites storage
+
+### Models
+- **Recipe**: [src/models/recipe.model.ts](mdc:src/models/recipe.model.ts) - Recipe data structure
+- **User**: [src/models/user.model.ts](mdc:src/models/user.model.ts) - User profile structure
+- **Favorite**: [src/models/favorite.model.ts](mdc:src/models/favorite.model.ts) - Local favorite data
+
+## Firebase Collections
+
+### Recipes Collection
+The `recipes` collection stores all recipe data with this structure:
+```typescript
+interface Recipe {
+  id: string;                    // Auto-generated document ID
+  title: string;                 // Recipe name
+  description?: string;          // Short description
+  ingredients: Ingredient[];     // List of ingredients
+  instructions: string[];        // Step-by-step instructions
+  cookingTime: number;          // Time in minutes
+  servings: number;             // Number of servings
+  difficulty: 'easy' | 'medium' | 'hard';
+  category: RecipeCategory;     // Main category
+  tags: string[];               // Additional tags
+  authorId: string;             // Reference to user who created
+  imageUrl?: string;            // Firebase Storage URL
+  createdAt: Timestamp;
+  updatedAt: Timestamp;
+  isPublic: boolean;            // Visibility setting
+  likes: number;                // Like count
+  saves: number;                // Save count
+}
+```
+
+### Users Collection
+The `users` collection stores user profile data with this structure:
+```typescript
+interface User {
+  id: string;                   // Same as Auth UID
+  email: string;
+  displayName: string;
+  firstName: string;
+  lastName: string;
+  photoURL?: string;
+  bio?: string;
+  createdAt: Timestamp;
+  updatedAt: Timestamp;
+  isVerified: boolean;
+}
+```
+
+## UI Component Patterns
+
+### Page Structure
+Each page typically follows this structure:
+- **Header**: `<ion-header>` with `<ion-toolbar>` and navigation controls
+- **Content**: `<ion-content>` with the main page content
+- **Footer/FABs**: Action buttons or tabs using `<ion-fab>` or `<ion-tab-bar>`
+
+### Common UI Components
+- **Cards**: Recipe cards with image, title, and metadata
+- **Forms**: Input fields with validation and focus states
+- **Lists**: Lists of recipes, comments, or user data
+- **Tabs**: Bottom tab navigation for main app sections
+- **Loading States**: Spinners and skeleton screens for async operations
+
+## State Management
+The app uses Angular Signals for reactive state management:
+```typescript
+// Example pattern
+private userProfileSignal = signal<User | null>(null);
+readonly userProfile = this.userProfileSignal.asReadonly();
+readonly isAuthenticated = computed(() => !!this.userProfile());
+```
+
+## Utility Functions
+Common utility functions for:
+- Date formatting
+- Image handling and compression
+- Form validation
+- Error reporting
+
+## Icons
+The app uses Ionicons, registered in the main app component:
+```typescript
+addIcons({
+  personOutline, heartOutline, restaurantOutline, timeOutline, // etc.
+});
+```
