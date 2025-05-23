@@ -67,6 +67,25 @@
   }
 }
 
+ion-card {
+  margin: 1rem;
+  --border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+
+  ion-card-title {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: var(--ion-color-dark);
+
+    ion-icon {
+      font-size: 1.5rem;
+    }
+  }
+}
+
 .ingredients-card,
 .instructions-card,
 .nutrition-card {
@@ -153,22 +172,20 @@
   }
 }
 
-.nutrition-card {
-  .nutrition-item {
-    text-align: center;
-    padding: 0.5rem;
+.nutrition-item {
+  text-align: center;
+  padding: 0.5rem;
 
-    strong {
-      display: block;
-      font-size: 1.2rem;
-      color: var(--ion-color-primary);
-      margin-bottom: 0.25rem;
-    }
+  strong {
+    display: block;
+    font-size: 1.2rem;
+    color: var(--ion-color-primary);
+    margin-bottom: 0.25rem;
+  }
 
-    span {
-      font-size: 0.9rem;
-      color: var(--ion-color-medium);
-    }
+  span {
+    font-size: 0.9rem;
+    color: var(--ion-color-medium);
   }
 }
 
@@ -242,9 +259,7 @@ ion-fab-button {
     }
   }
 
-  .ingredients-card,
-  .instructions-card,
-  .nutrition-card {
+  ion-card {
     margin: 1rem 2rem;
   }
 

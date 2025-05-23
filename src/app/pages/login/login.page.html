@@ -7,64 +7,118 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content class="login-content">
-  <div class="login-container">
-    <!-- Logo Section -->
-    <div class="logo-section">
-      <ion-icon name="restaurant" size="large" color="primary"></ion-icon>
-      <h1>MealMates</h1>
-      <p>¡Bienvenido de vuelta!</p>
+<ion-content class="auth-content">
+  <!-- Hero Section with Gradient -->
+  <div class="hero-section">
+    <div class="hero-content">
+      <div class="logo-container">
+        <ion-icon name="restaurant-outline" class="logo-icon"></ion-icon>
+        <h1>MealMates</h1>
+      </div>
+      <p class="hero-subtitle">¡Bienvenido de vuelta!</p>
     </div>
+  </div>
 
-    <!-- Login Form Card -->
-    <ion-card class="login-card">
-      <ion-card-header>
-        <ion-card-title>Accede a tu cuenta</ion-card-title>
-      </ion-card-header>
+  <!-- Login Form Section -->
+  <div class="form-section">
+    <div class="form-container">
+      <div class="form-header">
+        <h2>Iniciar Sesión</h2>
+        <p>Accede a tu cuenta para continuar</p>
+      </div>
 
-      <ion-card-content>
-        <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
-          <!-- Email Field -->
-          <ion-item [class.has-error]="getFieldError('email')" lines="none" class="input-item">
-            <ion-label position="stacked">Email</ion-label>
-            <ion-input type="email" formControlName="email" placeholder="ejemplo@email.com" autocomplete="email">
-            </ion-input>
+      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="auth-form">
+        <!-- Email Input -->
+        <div class="input-group">
+          <ion-item
+            lines="none"
+            class="modern-input"
+            [class.has-error]="getFieldError('email')"
+            [class.has-focus]="emailFocused()"
+            [class.has-value]="loginForm.get('email')?.value"
+          >
+            <ion-icon name="mail-outline" slot="start" color="medium"></ion-icon>
+            <ion-input
+              type="email"
+              formControlName="email"
+              placeholder="Ingresa tu email"
+              (ionFocus)="emailFocused.set(true)"
+              (ionBlur)="emailFocused.set(false)"
+              fill="outline"
+            ></ion-input>
           </ion-item>
-          <div class="error-message" *ngIf="getFieldError('email')">{{ getFieldError('email') }}</div>
+          <div class="error-text" *ngIf="getFieldError('email')">
+            <ion-icon name="alert-circle-outline" color="danger"></ion-icon>
+            {{ getFieldError('email') }}
+          </div>
+        </div>
 
-          <!-- Password Field -->
-          <ion-item [class.has-error]="getFieldError('password')" lines="none" class="input-item">
-            <ion-label position="stacked">Contraseña</ion-label>
+        <!-- Password Input -->
+        <div class="input-group">
+          <ion-item
+            lines="none"
+            class="modern-input"
+            [class.has-error]="getFieldError('password')"
+            [class.has-focus]="passwordFocused()"
+            [class.has-value]="loginForm.get('password')?.value"
+          >
+            <ion-icon name="lock-closed-outline" slot="start" color="medium"></ion-icon>
             <ion-input
               [type]="showPassword() ? 'text' : 'password'"
               formControlName="password"
               placeholder="Ingresa tu contraseña"
-              autocomplete="current-password"
-            >
-            </ion-input>
+              (ionFocus)="passwordFocused.set(true)"
+              (ionBlur)="passwordFocused.set(false)"
+              fill="outline"
+            ></ion-input>
             <ion-button slot="end" fill="clear" size="small" (click)="togglePasswordVisibility()">
-              <ion-icon [name]="showPassword() ? 'eye-off' : 'eye'" color="medium"> </ion-icon>
+              <ion-icon [name]="showPassword() ? 'eye-off-outline' : 'eye-outline'" color="medium"></ion-icon>
             </ion-button>
           </ion-item>
-          <div class="error-message" *ngIf="getFieldError('password')">{{ getFieldError('password') }}</div>
+          <div class="error-text" *ngIf="getFieldError('password')">
+            <ion-icon name="alert-circle-outline" color="danger"></ion-icon>
+            {{ getFieldError('password') }}
+          </div>
+        </div>
 
-          <!-- Submit Button -->
-          <ion-button expand="block" type="submit" [disabled]="loginForm.invalid || isLoading()" class="login-button">
-            <ion-icon *ngIf="!isLoading()" name="log-in" slot="start"> </ion-icon>
-            {{ isLoading() ? 'Iniciando sesión...' : 'Iniciar Sesión' }}
+        <!-- Forgot Password Link -->
+        <div class="forgot-password">
+          <ion-button fill="clear" size="small" color="primary"> ¿Olvidaste tu contraseña? </ion-button>
+        </div>
+
+        <!-- Login Button -->
+        <ion-button
+          expand="block"
+          type="submit"
+          [disabled]="loginForm.invalid || isLoading()"
+          class="primary-button"
+          size="large"
+        >
+          <ion-icon *ngIf="!isLoading()" name="log-in-outline" slot="start"></ion-icon>
+          <ion-spinner *ngIf="isLoading()" name="crescent" slot="start"></ion-spinner>
+          {{ isLoading() ? 'Iniciando sesión...' : 'Iniciar Sesión' }}
+        </ion-button>
+
+        <!-- Divider -->
+        <div class="divider">
+          <span>o</span>
+        </div>
+
+        <!-- Register Link -->
+        <div class="auth-link">
+          <span>¿No tienes cuenta?</span>
+          <ion-button fill="clear" color="primary" (click)="goToRegister()" class="link-button">
+            Regístrate aquí
           </ion-button>
-        </form>
-      </ion-card-content>
-    </ion-card>
-
-    <!-- Register Link -->
-    <div class="register-link">
-      <ion-text color="medium">
-        <p>¿No tienes cuenta?</p>
-      </ion-text>
-      <ion-button fill="clear" color="primary" (click)="goToRegister()" class="register-btn">
-        Regístrate aquí
-      </ion-button>
+        </div>
+      </form>
     </div>
   </div>
+
+  <!-- Back Button -->
+  <ion-fab vertical="top" horizontal="start" slot="fixed">
+    <ion-fab-button size="small" color="light" (click)="goToLanding()">
+      <ion-icon name="chevron-back-outline"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
 </ion-content>

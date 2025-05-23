@@ -19,6 +19,9 @@ import {
   IonButton,
   IonIcon,
   IonText,
+  IonSpinner,
+  IonFab,
+  IonFabButton,
   LoadingController,
   AlertController,
   ToastController,
@@ -47,6 +50,9 @@ import { AuthService } from '../../services/auth.service';
     IonButton,
     IonIcon,
     IonText,
+    IonSpinner,
+    IonFab,
+    IonFabButton,
   ],
   templateUrl: './login.page.html',
   styleUrls: ['./login.page.scss'],
@@ -61,6 +67,8 @@ export class LoginPage {
 
   isLoading = signal(false);
   showPassword = signal(false);
+  emailFocused = signal(false);
+  passwordFocused = signal(false);
 
   loginForm = this.fb.group({
     email: ['', [Validators.required, Validators.email]],

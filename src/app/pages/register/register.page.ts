@@ -19,6 +19,10 @@ import {
   IonButton,
   IonIcon,
   IonText,
+  IonSpinner,
+  IonFab,
+  IonFabButton,
+  IonCheckbox,
   LoadingController,
   AlertController,
   ToastController,
@@ -48,6 +52,10 @@ import { UserRegistrationData } from '../../../models/user.model';
     IonButton,
     IonIcon,
     IonText,
+    IonSpinner,
+    IonFab,
+    IonFabButton,
+    IonCheckbox,
   ],
   templateUrl: './register.page.html',
   styleUrls: ['./register.page.scss'],
@@ -63,6 +71,11 @@ export class RegisterPage {
   isLoading = signal(false);
   showPassword = signal(false);
   showConfirmPassword = signal(false);
+  firstNameFocused = signal(false);
+  lastNameFocused = signal(false);
+  emailFocused = signal(false);
+  passwordFocused = signal(false);
+  confirmPasswordFocused = signal(false);
 
   registerForm = this.fb.group(
     {
@@ -71,6 +84,7 @@ export class RegisterPage {
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(6)]],
       confirmPassword: ['', [Validators.required]],
+      acceptTerms: [false, [Validators.requiredTrue]],
     },
     { validators: this.passwordMatchValidator },
   );
@@ -177,9 +191,14 @@ export class RegisterPage {
             return 'Contraseña es requerida';
           case 'confirmPassword':
             return 'Confirmar contraseña es requerido';
+          case 'acceptTerms':
+            return 'Debes aceptar los términos y condiciones';
           default:
             return 'Campo requerido';
         }
+      }
+      if (field.errors['requiredTrue']) {
+        return 'Debes aceptar los términos y condiciones';
       }
       if (field.errors['email']) {
         return 'Email inválido';

@@ -4,106 +4,173 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content>
+<ion-content class="landing-content">
   <ion-refresher slot="fixed" (ionRefresh)="handleRefresh($event)">
     <ion-refresher-content></ion-refresher-content>
   </ion-refresher>
 
-  <!-- Hero Section -->
+  <!-- Hero Section with Modern Gradient -->
   <div class="hero-section">
-    <ion-text>
-      <h1>¡Bienvenido a MealMates!</h1>
-      <p>Descubre las mejores recetas y planifica tus comidas</p>
-    </ion-text>
-  </div>
+    <div class="hero-background">
+      <div class="hero-overlay"></div>
+    </div>
+    <div class="hero-content">
+      <div class="hero-logo">
+        <ion-icon name="restaurant-outline" class="logo-icon"></ion-icon>
+        <h1>MealMates</h1>
+      </div>
+      <div class="hero-text">
+        <h2>Descubre el mundo de la cocina</h2>
+        <p>Miles de recetas deliciosas, organizadas y personalizadas para ti</p>
+      </div>
 
-  <!-- Featured Recipes Carousel -->
-  <div class="section-header">
-    <ion-text>
-      <h2>Recetas Destacadas</h2>
-    </ion-text>
-  </div>
-
-  <div *ngIf="isLoading()" class="loading-container">
-    <ion-spinner name="crescent" color="primary"></ion-spinner>
-    <ion-text>
-      <p>Cargando recetas...</p>
-    </ion-text>
-  </div>
-
-  <div *ngIf="!isLoading() && featuredRecipes().length > 0" class="recipes-carousel">
-    <div *ngFor="let recipe of featuredRecipes(); trackBy: trackByRecipeId" class="recipe-card-wrapper">
-      <ion-card button (click)="viewRecipe(recipe.id)">
-        <ion-img [src]="recipe.imageUrl" [alt]="recipe.title"></ion-img>
-        <ion-card-header>
-          <ion-card-title>{{ recipe.title }}</ion-card-title>
-          <ion-card-subtitle>{{ recipe?.description }}</ion-card-subtitle>
-        </ion-card-header>
-        <ion-card-content>
-          <div class="recipe-meta">
-            <ion-chip [color]="getDifficultyColor(recipe.difficulty)" outline="true">
-              <ion-icon name="speedometer-outline"></ion-icon>
-              <ion-label>{{ recipe.difficulty }}</ion-label>
-            </ion-chip>
-            <ion-chip color="primary" outline="true">
-              <ion-icon name="time-outline"></ion-icon>
-              <ion-label>{{ recipe.cookingTime }}min</ion-label>
-            </ion-chip>
-          </div>
-        </ion-card-content>
-      </ion-card>
+      <!-- Quick Preview Stats -->
+      <div class="stats-row">
+        <div class="stat-item">
+          <ion-icon name="restaurant-outline" color="white"></ion-icon>
+          <span>5+ Recetas</span>
+        </div>
+        <div class="stat-item">
+          <ion-icon name="people-outline" color="white"></ion-icon>
+          <span>Para todos</span>
+        </div>
+        <div class="stat-item">
+          <ion-icon name="heart-outline" color="white"></ion-icon>
+          <span>Favoritos</span>
+        </div>
+      </div>
     </div>
   </div>
 
-  <!-- Features Section -->
-  <div class="features-section">
-    <ion-text>
-      <h2>¿Por qué elegir MealMates?</h2>
-    </ion-text>
+  <!-- Content Section -->
+  <div class="content-section">
+    <!-- Featured Recipes -->
+    <div class="section-block">
+      <div class="section-header">
+        <h2>Recetas Destacadas</h2>
+        <p>Las mejores recetas seleccionadas para ti</p>
+      </div>
 
-    <ion-grid>
-      <ion-row>
-        <ion-col size="12" size-md="4">
-          <ion-card>
-            <ion-card-content class="feature-card">
-              <ion-icon name="search-outline" color="primary" size="large"></ion-icon>
-              <ion-card-title>Explora Recetas</ion-card-title>
-              <p>Miles de recetas deliciosas esperándote</p>
-            </ion-card-content>
-          </ion-card>
-        </ion-col>
-        <ion-col size="12" size-md="4">
-          <ion-card>
-            <ion-card-content class="feature-card">
-              <ion-icon name="heart-outline" color="danger" size="large"></ion-icon>
-              <ion-card-title>Guarda Favoritos</ion-card-title>
-              <p>Organiza tus recetas preferidas</p>
-            </ion-card-content>
-          </ion-card>
-        </ion-col>
-        <ion-col size="12" size-md="4">
-          <ion-card>
-            <ion-card-content class="feature-card">
-              <ion-icon name="calendar-outline" color="secondary" size="large"></ion-icon>
-              <ion-card-title>Planifica Comidas</ion-card-title>
-              <p>Organiza tu menú semanal</p>
-            </ion-card-content>
-          </ion-card>
-        </ion-col>
-      </ion-row>
-    </ion-grid>
-  </div>
+      <!-- Loading State -->
+      <div *ngIf="isLoading()" class="loading-container">
+        <ion-spinner name="dots" color="primary"></ion-spinner>
+        <p>Cargando recetas...</p>
+      </div>
 
-  <!-- Action Buttons -->
-  <div class="action-buttons">
-    <ion-button expand="block" size="large" color="primary" (click)="goToRegister()">
-      <ion-icon name="person-add-outline" slot="start"></ion-icon>
-      Crear Cuenta
-    </ion-button>
+      <!-- Recipe Cards -->
+      <div *ngIf="!isLoading() && featuredRecipes().length > 0" class="recipes-showcase">
+        <div *ngFor="let recipe of featuredRecipes(); trackBy: trackByRecipeId" class="recipe-card">
+          <div class="card-image">
+            <img [src]="recipe.imageUrl" [alt]="recipe.title" />
+            <div class="card-overlay">
+              <ion-button fill="clear" size="small" color="light" (click)="viewRecipe(recipe.id)" class="view-btn">
+                <ion-icon name="eye-outline"></ion-icon>
+                Ver Receta
+              </ion-button>
+            </div>
+          </div>
+          <div class="card-content">
+            <h3>{{ recipe.title }}</h3>
+            <p>{{ recipe?.description }}</p>
+            <div class="card-meta">
+              <ion-chip [color]="getDifficultyColor(recipe.difficulty)" size="small">
+                <ion-icon name="speedometer-outline"></ion-icon>
+                <ion-label>{{ recipe.difficulty }}</ion-label>
+              </ion-chip>
+              <ion-chip color="primary" size="small">
+                <ion-icon name="time-outline"></ion-icon>
+                <ion-label>{{ recipe.cookingTime }}min</ion-label>
+              </ion-chip>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
 
-    <ion-button expand="block" size="large" fill="outline" color="primary" (click)="goToLogin()">
-      <ion-icon name="log-in-outline" slot="start"></ion-icon>
-      Iniciar Sesión
-    </ion-button>
+    <!-- Features Section -->
+    <div class="section-block features-block">
+      <div class="section-header">
+        <h2>¿Por qué elegir MealMates?</h2>
+        <p>Tu compañero perfecto en la cocina</p>
+      </div>
+
+      <div class="features-grid">
+        <div class="feature-item">
+          <div class="feature-icon">
+            <ion-icon name="search-outline"></ion-icon>
+          </div>
+          <div class="feature-content">
+            <h4>Explora Recetas</h4>
+            <p>Miles de recetas organizadas por categorías y dificultad</p>
+          </div>
+        </div>
+
+        <div class="feature-item">
+          <div class="feature-icon">
+            <ion-icon name="heart-outline"></ion-icon>
+          </div>
+          <div class="feature-content">
+            <h4>Guarda Favoritos</h4>
+            <p>Organiza tus recetas preferidas y accede a ellas fácilmente</p>
+          </div>
+        </div>
+
+        <div class="feature-item">
+          <div class="feature-icon">
+            <ion-icon name="bookmark-outline"></ion-icon>
+          </div>
+          <div class="feature-content">
+            <h4>Planifica Comidas</h4>
+            <p>Organiza tu menú semanal y genera listas de compras</p>
+          </div>
+        </div>
+
+        <div class="feature-item">
+          <div class="feature-icon">
+            <ion-icon name="phone-portrait-outline"></ion-icon>
+          </div>
+          <div class="feature-content">
+            <h4>Acceso Móvil</h4>
+            <p>Lleva tus recetas contigo a cualquier lugar</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Call to Action -->
+    <div class="cta-section">
+      <div class="cta-content">
+        <h2>¡Comienza tu aventura culinaria!</h2>
+        <p>Únete a nuestra comunidad y descubre el placer de cocinar</p>
+
+        <div class="cta-buttons">
+          <ion-button expand="block" size="large" color="primary" (click)="goToRegister()" class="primary-cta">
+            <ion-icon name="person-add-outline" slot="start"></ion-icon>
+            Crear Cuenta Gratis
+          </ion-button>
+
+          <ion-button
+            expand="block"
+            size="large"
+            fill="outline"
+            color="primary"
+            (click)="goToLogin()"
+            class="secondary-cta"
+          >
+            <ion-icon name="log-in-outline" slot="start"></ion-icon>
+            Ya tengo cuenta
+          </ion-button>
+        </div>
+
+        <div class="login-hint">
+          <ion-text color="medium">
+            <small
+              >¿Quieres explorar sin registrarte?
+              <ion-button fill="clear" size="small" color="primary">Ver recetas</ion-button></small
+            >
+          </ion-text>
+        </div>
+      </div>
+    </div>
   </div>
 </ion-content>

@@ -7,101 +7,206 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content class="register-content">
-  <div class="register-container">
-    <!-- Logo Section -->
-    <div class="logo-section">
-      <ion-icon name="restaurant" size="large" color="primary"></ion-icon>
-      <h1>MealMates</h1>
-      <p>¡Únete a nuestra comunidad!</p>
+<ion-content class="auth-content">
+  <!-- Hero Section with Gradient -->
+  <div class="hero-section">
+    <div class="hero-content">
+      <div class="logo-container">
+        <ion-icon name="restaurant-outline" class="logo-icon"></ion-icon>
+        <h1>MealMates</h1>
+      </div>
+      <p class="hero-subtitle">¡Únete a nuestra comunidad!</p>
     </div>
+  </div>
 
-    <!-- Register Form Card -->
-    <ion-card class="register-card">
-      <ion-card-header>
-        <ion-card-title>Crea tu cuenta</ion-card-title>
-      </ion-card-header>
+  <!-- Register Form Section -->
+  <div class="form-section">
+    <div class="form-container">
+      <div class="form-header">
+        <h2>Crear Cuenta</h2>
+        <p>Completa los datos para comenzar</p>
+      </div>
 
-      <ion-card-content>
-        <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
-          <!-- First Name Field -->
-          <ion-item [class.has-error]="getFieldError('firstName')" lines="none" class="input-item">
-            <ion-label position="stacked">Nombre</ion-label>
-            <ion-input type="text" formControlName="firstName" placeholder="Tu nombre" autocomplete="given-name">
-            </ion-input>
+      <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="auth-form">
+        <!-- First Name Input -->
+        <div class="input-group">
+          <ion-item
+            lines="none"
+            class="modern-input"
+            [class.has-error]="getFieldError('firstName')"
+            [class.has-focus]="firstNameFocused()"
+            [class.has-value]="registerForm.get('firstName')?.value"
+          >
+            <ion-icon name="person-outline" slot="start" color="medium"></ion-icon>
+            <ion-input
+              type="text"
+              formControlName="firstName"
+              placeholder="Tu nombre"
+              (ionFocus)="firstNameFocused.set(true)"
+              (ionBlur)="firstNameFocused.set(false)"
+              fill="outline"
+            ></ion-input>
           </ion-item>
-          <div class="error-message" *ngIf="getFieldError('firstName')">{{ getFieldError('firstName') }}</div>
+          <div class="error-text" *ngIf="getFieldError('firstName')">
+            <ion-icon name="alert-circle-outline" color="danger"></ion-icon>
+            {{ getFieldError('firstName') }}
+          </div>
+        </div>
 
-          <!-- Last Name Field -->
-          <ion-item [class.has-error]="getFieldError('lastName')" lines="none" class="input-item">
-            <ion-label position="stacked">Apellidos</ion-label>
-            <ion-input type="text" formControlName="lastName" placeholder="Tus apellidos" autocomplete="family-name">
-            </ion-input>
+        <!-- Last Name Input -->
+        <div class="input-group">
+          <ion-item
+            lines="none"
+            class="modern-input"
+            [class.has-error]="getFieldError('lastName')"
+            [class.has-focus]="lastNameFocused()"
+            [class.has-value]="registerForm.get('lastName')?.value"
+          >
+            <ion-icon name="people-outline" slot="start" color="medium"></ion-icon>
+            <ion-input
+              type="text"
+              formControlName="lastName"
+              placeholder="Tus apellidos"
+              (ionFocus)="lastNameFocused.set(true)"
+              (ionBlur)="lastNameFocused.set(false)"
+              fill="outline"
+            ></ion-input>
           </ion-item>
-          <div class="error-message" *ngIf="getFieldError('lastName')">{{ getFieldError('lastName') }}</div>
+          <div class="error-text" *ngIf="getFieldError('lastName')">
+            <ion-icon name="alert-circle-outline" color="danger"></ion-icon>
+            {{ getFieldError('lastName') }}
+          </div>
+        </div>
 
-          <!-- Email Field -->
-          <ion-item [class.has-error]="getFieldError('email')" lines="none" class="input-item">
-            <ion-label position="stacked">Email</ion-label>
-            <ion-input type="email" formControlName="email" placeholder="ejemplo@email.com" autocomplete="email">
-            </ion-input>
+        <!-- Email Input -->
+        <div class="input-group">
+          <ion-item
+            lines="none"
+            class="modern-input"
+            [class.has-error]="getFieldError('email')"
+            [class.has-focus]="emailFocused()"
+            [class.has-value]="registerForm.get('email')?.value"
+          >
+            <ion-icon name="mail-outline" slot="start" color="medium"></ion-icon>
+            <ion-input
+              type="email"
+              formControlName="email"
+              placeholder="tu@email.com"
+              (ionFocus)="emailFocused.set(true)"
+              (ionBlur)="emailFocused.set(false)"
+              fill="outline"
+            ></ion-input>
           </ion-item>
-          <div class="error-message" *ngIf="getFieldError('email')">{{ getFieldError('email') }}</div>
+          <div class="error-text" *ngIf="getFieldError('email')">
+            <ion-icon name="alert-circle-outline" color="danger"></ion-icon>
+            {{ getFieldError('email') }}
+          </div>
+        </div>
 
-          <!-- Password Field -->
-          <ion-item [class.has-error]="getFieldError('password')" lines="none" class="input-item">
-            <ion-label position="stacked">Contraseña</ion-label>
+        <!-- Password Input -->
+        <div class="input-group">
+          <ion-item
+            lines="none"
+            class="modern-input"
+            [class.has-error]="getFieldError('password')"
+            [class.has-focus]="passwordFocused()"
+            [class.has-value]="registerForm.get('password')?.value"
+          >
+            <ion-icon name="lock-closed-outline" slot="start" color="medium"></ion-icon>
             <ion-input
               [type]="showPassword() ? 'text' : 'password'"
               formControlName="password"
               placeholder="Mínimo 6 caracteres"
-              autocomplete="new-password"
-            >
-            </ion-input>
+              (ionFocus)="passwordFocused.set(true)"
+              (ionBlur)="passwordFocused.set(false)"
+              fill="outline"
+            ></ion-input>
             <ion-button slot="end" fill="clear" size="small" (click)="togglePasswordVisibility()">
-              <ion-icon [name]="showPassword() ? 'eye-off' : 'eye'" color="medium"> </ion-icon>
+              <ion-icon [name]="showPassword() ? 'eye-off-outline' : 'eye-outline'" color="medium"></ion-icon>
             </ion-button>
           </ion-item>
-          <div class="error-message" *ngIf="getFieldError('password')">{{ getFieldError('password') }}</div>
+          <div class="error-text" *ngIf="getFieldError('password')">
+            <ion-icon name="alert-circle-outline" color="danger"></ion-icon>
+            {{ getFieldError('password') }}
+          </div>
+        </div>
 
-          <!-- Confirm Password Field -->
-          <ion-item [class.has-error]="getFieldError('confirmPassword')" lines="none" class="input-item">
-            <ion-label position="stacked">Confirmar Contraseña</ion-label>
+        <!-- Confirm Password Input -->
+        <div class="input-group">
+          <ion-item
+            lines="none"
+            class="modern-input"
+            [class.has-error]="getFieldError('confirmPassword')"
+            [class.has-focus]="confirmPasswordFocused()"
+            [class.has-value]="registerForm.get('confirmPassword')?.value"
+          >
+            <ion-icon name="lock-open-outline" slot="start" color="medium"></ion-icon>
             <ion-input
               [type]="showConfirmPassword() ? 'text' : 'password'"
               formControlName="confirmPassword"
-              placeholder="Repite tu contraseña"
-              autocomplete="new-password"
-            >
-            </ion-input>
+              placeholder="Confirma tu contraseña"
+              (ionFocus)="confirmPasswordFocused.set(true)"
+              (ionBlur)="confirmPasswordFocused.set(false)"
+              fill="outline"
+            ></ion-input>
             <ion-button slot="end" fill="clear" size="small" (click)="toggleConfirmPasswordVisibility()">
-              <ion-icon [name]="showConfirmPassword() ? 'eye-off' : 'eye'" color="medium"> </ion-icon>
+              <ion-icon [name]="showConfirmPassword() ? 'eye-off-outline' : 'eye-outline'" color="medium"></ion-icon>
             </ion-button>
           </ion-item>
-          <div class="error-message" *ngIf="getFieldError('confirmPassword')">
+          <div class="error-text" *ngIf="getFieldError('confirmPassword')">
+            <ion-icon name="alert-circle-outline" color="danger"></ion-icon>
             {{ getFieldError('confirmPassword') }}
           </div>
+        </div>
 
-          <!-- Submit Button -->
-          <ion-button
-            expand="block"
-            type="submit"
-            [disabled]="registerForm.invalid || isLoading()"
-            class="register-button"
-          >
-            <ion-icon *ngIf="!isLoading()" name="person-add" slot="start"> </ion-icon>
-            {{ isLoading() ? 'Creando cuenta...' : 'Crear Cuenta' }}
+        <!-- Terms and Conditions -->
+        <div class="terms-section">
+          <ion-item lines="none" class="terms-item">
+            <ion-checkbox slot="start" formControlName="acceptTerms"></ion-checkbox>
+            <ion-label class="terms-text">
+              Acepto los
+              <ion-button fill="clear" size="small" color="primary"> términos y condiciones </ion-button>
+            </ion-label>
+          </ion-item>
+          <div class="error-text" *ngIf="getFieldError('acceptTerms')">
+            <ion-icon name="alert-circle-outline" color="danger"></ion-icon>
+            {{ getFieldError('acceptTerms') }}
+          </div>
+        </div>
+
+        <!-- Register Button -->
+        <ion-button
+          expand="block"
+          type="submit"
+          [disabled]="registerForm.invalid || isLoading()"
+          class="primary-button"
+          size="large"
+        >
+          <ion-icon *ngIf="!isLoading()" name="person-add-outline" slot="start"></ion-icon>
+          <ion-spinner *ngIf="isLoading()" name="crescent" slot="start"></ion-spinner>
+          {{ isLoading() ? 'Creando cuenta...' : 'Crear Cuenta' }}
+        </ion-button>
+
+        <!-- Divider -->
+        <div class="divider">
+          <span>o</span>
+        </div>
+
+        <!-- Login Link -->
+        <div class="auth-link">
+          <span>¿Ya tienes cuenta?</span>
+          <ion-button fill="clear" color="primary" (click)="goToLogin()" class="link-button">
+            Inicia sesión aquí
           </ion-button>
-        </form>
-      </ion-card-content>
-    </ion-card>
-
-    <!-- Login Link -->
-    <div class="login-link">
-      <ion-text color="medium">
-        <p>¿Ya tienes cuenta?</p>
-      </ion-text>
-      <ion-button fill="clear" color="primary" (click)="goToLogin()" class="login-btn"> Inicia sesión aquí </ion-button>
+        </div>
+      </form>
     </div>
   </div>
+
+  <!-- Back Button -->
+  <ion-fab vertical="top" horizontal="start" slot="fixed">
+    <ion-fab-button size="small" color="light" (click)="goToLanding()">
+      <ion-icon name="chevron-back-outline"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
 </ion-content>
