@@ -75,7 +75,6 @@ Thumbs.db
 .runtimeconfig.json
 src/app/firebase.config.ts
 
-.cursor/
 serviceAccountKey.json
 
 19.2.13/
