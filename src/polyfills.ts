@@ -41,15 +41,24 @@
  *  (window as any).__Zone_enable_cross_context_check = true;
  *
  */
- 
+
 import './zone-flags';
 
 /***************************************************************************************************
  * Zone JS is required by default for Angular itself.
  */
-import 'zone.js';  // Included with Angular CLI.
-
+import 'zone.js'; // Included with Angular CLI.
 
 /***************************************************************************************************
  * APPLICATION IMPORTS
+ */
+
+// Import needed polyfills for Capacitor
+(window as any).global = window;
+(window as any).process = {
+  env: { DEBUG: undefined },
+};
+
+/**
+ * Zone JS is required by default for Angular
  */

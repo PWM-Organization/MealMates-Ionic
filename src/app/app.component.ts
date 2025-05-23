@@ -213,8 +213,13 @@ export class AppComponent implements OnInit {
           alertEl.style.right = '10px';
           alertEl.style.zIndex = '9999';
           alertEl.style.maxWidth = '400px';
+          alertEl.style.boxShadow = '0 2px 10px rgba(0,0,0,0.1)';
           alertEl.innerHTML = `
-            <div style="font-weight: bold; margin-bottom: 8px">SQLite Web Initialization Warning</div>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px">
+              <span style="font-weight: bold;">SQLite Web Initialization Warning</span>
+              <button style="background: none; border: none; font-size: 16px; cursor: pointer; color: #856404;" 
+                      onclick="document.getElementById('sqlite-fallback-alert').remove()">×</button>
+            </div>
             <div>SQLite funcionará en dispositivos reales pero necesita configuración adicional para web.</div>
             <div style="margin-top: 8px">
               <small>Esta alerta solo aparece en desarrollo. La app usará localStorage como alternativa.</small>
