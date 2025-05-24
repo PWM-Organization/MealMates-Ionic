@@ -34,6 +34,7 @@ import { AuthService } from '../../services/auth.service';
 import { RecipeService } from '../../services/recipe.service';
 import { StorageService } from '../../services/storage.service';
 import { DebugService } from '../../services/debug.service';
+import { MemoryManagerService } from '../../services/memory-manager.service';
 import { Recipe, RecipeCategory, Ingredient } from '../../../models/recipe.model';
 import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
 import { Capacitor } from '@capacitor/core';
@@ -76,6 +77,7 @@ export class CreateRecipePage {
   private recipeService = inject(RecipeService);
   private storageService = inject(StorageService);
   private debugService = inject(DebugService);
+  private memoryManager = inject(MemoryManagerService);
   private router = inject(Router);
   private loadingCtrl = inject(LoadingController);
   private alertCtrl = inject(AlertController);
@@ -84,8 +86,6 @@ export class CreateRecipePage {
 
   // 🛡️ Android Crash Prevention
   private platform = Capacitor.getPlatform();
-  private readonly MAX_IMAGE_SIZE_MB = 3; // Reduce from 5MB for Android
-  private readonly MAX_IMAGE_DIMENSION = 1200; // Max width/height
 
   isLoading = signal(false);
   isUploadingImage = signal(false);
@@ -133,9 +133,13 @@ export class CreateRecipePage {
   }
 
   addIngredient() {
-    // 🛡️ Limit ingredients to prevent memory issues
-    if (this.ingredients.length >= 20) {
-      this.showAlert('Límite alcanzado', 'Máximo 20 ingredientes permitidos');
+    // 🛡️ Dynamic limits based on memory pressure
+    const config = this.memoryManager.getOptimizedConfig();
+    if (this.ingredients.length >= config.formLimits.maxIngredients) {
+      this.showAlert(
+        'Límite alcanzado',
+        `Máximo ${config.formLimits.maxIngredients} ingredientes permitidos (optimización de memoria)`,
+      );
       return;
     }
     this.ingredients.push(this.createIngredientControl());
@@ -148,9 +152,13 @@ export class CreateRecipePage {
   }
 
   addInstruction() {
-    // 🛡️ Limit instructions to prevent memory issues
-    if (this.instructions.length >= 15) {
-      this.showAlert('Límite alcanzado', 'Máximo 15 pasos permitidos');
+    // 🛡️ Dynamic limits based on memory pressure
+    const config = this.memoryManager.getOptimizedConfig();
+    if (this.instructions.length >= config.formLimits.maxInstructions) {
+      this.showAlert(
+        'Límite alcanzado',
+        `Máximo ${config.formLimits.maxInstructions} pasos permitidos (optimización de memoria)`,
+      );
       return;
     }
     this.instructions.push(this.createInstructionControl());
@@ -170,6 +178,15 @@ export class CreateRecipePage {
   }
 
   async selectRecipeImage() {
+    // 🛡️ Check memory pressure before heavy operations
+    if (this.memoryManager.shouldPreventHeavyOperations()) {
+      await this.showAlert(
+        'Sistema optimizando memoria',
+        'Por favor, espera un momento antes de agregar imágenes para mantener la estabilidad de la app.',
+      );
+      return;
+    }
+
     // 🛡️ For Android emulator, show simplified options
     if (this.debugService.shouldUseFallback()) {
       await this.showAlert(
@@ -216,6 +233,9 @@ export class CreateRecipePage {
 
   async takePicture(source: CameraSource) {
     try {
+      // 🛡️ Memory-aware configuration
+      const config = this.memoryManager.getOptimizedConfig();
+
       // 🛡️ Android crash prevention
       this.debugService.logMemoryUsage('Before Camera Operation');
 
@@ -227,24 +247,28 @@ export class CreateRecipePage {
 
       const image = await Promise.race([
         Camera.getPhoto({
-          quality: this.platform === 'android' ? 60 : 80, // Lower quality for Android
+          quality: Math.floor(config.imageQuality * 100), // Memory-optimized quality
           allowEditing: true,
           resultType: CameraResultType.DataUrl,
           source: source,
-          width: this.MAX_IMAGE_DIMENSION,
-          height: this.MAX_IMAGE_DIMENSION,
+          width: 1200,
+          height: 1200,
         }),
         // 🛡️ Timeout for camera operations
         new Promise<never>((_, reject) => setTimeout(() => reject(new Error('Camera operation timeout')), 10000)),
       ]);
 
       if (image.dataUrl) {
-        // 🛡️ Validate image size before setting
+        // 🛡️ Memory-aware image size validation
         const imageSize = this.estimateImageSize(image.dataUrl);
-        if (imageSize > this.MAX_IMAGE_SIZE_MB * 1024 * 1024) {
+        if (imageSize > config.maxImageSize) {
           await this.showAlert(
             'Imagen muy grande',
-            `La imagen es de ${(imageSize / 1024 / 1024).toFixed(1)}MB. Máximo permitido: ${this.MAX_IMAGE_SIZE_MB}MB`,
+            `La imagen es de ${(imageSize / 1024 / 1024).toFixed(1)}MB. Máximo permitido: ${(
+              config.maxImageSize /
+              1024 /
+              1024
+            ).toFixed(1)}MB`,
           );
           return;
         }
@@ -356,18 +380,17 @@ export class CreateRecipePage {
     this.isUploadingImage.set(true);
 
     try {
-      // 🛡️ For Android, use more aggressive compression
-      const compressionQuality = this.platform === 'android' ? 0.6 : 0.8;
-      const maxDimension = this.platform === 'android' ? 800 : 1200;
+      // 🛡️ Memory-aware configuration
+      const config = this.memoryManager.getOptimizedConfig();
 
       // Convert data URL to file
       const response = await fetch(selectedImageData);
       const blob = await response.blob();
       const file = this.storageService.createFileFromBlob(blob, 'recipe-image.jpg');
 
-      // Validate and compress image
-      this.storageService.validateImageFile(file, this.MAX_IMAGE_SIZE_MB);
-      const compressedFile = await this.storageService.compressImage(file, maxDimension, compressionQuality);
+      // Validate and compress image using memory-aware limits
+      this.storageService.validateImageFile(file, config.maxImageSize / 1024 / 1024); // Convert to MB
+      const compressedFile = await this.storageService.compressImage(file, 1200, config.imageQuality);
 
       // Upload to Firebase Storage
       const currentUser = this.authService.currentUser();

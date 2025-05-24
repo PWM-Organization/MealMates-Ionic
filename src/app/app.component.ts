@@ -1,8 +1,12 @@
-import { Component, OnInit, isDevMode } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { IonApp, IonRouterOutlet } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { Capacitor } from '@capacitor/core';
-import { CapacitorSQLite, SQLiteConnection } from '@capacitor-community/sqlite';
+import { SplashScreen } from '@capacitor/splash-screen';
+import { StatusBar, Style } from '@capacitor/status-bar';
+import { AuthService } from './services/auth.service';
+import { SqliteService } from './services/sqlite.service';
+import { MemoryManagerService } from './services/memory-manager.service';
 import {
   personOutline,
   personAddOutline,
@@ -79,9 +83,10 @@ import {
 })
 export class AppComponent implements OnInit {
   private platform: string = Capacitor.getPlatform();
-  private sqlite: SQLiteConnection = new SQLiteConnection(CapacitorSQLite);
-  private isWeb: boolean = false;
-  private sqliteInitialized: boolean = false;
+  private authService = inject(AuthService);
+  private sqlite = inject(SqliteService);
+  private memoryManager = inject(MemoryManagerService);
+  private sqliteInitialized = false;
 
   constructor() {
     // Agregar iconos que se usarán en la aplicación
@@ -151,64 +156,46 @@ export class AppComponent implements OnInit {
       heartDislike,
       heartDislikeOutline,
     });
+
+    this.initializeApp();
   }
 
   async ngOnInit() {
-    this.isWeb = this.platform === 'web';
-
-    // Initialize SQLite for web platform
-    if (this.isWeb) {
-      await this.initializeSQLiteWeb();
+    // 🛡️ Start memory monitoring for Android
+    if (this.platform === 'android') {
+      this.memoryManager.startMemoryMonitoring();
+      console.log('🧠 Memory monitoring started for Android');
     }
-  }
 
-  /**
-   * Initialize SQLite for web platform - required to avoid "jeep-sqlite element" error
-   */
-  private async initializeSQLiteWeb(): Promise<void> {
-    try {
-      // Check if SQLite element already exists
-      let jeepSqliteEl = document.querySelector('jeep-sqlite');
-
-      if (!jeepSqliteEl) {
-        // Create the 'jeep-sqlite' element for web platform
-        jeepSqliteEl = document.createElement('jeep-sqlite');
-        document.body.appendChild(jeepSqliteEl);
-      }
-
-      // Wait for the custom element to be defined
+    // Initialize SQLite only on supported platforms
+    if (this.platform === 'web' || this.platform === 'ios' || this.platform === 'android') {
       try {
-        // Set a timeout to avoid waiting indefinitely
-        const timeout = new Promise((_, reject) =>
-          setTimeout(() => reject(new Error('Timeout waiting for jeep-sqlite definition')), 3000),
-        );
-
-        await Promise.race([customElements.whenDefined('jeep-sqlite'), timeout]);
-
-        // Initialize web store for SQLite
-        await this.sqlite.initWebStore();
-
-        this.sqliteInitialized = true;
-        console.log('SQLite initialized for web platform');
-      } catch (timeoutError) {
-        console.warn('Could not initialize jeep-sqlite element in time:', timeoutError);
-        this.createSQLiteFallbackAlert();
+        await this.sqlite.initializeDB();
+        console.log(`✅ SQLite initialized on ${this.platform}`);
+      } catch (error) {
+        console.warn('⚠️ SQLite initialization failed, continuing with localStorage fallback');
       }
-    } catch (error) {
-      console.error('Error initializing SQLite for web:', error);
-      this.createSQLiteFallbackAlert();
     }
   }
 
-  /**
-   * Creates a developer-friendly alert for SQLite initialization issues
-   */
-  private createSQLiteFallbackAlert(): void {
-    // In development mode, just log a warning instead of showing popup
-    if (isDevMode()) {
-      console.warn(
-        'SQLite Web Initialization: SQLite funcionará en dispositivos reales pero necesita configuración adicional para web. La app usará localStorage como alternativa.',
-      );
+  private async initializeApp() {
+    try {
+      // Configure status bar for native platforms
+      if (this.platform !== 'web') {
+        await StatusBar.setStyle({ style: Style.Default });
+        await StatusBar.setBackgroundColor({ color: '#3880ff' });
+      }
+
+      // Hide splash screen after a delay
+      if (this.platform !== 'web') {
+        setTimeout(async () => {
+          await SplashScreen.hide();
+        }, 2000);
+      }
+
+      console.log(`✅ App initialized on ${this.platform}`);
+    } catch (error) {
+      console.error('Error during app initialization:', error);
     }
   }
 }
