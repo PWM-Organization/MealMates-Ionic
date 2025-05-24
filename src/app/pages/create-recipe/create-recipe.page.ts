@@ -33,8 +33,10 @@ import {
 import { AuthService } from '../../services/auth.service';
 import { RecipeService } from '../../services/recipe.service';
 import { StorageService } from '../../services/storage.service';
+import { DebugService } from '../../services/debug.service';
 import { Recipe, RecipeCategory, Ingredient } from '../../../models/recipe.model';
 import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
+import { Capacitor } from '@capacitor/core';
 
 @Component({
   selector: 'app-create-recipe',
@@ -73,11 +75,17 @@ export class CreateRecipePage {
   private authService = inject(AuthService);
   private recipeService = inject(RecipeService);
   private storageService = inject(StorageService);
+  private debugService = inject(DebugService);
   private router = inject(Router);
   private loadingCtrl = inject(LoadingController);
   private alertCtrl = inject(AlertController);
   private toastCtrl = inject(ToastController);
   private actionSheetCtrl = inject(ActionSheetController);
+
+  // 🛡️ Android Crash Prevention
+  private platform = Capacitor.getPlatform();
+  private readonly MAX_IMAGE_SIZE_MB = 3; // Reduce from 5MB for Android
+  private readonly MAX_IMAGE_DIMENSION = 1200; // Max width/height
 
   isLoading = signal(false);
   isUploadingImage = signal(false);
@@ -125,6 +133,11 @@ export class CreateRecipePage {
   }
 
   addIngredient() {
+    // 🛡️ Limit ingredients to prevent memory issues
+    if (this.ingredients.length >= 20) {
+      this.showAlert('Límite alcanzado', 'Máximo 20 ingredientes permitidos');
+      return;
+    }
     this.ingredients.push(this.createIngredientControl());
   }
 
@@ -135,6 +148,11 @@ export class CreateRecipePage {
   }
 
   addInstruction() {
+    // 🛡️ Limit instructions to prevent memory issues
+    if (this.instructions.length >= 15) {
+      this.showAlert('Límite alcanzado', 'Máximo 15 pasos permitidos');
+      return;
+    }
     this.instructions.push(this.createInstructionControl());
   }
 
@@ -152,53 +170,119 @@ export class CreateRecipePage {
   }
 
   async selectRecipeImage() {
-    const actionSheet = await this.actionSheetCtrl.create({
-      header: 'Seleccionar imagen de receta',
-      buttons: [
-        {
-          text: 'Cámara',
-          icon: 'camera-outline',
-          handler: () => {
-            this.takePicture(CameraSource.Camera);
+    // 🛡️ For Android emulator, show simplified options
+    if (this.debugService.shouldUseFallback()) {
+      await this.showAlert(
+        'Funcionalidad Limitada',
+        'En el emulador, la cámara no está disponible. Puedes agregar una imagen más tarde desde un dispositivo real.',
+      );
+      return;
+    }
+
+    try {
+      // 🛡️ Android-specific memory monitoring
+      this.debugService.logMemoryUsage('Before Camera Action Sheet');
+
+      const actionSheet = await this.actionSheetCtrl.create({
+        header: 'Seleccionar imagen de receta',
+        buttons: [
+          {
+            text: 'Cámara',
+            icon: 'camera-outline',
+            handler: () => {
+              this.takePicture(CameraSource.Camera);
+            },
           },
-        },
-        {
-          text: 'Galería',
-          icon: 'images-outline',
-          handler: () => {
-            this.takePicture(CameraSource.Photos);
+          {
+            text: 'Galería',
+            icon: 'images-outline',
+            handler: () => {
+              this.takePicture(CameraSource.Photos);
+            },
           },
-        },
-        {
-          text: 'Cancelar',
-          icon: 'close-outline',
-          role: 'cancel',
-        },
-      ],
-    });
-    await actionSheet.present();
+          {
+            text: 'Cancelar',
+            icon: 'close-outline',
+            role: 'cancel',
+          },
+        ],
+      });
+      await actionSheet.present();
+    } catch (error) {
+      console.error('Error showing action sheet:', error);
+      await this.showAlert('Error', 'No se pudo abrir el selector de imagen');
+    }
   }
 
   async takePicture(source: CameraSource) {
     try {
-      const image = await Camera.getPhoto({
-        quality: 80,
-        allowEditing: true,
-        resultType: CameraResultType.DataUrl,
-        source: source,
-      });
+      // 🛡️ Android crash prevention
+      this.debugService.logMemoryUsage('Before Camera Operation');
+
+      // Check if Camera is available
+      if (!Camera.getPhoto) {
+        await this.showAlert('Error', 'La cámara no está disponible en este dispositivo');
+        return;
+      }
+
+      const image = await Promise.race([
+        Camera.getPhoto({
+          quality: this.platform === 'android' ? 60 : 80, // Lower quality for Android
+          allowEditing: true,
+          resultType: CameraResultType.DataUrl,
+          source: source,
+          width: this.MAX_IMAGE_DIMENSION,
+          height: this.MAX_IMAGE_DIMENSION,
+        }),
+        // 🛡️ Timeout for camera operations
+        new Promise<never>((_, reject) => setTimeout(() => reject(new Error('Camera operation timeout')), 10000)),
+      ]);
 
       if (image.dataUrl) {
+        // 🛡️ Validate image size before setting
+        const imageSize = this.estimateImageSize(image.dataUrl);
+        if (imageSize > this.MAX_IMAGE_SIZE_MB * 1024 * 1024) {
+          await this.showAlert(
+            'Imagen muy grande',
+            `La imagen es de ${(imageSize / 1024 / 1024).toFixed(1)}MB. Máximo permitido: ${this.MAX_IMAGE_SIZE_MB}MB`,
+          );
+          return;
+        }
+
         this.selectedImage.set(image.dataUrl);
+        this.debugService.logMemoryUsage('After Image Selection');
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error taking picture:', error);
-      await this.showAlert('Error', 'No se pudo capturar la imagen');
+
+      // 🛡️ User-friendly error messages
+      let errorMessage = 'No se pudo capturar la imagen';
+      if (error.message?.includes('timeout')) {
+        errorMessage = 'La operación de cámara tardó demasiado. Inténtalo de nuevo.';
+      } else if (error.message?.includes('User cancelled')) {
+        return; // Don't show error for user cancellation
+      } else if (error.message?.includes('permission')) {
+        errorMessage = 'Se requieren permisos de cámara. Verifica la configuración de la app.';
+      }
+
+      await this.showAlert('Error', errorMessage);
     }
+  }
+
+  /**
+   * 🛡️ Estimate image size from dataURL
+   */
+  private estimateImageSize(dataUrl: string): number {
+    // Base64 size estimation (approximately 4/3 of original)
+    const base64String = dataUrl.split(',')[1];
+    return (base64String.length * 3) / 4;
   }
 
   async onSubmit() {
     if (this.recipeForm.valid) {
+      // 🛡️ Memory monitoring before heavy operations
+      this.debugService.logMemoryUsage('Before Recipe Submission');
+
       const loading = await this.loadingCtrl.create({
         message: 'Creando receta...',
         spinner: 'crescent',
@@ -233,14 +317,22 @@ export class CreateRecipePage {
         // Create recipe first to get ID
         const recipeId = await this.recipeService.createRecipe(recipeData);
 
-        // Upload image if selected
+        // Upload image if selected (with Android-specific handling)
         if (this.selectedImage()) {
-          const imageUrl = await this.uploadRecipeImage(recipeId);
-          await this.recipeService.updateRecipe(recipeId, { imageUrl });
+          try {
+            const imageUrl = await this.uploadRecipeImageSafely(recipeId);
+            await this.recipeService.updateRecipe(recipeId, { imageUrl });
+          } catch (imageError) {
+            console.warn('Image upload failed, proceeding without image:', imageError);
+            // Don't fail the entire recipe creation if image upload fails
+          }
         }
 
         await loading.dismiss();
         await this.showToast('¡Receta creada exitosamente!', 'checkmark-circle-outline');
+
+        // 🛡️ Clean up before navigation
+        this.cleanupResources();
         this.router.navigate(['/tabs/explore']);
       } catch (error: any) {
         await loading.dismiss();
@@ -254,21 +346,28 @@ export class CreateRecipePage {
     }
   }
 
-  private async uploadRecipeImage(recipeId: string): Promise<string> {
+  /**
+   * 🛡️ Safe image upload with Android optimizations
+   */
+  private async uploadRecipeImageSafely(recipeId: string): Promise<string> {
     const selectedImageData = this.selectedImage();
     if (!selectedImageData) throw new Error('No image selected');
 
     this.isUploadingImage.set(true);
 
     try {
+      // 🛡️ For Android, use more aggressive compression
+      const compressionQuality = this.platform === 'android' ? 0.6 : 0.8;
+      const maxDimension = this.platform === 'android' ? 800 : 1200;
+
       // Convert data URL to file
       const response = await fetch(selectedImageData);
       const blob = await response.blob();
       const file = this.storageService.createFileFromBlob(blob, 'recipe-image.jpg');
 
       // Validate and compress image
-      this.storageService.validateImageFile(file, 5); // 5MB limit for recipes
-      const compressedFile = await this.storageService.compressImage(file, 1200, 0.8);
+      this.storageService.validateImageFile(file, this.MAX_IMAGE_SIZE_MB);
+      const compressedFile = await this.storageService.compressImage(file, maxDimension, compressionQuality);
 
       // Upload to Firebase Storage
       const currentUser = this.authService.currentUser();
@@ -277,6 +376,28 @@ export class CreateRecipePage {
       return await this.storageService.uploadRecipeImage(compressedFile, currentUser.uid, recipeId);
     } finally {
       this.isUploadingImage.set(false);
+    }
+  }
+
+  /**
+   * 🛡️ Clean up resources to prevent memory leaks
+   */
+  private cleanupResources(): void {
+    // Clear selected image from memory
+    if (this.selectedImage()) {
+      const imageUrl = this.selectedImage();
+      if (imageUrl?.startsWith('blob:')) {
+        URL.revokeObjectURL(imageUrl);
+      }
+      this.selectedImage.set(null);
+    }
+
+    // Reset form arrays to minimum
+    while (this.ingredients.length > 1) {
+      this.ingredients.removeAt(this.ingredients.length - 1);
+    }
+    while (this.instructions.length > 1) {
+      this.instructions.removeAt(this.instructions.length - 1);
     }
   }
 
@@ -375,6 +496,8 @@ export class CreateRecipePage {
   }
 
   goBack() {
+    // 🛡️ Clean up before navigation
+    this.cleanupResources();
     this.router.navigate(['/tabs/explore']);
   }
 }
