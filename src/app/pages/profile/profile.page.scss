@@ -353,6 +353,32 @@
   }
 }
 
+// Error Container
+.error-container {
+  padding: 1rem;
+  max-width: 600px;
+  margin: 0 auto;
+
+  .error-content {
+    text-align: center;
+    padding: 1rem;
+
+    ion-icon {
+      margin-bottom: 1rem;
+    }
+
+    h3 {
+      margin: 0 0 0.5rem 0;
+      font-weight: 600;
+    }
+
+    p {
+      margin: 0 0 1rem 0;
+      opacity: 0.8;
+    }
+  }
+}
+
 // Loading Container
 .loading-container {
   display: flex;

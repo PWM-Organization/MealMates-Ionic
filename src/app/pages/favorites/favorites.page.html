@@ -21,7 +21,7 @@
         <img [src]="userProfile()?.photoURL || 'assets/icon/apple-icon-120x120.png'" alt="Avatar" />
       </ion-avatar>
       <ion-label>
-        <h2>¡Hola, {{ getUserDisplayName() }}!</h2>
+        <h2>¡Hola, {{ getUserDisplayName(userProfile()) }}!</h2>
         <p>Aquí están tus recetas favoritas</p>
       </ion-label>
     </ion-item>

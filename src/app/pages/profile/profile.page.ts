@@ -1,4 +1,4 @@
-import { Component, OnInit, signal, inject } from '@angular/core';
+import { Component, OnInit, signal, inject, OnDestroy } from '@angular/core';
 import { FormBuilder, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { CommonModule, DatePipe } from '@angular/common';
@@ -23,6 +23,8 @@ import {
   IonActionSheet,
   IonList,
   IonNote,
+  IonRefresher,
+  IonRefresherContent,
   LoadingController,
   AlertController,
   ToastController,
@@ -32,6 +34,9 @@ import { AuthService } from '../../services/auth.service';
 import { StorageService } from '../../services/storage.service';
 import { User } from '../../../models/user.model';
 import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
+import { doc, getDoc } from 'firebase/firestore';
+import { firestore } from '../../../firebase.config';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-profile',
@@ -60,11 +65,13 @@ import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
     IonActionSheet,
     IonList,
     IonNote,
+    IonRefresher,
+    IonRefresherContent,
   ],
   templateUrl: './profile.page.html',
   styleUrls: ['./profile.page.scss'],
 })
-export class ProfilePage implements OnInit {
+export class ProfilePage implements OnInit, OnDestroy {
   private fb = inject(FormBuilder);
   private authService = inject(AuthService);
   private storageService = inject(StorageService);
@@ -76,8 +83,12 @@ export class ProfilePage implements OnInit {
 
   isEditing = signal(false);
   isLoading = signal(false);
+  isRefreshing = signal(false);
   isUploadingImage = signal(false);
   currentUser = signal<User | null>(null);
+  loadError = signal<string | null>(null);
+
+  private authSubscription?: Subscription;
 
   profileForm = this.fb.group({
     firstName: ['', [Validators.required, Validators.minLength(2)]],
@@ -89,21 +100,186 @@ export class ProfilePage implements OnInit {
   });
 
   async ngOnInit() {
+    console.log('🔄 Profile page initializing...');
     await this.loadUserProfile();
+
+    // Subscribe to auth state changes for real-time updates
+    this.authSubscription = new Subscription();
   }
 
+  ngOnDestroy() {
+    this.authSubscription?.unsubscribe();
+  }
+
+  /**
+   * 🔄 Load user profile from AuthService with Firebase refresh fallback
+   */
   async loadUserProfile() {
-    const user = this.authService.userProfile();
-    if (user) {
-      this.currentUser.set(user);
-      this.profileForm.patchValue({
-        firstName: user.firstName,
-        lastName: user.lastName,
-        email: user.email,
-        bio: user.bio || '',
-        phone: user.phone || '',
-        location: user.location || '',
-      });
+    this.isLoading.set(true);
+    this.loadError.set(null);
+
+    try {
+      const authUser = this.authService.currentUser();
+      if (!authUser) {
+        this.loadError.set('Usuario no autenticado');
+        return;
+      }
+
+      // Get user document from Firestore
+      const userDoc = await getDoc(doc(firestore, 'users', authUser.uid));
+
+      if (userDoc.exists()) {
+        const userData = userDoc.data() as User;
+        this.currentUser.set(userData);
+
+        // Update form with user data, using empty strings as fallbacks
+        this.profileForm.patchValue({
+          firstName: userData.firstName || '',
+          lastName: userData.lastName || '',
+          email: userData.email || authUser.email || '',
+          bio: userData.bio || '',
+          phone: userData.phone || '',
+          location: userData.location || '',
+        });
+
+        // Cache the user data in AuthService
+        this.authService['userProfileSignal'].set(userData);
+      } else {
+        // If user document doesn't exist, initialize with auth data
+        const initialUserData: User = {
+          uid: authUser.uid,
+          email: authUser.email || '',
+          firstName: '',
+          lastName: '',
+          photoURL: authUser.photoURL || '',
+          createdAt: new Date(),
+          lastActiveAt: new Date(),
+          isVerified: authUser.emailVerified,
+          isPremium: false,
+          followersCount: 0,
+          followingCount: 0,
+          recipesCount: 0,
+          favoriteRecipes: [],
+          savedRecipes: [],
+          dietaryRestrictions: [],
+          preferences: {
+            defaultServings: 4,
+            measurementSystem: 'metric',
+            skillLevel: 'beginner',
+            cookingTime: 'any',
+            notifications: {
+              newRecipes: true,
+              weeklyPlanner: true,
+              social: true,
+            },
+          },
+        };
+
+        // Create the user document
+        await this.authService.updateUserProfile(initialUserData);
+
+        // Update local state
+        this.currentUser.set(initialUserData);
+        this.profileForm.patchValue({
+          email: initialUserData.email,
+          firstName: '',
+          lastName: '',
+          bio: '',
+          phone: '',
+          location: '',
+        });
+      }
+    } catch (error) {
+      console.error('❌ Error loading user profile:', error);
+      this.loadError.set('Error al cargar el perfil');
+    } finally {
+      this.isLoading.set(false);
+    }
+  }
+
+  /**
+   * 🔄 Explicitly refresh user data from Firestore
+   */
+  async refreshFromFirestore(uid?: string): Promise<void> {
+    try {
+      const userId = uid || this.authService.currentUser()?.uid;
+      if (!userId) {
+        throw new Error('No user ID available');
+      }
+
+      console.log('🔄 Refreshing user profile from Firestore for:', userId);
+
+      const userDoc = await getDoc(doc(firestore, 'users', userId));
+
+      if (userDoc.exists()) {
+        const userData = userDoc.data() as User;
+        console.log('✅ Fresh user data from Firestore:', userData.email);
+
+        this.currentUser.set(userData);
+        this.updateForm(userData);
+
+        // Update AuthService cache
+        this.authService['userProfileSignal'].set(userData);
+      } else {
+        console.warn('⚠️ User document not found in Firestore');
+        this.loadError.set('Perfil no encontrado');
+      }
+    } catch (error) {
+      console.error('❌ Error refreshing from Firestore:', error);
+      this.loadError.set('Error al actualizar desde Firebase');
+    }
+  }
+
+  /**
+   * 📝 Update form with user data
+   */
+  private updateForm(user: User) {
+    this.profileForm.patchValue({
+      firstName: user.firstName || '',
+      lastName: user.lastName || '',
+      email: user.email || '',
+      bio: user.bio || '',
+      phone: user.phone || '',
+      location: user.location || '',
+    });
+  }
+
+  /**
+   * 🔄 Handle pull-to-refresh
+   */
+  async onRefresh(event: any) {
+    this.isRefreshing.set(true);
+
+    try {
+      await this.refreshFromFirestore();
+      await this.showToast('Perfil actualizado', 'refresh-outline');
+    } catch (error) {
+      console.error('Error during refresh:', error);
+      await this.showAlert('Error', 'No se pudo actualizar el perfil');
+    } finally {
+      this.isRefreshing.set(false);
+      event.target.complete();
+    }
+  }
+
+  /**
+   * 🖼️ Get profile image URL with proper fallback
+   */
+  getProfileImageUrl(): string {
+    const user = this.currentUser();
+    if (!user) return 'assets/profiles/default-avatar.svg';
+
+    // Try profileImageUrl first (Firebase Storage), then photoURL, then default
+    return user.profileImageUrl || user.photoURL || 'assets/profiles/default-avatar.svg';
+  }
+
+  /**
+   * 🖼️ Handle image loading errors
+   */
+  onImageError(event: Event): void {
+    const img = event.target as HTMLImageElement;
+    if (img) {
+      img.src = 'assets/profiles/default-avatar.svg';
     }
   }
 
@@ -111,7 +287,10 @@ export class ProfilePage implements OnInit {
     this.isEditing.set(!this.isEditing());
     if (!this.isEditing()) {
       // Reset form when canceling edit
-      this.loadUserProfile();
+      const user = this.currentUser();
+      if (user) {
+        this.updateForm(user);
+      }
     }
   }
 
@@ -126,26 +305,40 @@ export class ProfilePage implements OnInit {
       try {
         this.isLoading.set(true);
         const formValue = this.profileForm.value;
+        const currentUser = this.currentUser();
 
-        await this.authService.updateUserProfile({
+        if (!currentUser) {
+          throw new Error('No user data available');
+        }
+
+        // Prepare update data
+        const updateData: Partial<User> = {
           firstName: formValue.firstName!,
           lastName: formValue.lastName!,
           bio: formValue.bio || undefined,
           phone: formValue.phone || undefined,
           location: formValue.location || undefined,
-        });
+          updatedAt: new Date(),
+        };
+
+        // Update user profile
+        await this.authService.updateUserProfile(updateData);
+
+        // Refresh profile data from Firestore
+        await this.refreshFromFirestore();
 
         await loading.dismiss();
         await this.showToast('Perfil actualizado exitosamente', 'checkmark-circle-outline');
         this.isEditing.set(false);
-        await this.loadUserProfile();
       } catch (error: any) {
         await loading.dismiss();
-        console.error('Error updating profile:', error);
-        await this.showAlert('Error', 'No se pudo actualizar el perfil');
+        console.error('❌ Error updating profile:', error);
+        await this.showAlert('Error', error.message || 'No se pudo actualizar el perfil');
       } finally {
         this.isLoading.set(false);
       }
+    } else {
+      await this.showAlert('Error', 'Por favor completa todos los campos requeridos');
     }
   }
 
@@ -184,13 +377,21 @@ export class ProfilePage implements OnInit {
         allowEditing: true,
         resultType: CameraResultType.DataUrl,
         source: source,
+        width: 800,
+        height: 800,
       });
 
       if (image.dataUrl) {
         await this.uploadProfileImage(image.dataUrl);
       }
-    } catch (error) {
-      console.error('Error taking picture:', error);
+    } catch (error: any) {
+      console.error('❌ Error taking picture:', error);
+
+      // Handle user cancellation gracefully
+      if (error.message?.includes('User cancelled')) {
+        return;
+      }
+
       await this.showAlert('Error', 'No se pudo capturar la imagen');
     }
   }
@@ -223,12 +424,14 @@ export class ProfilePage implements OnInit {
       // Update user profile with new image URL
       await this.authService.updateUserProfile({ profileImageUrl: imageUrl });
 
+      // 🔄 Refresh profile data to show new image
+      await this.refreshFromFirestore();
+
       await loading.dismiss();
       await this.showToast('Imagen actualizada exitosamente', 'checkmark-circle-outline');
-      await this.loadUserProfile();
     } catch (error: any) {
       await loading.dismiss();
-      console.error('Error uploading image:', error);
+      console.error('❌ Error uploading image:', error);
       await this.showAlert('Error', error.message || 'No se pudo subir la imagen');
     } finally {
       this.isUploadingImage.set(false);

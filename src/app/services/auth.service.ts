@@ -1,17 +1,22 @@
-import { Injectable, signal, computed, inject } from '@angular/core';
+import { Injectable, inject, signal, computed } from '@angular/core';
+import { auth } from '../../firebase.config';
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   signOut,
-  onAuthStateChanged,
-  User as FirebaseUser,
   updateProfile,
+  sendPasswordResetEmail,
+  AuthError,
+  AuthErrorCodes,
+  User as FirebaseUser,
 } from 'firebase/auth';
 import { doc, setDoc, getDoc, updateDoc, serverTimestamp, Timestamp } from 'firebase/firestore';
-import { auth, firestore } from '../../firebase.config';
+import { firestore } from '../../firebase.config';
 import { User, UserRegistrationData, UserPreferences } from '../../models/user.model';
 
-@Injectable({ providedIn: 'root' })
+@Injectable({
+  providedIn: 'root',
+})
 export class AuthService {
   private currentUserSignal = signal<FirebaseUser | null>(null);
   private userProfileSignal = signal<User | null>(null);
@@ -25,16 +30,13 @@ export class AuthService {
 
   constructor() {
     // Initialize auth state listener
-    onAuthStateChanged(auth, async (user) => {
+    auth.onAuthStateChanged(async (user) => {
       this.currentUserSignal.set(user);
-      this.isLoadingSignal.set(true);
-
       if (user) {
         await this.loadUserProfile(user.uid);
       } else {
         this.userProfileSignal.set(null);
       }
-
       this.isLoadingSignal.set(false);
     });
   }
@@ -42,55 +44,55 @@ export class AuthService {
   /**
    * Register a new user with email/password and create their profile
    */
-  async register(email: string, password: string, userData: UserRegistrationData): Promise<void> {
+  async register(userData: UserRegistrationData): Promise<void> {
     try {
       // Create Firebase Auth user
-      const credential = await createUserWithEmailAndPassword(auth, email, password);
-      const firebaseUser = credential.user;
+      const userCredential = await createUserWithEmailAndPassword(auth, userData.email, userData.password);
 
       // Update Firebase Auth profile
-      await updateProfile(firebaseUser, {
+      await updateProfile(userCredential.user, {
         displayName: `${userData.firstName} ${userData.lastName}`,
       });
 
-      // Create default user preferences
-      const defaultPreferences: UserPreferences = {
-        defaultServings: 4,
-        measurementSystem: 'metric',
-        skillLevel: 'beginner',
-        cookingTime: 'any',
-        notifications: {
-          newRecipes: true,
-          weeklyPlanner: true,
-          social: true,
-        },
-      };
-
       // Create user profile in Firestore
       const userProfile: User = {
-        id: firebaseUser.uid,
-        email: firebaseUser.email!,
-        displayName: `${userData.firstName} ${userData.lastName}`,
+        uid: userCredential.user.uid,
+        email: userData.email,
         firstName: userData.firstName,
         lastName: userData.lastName,
-        preferences: defaultPreferences,
-        dietaryRestrictions: [],
-        favoriteRecipes: [],
-        savedRecipes: [],
+        photoURL: userCredential.user.photoURL || '',
+        createdAt: Timestamp.now(),
+        lastActiveAt: Timestamp.now(),
+        isVerified: false,
+        isPremium: false,
         followersCount: 0,
         followingCount: 0,
         recipesCount: 0,
-        createdAt: serverTimestamp() as Timestamp,
-        lastActiveAt: serverTimestamp() as Timestamp,
-        isVerified: false,
-        isPremium: false,
+        favoriteRecipes: [],
+        savedRecipes: [],
+        dietaryRestrictions: [],
+        preferences: {
+          defaultServings: 4,
+          measurementSystem: 'metric',
+          skillLevel: 'beginner',
+          cookingTime: 'any',
+          notifications: {
+            newRecipes: true,
+            weeklyPlanner: true,
+            social: true,
+          },
+        },
       };
 
-      await setDoc(doc(firestore, 'users', firebaseUser.uid), userProfile);
+      await setDoc(doc(firestore, 'users', userCredential.user.uid), {
+        ...userProfile,
+        createdAt: serverTimestamp(),
+        lastActiveAt: serverTimestamp(),
+      });
       this.userProfileSignal.set(userProfile);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error during registration:', error);
-      throw error;
+      throw this.handleAuthError(error);
     }
   }
 
@@ -99,11 +101,11 @@ export class AuthService {
    */
   async login(email: string, password: string): Promise<void> {
     try {
-      await signInWithEmailAndPassword(auth, email, password);
-      // onAuthStateChanged will handle the rest
-    } catch (error) {
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      await this.loadUserProfile(userCredential.user.uid);
+    } catch (error: any) {
       console.error('Error during login:', error);
-      throw error;
+      throw this.handleAuthError(error);
     }
   }
 
@@ -113,10 +115,10 @@ export class AuthService {
   async logout(): Promise<void> {
     try {
       await signOut(auth);
-      // onAuthStateChanged will handle clearing state
-    } catch (error) {
+      this.userProfileSignal.set(null);
+    } catch (error: any) {
       console.error('Error during logout:', error);
-      throw error;
+      throw this.handleAuthError(error);
     }
   }
 
@@ -194,9 +196,9 @@ export class AuthService {
       });
 
       // Update Firebase Auth profile if displayName changed
-      if (updates.displayName) {
+      if (updates.firstName || updates.lastName) {
         await updateProfile(user, {
-          displayName: updates.displayName,
+          displayName: `${updates.firstName} ${updates.lastName}`,
         });
       }
 
@@ -215,50 +217,84 @@ export class AuthService {
   }
 
   /**
+   * Handle Firebase Auth errors and return user-friendly messages
+   */
+  private handleAuthError(error: AuthError): Error {
+    console.error('Auth error:', error);
+    let message = 'Ha ocurrido un error. Por favor intenta de nuevo.';
+
+    switch (error.code) {
+      case AuthErrorCodes.EMAIL_EXISTS:
+        message = 'Este email ya está registrado.';
+        break;
+      case AuthErrorCodes.INVALID_EMAIL:
+        message = 'El email no es válido.';
+        break;
+      case AuthErrorCodes.WEAK_PASSWORD:
+        message = 'La contraseña debe tener al menos 6 caracteres.';
+        break;
+      case AuthErrorCodes.USER_DELETED:
+        message = 'No existe una cuenta con este email.';
+        break;
+      case AuthErrorCodes.INVALID_PASSWORD:
+        message = 'La contraseña es incorrecta.';
+        break;
+      case AuthErrorCodes.TOO_MANY_ATTEMPTS_TRY_LATER:
+        message = 'Demasiados intentos fallidos. Por favor intenta más tarde.';
+        break;
+    }
+
+    return new Error(message);
+  }
+
+  /**
    * Update user profile with form data
    */
-  async updateUserProfile(updates: {
-    firstName?: string;
-    lastName?: string;
-    bio?: string;
-    phone?: string;
-    location?: string;
-    profileImageUrl?: string;
-  }): Promise<void> {
+  async updateUserProfile(updates: Partial<User>): Promise<void> {
     const user = this.currentUser();
-    if (!user) throw new Error('User not authenticated');
+    if (!user) throw new Error('No authenticated user');
 
+    const userRef = doc(firestore, 'users', user.uid);
+    const profileUpdates: Partial<User> = { ...updates };
+
+    // Update Firebase Auth profile if name changes
+    if (updates.firstName || updates.lastName) {
+      const firstName = updates.firstName || this.userProfile()?.firstName || '';
+      const lastName = updates.lastName || this.userProfile()?.lastName || '';
+      await updateProfile(user, {
+        displayName: `${firstName} ${lastName}`,
+      });
+    }
+
+    // Update photoURL if provided
+    if (profileUpdates.photoURL) {
+      await updateProfile(user, {
+        photoURL: profileUpdates.photoURL,
+      });
+    }
+
+    // Update Firestore document
+    await updateDoc(userRef, {
+      ...profileUpdates,
+      updatedAt: serverTimestamp(),
+    });
+
+    // Update local state
+    const currentProfile = this.userProfile();
+    if (currentProfile) {
+      this.userProfileSignal.set({
+        ...currentProfile,
+        ...profileUpdates,
+        updatedAt: Timestamp.now(),
+      });
+    }
+  }
+
+  async resetPassword(email: string): Promise<void> {
     try {
-      // Prepare updates object
-      const profileUpdates: Partial<User> = {
-        ...updates,
-        updatedAt: serverTimestamp() as Timestamp,
-      };
-
-      // Update displayName if first or last name changed
-      if (updates.firstName || updates.lastName) {
-        const currentProfile = this.userProfile();
-        const firstName = updates.firstName || currentProfile?.firstName || '';
-        const lastName = updates.lastName || currentProfile?.lastName || '';
-        profileUpdates.displayName = `${firstName} ${lastName}`;
-      }
-
-      // Update Firestore
-      const userRef = doc(firestore, 'users', user.uid);
-      await updateDoc(userRef, profileUpdates);
-
-      // Update Firebase Auth profile if displayName changed
-      if (profileUpdates.displayName) {
-        await updateProfile(user, {
-          displayName: profileUpdates.displayName,
-        });
-      }
-
-      // Reload user profile to get fresh data
-      await this.loadUserProfile(user.uid);
-    } catch (error) {
-      console.error('Error updating user profile:', error);
-      throw error;
+      await sendPasswordResetEmail(auth, email);
+    } catch (error: any) {
+      throw this.handleAuthError(error);
     }
   }
 }

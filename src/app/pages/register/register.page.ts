@@ -98,45 +98,49 @@ export class RegisterPage {
   async onSubmit() {
     if (this.registerForm.valid) {
       const loading = await this.loadingCtrl.create({
-        message: 'Creando cuenta...',
-        spinner: 'crescent',
+        message: 'Registrando usuario...',
       });
       await loading.present();
 
       try {
-        this.isLoading.set(true);
         const formValue = this.registerForm.value;
-
         const userData: UserRegistrationData = {
           firstName: formValue.firstName!,
           lastName: formValue.lastName!,
           email: formValue.email!,
+          password: formValue.password!,
         };
 
-        await this.authService.register(formValue.email!, formValue.password!, userData);
-
+        await this.authService.register(userData);
         await loading.dismiss();
-        await this.showToast('¡Cuenta creada exitosamente!', 'checkmark-circle-outline');
-        this.router.navigate(['/tabs/explore']);
+
+        // Show success message
+        const toast = await this.toastCtrl.create({
+          message: '¡Registro exitoso! Bienvenido a MealMates.',
+          duration: 3000,
+          position: 'top',
+          color: 'success',
+        });
+        await toast.present();
+
+        // Navigate to home
+        this.router.navigate(['/tabs/home']);
       } catch (error: any) {
         await loading.dismiss();
-        console.error('Registration error:', error);
-
-        let message = 'Error al crear la cuenta';
-        if (error.code === 'auth/email-already-in-use') {
-          message = 'Ya existe una cuenta con este email';
-        } else if (error.code === 'auth/invalid-email') {
-          message = 'Email inválido';
-        } else if (error.code === 'auth/weak-password') {
-          message = 'La contraseña es muy débil';
-        }
-
-        await this.showAlert('Error', message);
-      } finally {
-        this.isLoading.set(false);
+        const alert = await this.alertCtrl.create({
+          header: 'Error',
+          message: error.message || 'Ha ocurrido un error durante el registro.',
+          buttons: ['OK'],
+        });
+        await alert.present();
       }
     } else {
-      await this.showAlert('Error', 'Por favor completa todos los campos correctamente');
+      const alert = await this.alertCtrl.create({
+        header: 'Formulario Inválido',
+        message: 'Por favor completa todos los campos correctamente.',
+        buttons: ['OK'],
+      });
+      await alert.present();
     }
   }
 
@@ -154,26 +158,6 @@ export class RegisterPage {
 
   goToLanding() {
     this.router.navigate(['/landing']);
-  }
-
-  private async showAlert(header: string, message: string) {
-    const alert = await this.alertCtrl.create({
-      header,
-      message,
-      buttons: ['OK'],
-    });
-    await alert.present();
-  }
-
-  private async showToast(message: string, icon: string) {
-    const toast = await this.toastCtrl.create({
-      message,
-      duration: 3000,
-      position: 'top',
-      icon,
-      color: 'success',
-    });
-    await toast.present();
   }
 
   getFieldError(fieldName: string): string {

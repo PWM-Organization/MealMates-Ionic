@@ -2,6 +2,10 @@
   <ion-toolbar color="primary">
     <ion-title>Mi Perfil</ion-title>
     <ion-buttons slot="end">
+      <!-- Refresh Button -->
+      <ion-button (click)="refreshFromFirestore()" [disabled]="isLoading() || isRefreshing()">
+        <ion-icon name="refresh-outline"></ion-icon>
+      </ion-button>
       <ion-button (click)="logout()">
         <ion-icon name="log-out-outline"></ion-icon>
       </ion-button>
@@ -10,17 +14,49 @@
 </ion-header>
 
 <ion-content class="profile-content">
-  <div *ngIf="currentUser()" class="profile-container">
+  <!-- Pull to Refresh -->
+  <ion-refresher slot="fixed" (ionRefresh)="onRefresh($event)">
+    <ion-refresher-content
+      pullingIcon="chevron-down-circle-outline"
+      pullingText="Desliza para actualizar"
+      refreshingSpinner="crescent"
+      refreshingText="Actualizando perfil..."
+    >
+    </ion-refresher-content>
+  </ion-refresher>
+
+  <!-- Error State -->
+  <div *ngIf="loadError()" class="error-container">
+    <ion-card color="danger">
+      <ion-card-content>
+        <div class="error-content">
+          <ion-icon name="alert-circle-outline" size="large"></ion-icon>
+          <h3>Error al cargar perfil</h3>
+          <p>{{ loadError() }}</p>
+          <ion-button fill="outline" (click)="loadUserProfile()">
+            <ion-icon name="refresh-outline" slot="start"></ion-icon>
+            Reintentar
+          </ion-button>
+        </div>
+      </ion-card-content>
+    </ion-card>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading() && !currentUser()" class="loading-container">
+    <ion-spinner name="crescent" color="primary"></ion-spinner>
+    <p>Cargando perfil desde Firebase...</p>
+  </div>
+
+  <!-- Profile Content -->
+  <div *ngIf="currentUser() && !loadError()" class="profile-container">
     <!-- Profile Header Card -->
     <ion-card class="profile-header-card">
       <ion-card-content>
         <div class="profile-header">
           <div class="avatar-section">
             <ion-avatar class="profile-avatar" (click)="selectProfileImage()">
-              <img
-                [src]="currentUser()?.profileImageUrl || 'assets/profiles/default-avatar.svg'"
-                [alt]="currentUser()?.firstName"
-              />
+              <img [src]="getProfileImageUrl()" [alt]="currentUser()?.firstName" (error)="onImageError($event)" />
               <div class="avatar-overlay">
                 <ion-icon name="camera-outline"></ion-icon>
               </div>
@@ -40,6 +76,14 @@
                 <ion-icon name="calendar-outline"></ion-icon>
                 <span>Miembro desde {{ getFormattedDate(currentUser()?.createdAt) }}</span>
               </div>
+              <div *ngIf="currentUser()?.phone" class="stat-item">
+                <ion-icon name="call-outline"></ion-icon>
+                <span>{{ currentUser()?.phone }}</span>
+              </div>
+              <div *ngIf="currentUser()?.location" class="stat-item">
+                <ion-icon name="location-outline"></ion-icon>
+                <span>{{ currentUser()?.location }}</span>
+              </div>
             </div>
           </div>
         </div>
@@ -51,7 +95,7 @@
       <ion-card-header>
         <ion-card-title>
           Información Personal
-          <ion-button fill="clear" size="small" (click)="toggleEdit()" class="edit-toggle-btn">
+          <ion-button fill="clear" size="small" (click)="toggleEdit()" class="edit-toggle-btn" [disabled]="isLoading()">
             <ion-icon [name]="isEditing() ? 'close-outline' : 'create-outline'"></ion-icon>
             {{ isEditing() ? 'Cancelar' : 'Editar' }}
           </ion-button>
@@ -221,11 +265,5 @@
         </ion-list>
       </ion-card-content>
     </ion-card>
-  </div>
-
-  <!-- Loading State -->
-  <div *ngIf="!currentUser()" class="loading-container">
-    <ion-spinner name="crescent" color="primary"></ion-spinner>
-    <p>Cargando perfil...</p>
   </div>
 </ion-content>

@@ -13,11 +13,10 @@ export interface UserPreferences {
 }
 
 export interface User {
-  id: string; // Same as Auth UID
+  uid: string; // Same as Auth UID
   email: string;
-  displayName: string;
-  firstName: string; // Added for form compatibility
-  lastName: string; // Added for form compatibility
+  firstName: string;
+  lastName: string;
   photoURL?: string;
   profileImageUrl?: string; // Firebase Storage URL for profile image
   bio?: string;
@@ -40,15 +39,16 @@ export interface User {
 // Helper type for creating new users (without generated fields)
 export type CreateUserData = Omit<
   User,
-  'id' | 'createdAt' | 'lastActiveAt' | 'updatedAt' | 'followersCount' | 'followingCount' | 'recipesCount'
+  'uid' | 'createdAt' | 'lastActiveAt' | 'updatedAt' | 'followersCount' | 'followingCount' | 'recipesCount'
 >;
 
 // Helper type for updating user profile
-export type UpdateUserData = Partial<Omit<User, 'id' | 'email' | 'createdAt'>>;
+export type UpdateUserData = Partial<Omit<User, 'uid' | 'email' | 'createdAt'>>;
 
 // User registration form data
 export interface UserRegistrationData {
   firstName: string;
   lastName: string;
   email: string;
+  password: string;
 }

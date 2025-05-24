@@ -33,6 +33,7 @@ import { AuthService } from '../../services/auth.service';
 import { RecipeService } from '../../services/recipe.service';
 import { SqliteService } from '../../services/sqlite.service';
 import { Recipe } from '../../../models/recipe.model';
+import { User } from '../../../models/user.model';
 
 @Component({
   selector: 'app-favorites',
@@ -143,11 +144,9 @@ export class FavoritesPage implements OnInit {
     this.router.navigate(['/landing']);
   }
 
-  getUserDisplayName(): string {
-    const user = this.userProfile();
+  getUserDisplayName(user: User | null): string {
     if (!user) return 'Usuario';
-
-    return user.firstName || (user.displayName ? user.displayName.split(' ')[0] : 'Usuario');
+    return user.firstName || user.lastName || 'Usuario';
   }
 
   async removeFavorite(recipe: Recipe) {
