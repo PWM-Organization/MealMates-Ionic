@@ -6,12 +6,12 @@
 
 Este proyecto implementa **las 4 pantallas requeridas** para el Sprint 4, creando una experiencia completa de descubrimiento y gestión de recetas:
 
-| Vista | Descripción | Vista | Descripción |
-|-------|-------------|-------|-------------|
-| <img src="assets/2025-05-24-20-56-15.png" width="200"/> | **Home**: Pantalla principal con las recetas destacadas y últimas novedades | <img src="assets/2025-05-24-20-55-53.png" width="200"/> | **Login**: Acceso seguro con email y contraseña |
-| <img src="assets/2025-05-24-20-56-31.png" width="200"/> | **Registro**: Creación de cuenta con datos personales | <img src="assets/2025-05-24-20-57-06.png" width="200"/> | **Explorar**: Descubre nuevas recetas por categorías |
-| <img src="assets/2025-05-24-20-57-50.png" width="200"/> | **Favoritos**: Tus recetas guardadas sincronizadas | <img src="assets/2025-05-24-20-58-13.png" width="200"/> | **Crear Receta**: Comparte tus propias creaciones |
-| <img src="assets/2025-05-24-20-59-17.png" width="200"/> | **Detalle**: Vista completa de cada receta | <img src="assets/2025-05-24-20-59-36.png" width="200"/> | **Perfil**: Gestiona tu cuenta y preferencias |
+| Pantalla | Descripción | Pantalla | Descripción |
+|----------|-------------|----------|-------------|
+| ![home](assets/2025-05-24-21-51-33.png) | Página principal con las últimas recetas | ![login](assets/2025-05-24-21-52-03.png) | Inicio de sesión con email/password |
+| ![register](assets/2025-05-24-21-52-45.png) | Registro de nuevos usuarios | ![explore](assets/2025-05-24-21-51-11.png) | Explorar recetas por categorías |
+| ![favorites](assets/2025-05-24-21-50-40.png) | Recetas guardadas como favoritas | ![create-recipe](assets/2025-05-24-21-50-16.png) | Crear y publicar nuevas recetas |
+| ![recipe-detail](assets/2025-05-24-21-48-35.png) | Vista detallada de una receta | ![profile](assets/2025-05-24-21-48-11.png) | Perfil de usuario y preferencias |
 
 ### 📱 **1. Registro de Usuarios**
 
@@ -355,7 +355,6 @@ ionic serve  # Changes apply immediately
 npm run build
 firebase deploy --only hosting
 ```
-
 
 ---
 
