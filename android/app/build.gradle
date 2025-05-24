@@ -3,6 +3,12 @@ apply plugin: 'com.android.application'
 android {
     namespace "com.mealmates.app"
     compileSdk rootProject.ext.compileSdkVersion
+    
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_18
+        targetCompatibility JavaVersion.VERSION_18
+    }
+    
     defaultConfig {
         applicationId "com.mealmates.app"
         minSdkVersion rootProject.ext.minSdkVersion
