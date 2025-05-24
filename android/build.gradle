@@ -1,7 +1,7 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 
 buildscript {
-    
+    ext.kotlin_version = '1.8.22' // Define Kotlin version
     repositories {
         google()
         mavenCentral()
@@ -9,6 +9,7 @@ buildscript {
     dependencies {
         classpath 'com.android.tools.build:gradle:8.6.0'
         classpath 'com.google.gms:google-services:4.4.2'
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version" // Add Kotlin plugin
 
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
@@ -23,13 +24,24 @@ allprojects {
         mavenCentral()
     }
     
-    // Force Java 18 for all modules including Capacitor
+    // Force consistent Kotlin version
+    configurations.all {
+        resolutionStrategy {
+            eachDependency { DependencyResolveDetails details ->
+                if (details.requested.group == 'org.jetbrains.kotlin' && details.requested.name.startsWith("kotlin-stdlib")) {
+                    details.useVersion kotlin_version
+                }
+            }
+        }
+    }
+    
+    // Force Java 17 for all modules including Capacitor (more stable than 18)
     afterEvaluate { project ->
         if (project.hasProperty("android")) {
             android {
                 compileOptions {
-                    sourceCompatibility JavaVersion.VERSION_18
-                    targetCompatibility JavaVersion.VERSION_18
+                    sourceCompatibility JavaVersion.VERSION_17
+                    targetCompatibility JavaVersion.VERSION_17
                 }
             }
         }

@@ -27,6 +27,46 @@
 
     <!-- Theme color -->
     <meta name="theme-color" content="#3880ff" />
+
+    <!-- SQLite Web Dependencies (only for actual web browsers) -->
+    <script>
+      // Only load SQLite web module for actual web browsers, not native mobile apps
+      function isActualWebBrowser() {
+        // Check if we're running in a native app context (Capacitor sets these)
+        if (typeof window !== 'undefined') {
+          // Check for Capacitor native context
+          if (window.Capacitor && window.Capacitor.isNativePlatform) {
+            return false; // Don't load for native apps
+          }
+
+          // Check if we're on localhost (typical for Capacitor mobile apps)
+          if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+            return false; // Don't load for localhost (mobile apps)
+          }
+
+          // Check user agent for mobile webview indicators
+          const userAgent = navigator.userAgent || '';
+          if (/wv|WebView|CapacitorWebView/.test(userAgent)) {
+            return false; // Don't load for webviews
+          }
+        }
+
+        return true; // Load for actual web browsers
+      }
+
+      if (isActualWebBrowser()) {
+        console.log('Loading SQLite web module for browser...');
+        const script = document.createElement('script');
+        script.type = 'module';
+        script.src = 'https://unpkg.com/jeep-sqlite@2.8.2/dist/jeep-sqlite/jeep-sqlite.esm.js';
+        script.onerror = function () {
+          console.warn('⚠️ SQLite web module failed to load - using localStorage fallback');
+        };
+        document.head.appendChild(script);
+      } else {
+        console.log('Skipping SQLite web module - running in native app');
+      }
+    </script>
   </head>
 
   <body>
@@ -40,31 +80,6 @@
       }
       if (!window.global) {
         window.global = window;
-      }
-    </script>
-
-    <!-- SQLite Web Dependencies (conditional loading) -->
-    <script>
-      // Only try to load SQLite dependencies in web mode
-      if (window.location.protocol.startsWith('http')) {
-        // Create a simple jeep-sqlite element fallback
-        if (!customElements.get('jeep-sqlite')) {
-          // Try to load from unpkg CDN which is more reliable
-          const script = document.createElement('script');
-          script.type = 'module';
-          script.src = 'https://unpkg.com/jeep-sqlite@2.8.2/dist/jeep-sqlite/jeep-sqlite.esm.js';
-          script.onload = () => {
-            console.log('✅ SQLite web module loaded successfully');
-          };
-          script.onerror = () => {
-            console.warn('⚠️ SQLite web module failed to load - using localStorage fallback');
-            // Create a dummy element to prevent errors
-            if (!customElements.get('jeep-sqlite')) {
-              customElements.define('jeep-sqlite', class extends HTMLElement {});
-            }
-          };
-          document.head.appendChild(script);
-        }
       }
     </script>
   </body>
