@@ -4,7 +4,7 @@
 
 ## 🎯 Sprint 4: Las 4 Pantallas Fundamentales
 
-Este proyecto implementa **exactamente las 4 pantallas requeridas** para el Sprint 4, creando una experiencia completa de descubrimiento y gestión de recetas:
+Este proyecto implementa **las 4 pantallas requeridas** para el Sprint 4, creando una experiencia completa de descubrimiento y gestión de recetas:
 
 ### 📱 **1. Registro de Usuarios**
 
