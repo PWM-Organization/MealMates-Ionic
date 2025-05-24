@@ -1,7 +1,8 @@
-import { Injectable, signal, isDevMode, computed } from '@angular/core';
+import { Injectable, signal, isDevMode, computed, inject } from '@angular/core';
 import { CapacitorSQLite, SQLiteConnection, SQLiteDBConnection } from '@capacitor-community/sqlite';
 import { Capacitor } from '@capacitor/core';
 import { Favorite } from '../../models/favorite.model';
+import { DebugService } from './debug.service';
 
 @Injectable({ providedIn: 'root' })
 export class SqliteService {
@@ -11,6 +12,13 @@ export class SqliteService {
   private readonly DB_VERSION = 1;
   private platform: string = Capacitor.getPlatform();
   private initializationAttempted = false;
+  private debugService = inject(DebugService);
+
+  // 🛡️ Android Crash Prevention
+  private isProcessing = false;
+  private operationQueue: Array<() => Promise<any>> = [];
+  private readonly MAX_RETRIES = 3;
+  private readonly OPERATION_TIMEOUT = 5000; // 5 seconds
 
   // State signals
   private isInitializedSignal = signal(false);
@@ -20,6 +28,69 @@ export class SqliteService {
   readonly isInitialized = this.isInitializedSignal.asReadonly();
   readonly isWebPlatform = this.isWebPlatformSignal.asReadonly();
   readonly isAvailable = computed(() => this.isInitialized() || this.isWebPlatform());
+
+  /**
+   * 🛡️ Android Memory Management - Queue operations to prevent crashes
+   */
+  private async executeWithQueue<T>(operation: () => Promise<T>): Promise<T> {
+    // Use debug service to determine if fallback should be used
+    if (this.debugService.shouldUseFallback()) {
+      throw new Error('Using fallback for stability');
+    }
+
+    return new Promise((resolve, reject) => {
+      this.operationQueue.push(async () => {
+        try {
+          this.debugService.logMemoryUsage('Before SQLite Operation');
+
+          const result = await Promise.race([
+            operation(),
+            new Promise<never>((_, timeoutReject) =>
+              setTimeout(() => timeoutReject(new Error('Operation timeout')), this.OPERATION_TIMEOUT),
+            ),
+          ]);
+
+          this.debugService.logMemoryUsage('After SQLite Operation');
+          resolve(result);
+        } catch (error) {
+          reject(error);
+        }
+      });
+
+      this.processQueue();
+    });
+  }
+
+  /**
+   * 🔍 Detect Android Emulator
+   */
+  private isAndroidEmulator(): boolean {
+    return this.debugService.shouldUseFallback();
+  }
+
+  /**
+   * 🔄 Process operation queue sequentially to prevent memory overload
+   */
+  private async processQueue(): Promise<void> {
+    if (this.isProcessing || this.operationQueue.length === 0) {
+      return;
+    }
+
+    this.isProcessing = true;
+
+    try {
+      while (this.operationQueue.length > 0) {
+        const operation = this.operationQueue.shift();
+        if (operation) {
+          await operation();
+          // Small delay to prevent overwhelming the WebView
+          await new Promise((resolve) => setTimeout(resolve, 50));
+        }
+      }
+    } finally {
+      this.isProcessing = false;
+    }
+  }
 
   /**
    * Wait for SQLite web module to be available
@@ -146,90 +217,125 @@ export class SqliteService {
   }
 
   /**
-   * Add a recipe to favorites - with localStorage fallback for web
+   * Add a recipe to favorites - with Android crash prevention
    */
   async addFavorite(recipeId: string, userId: string): Promise<void> {
+    this.debugService.logSQLiteOperation('addFavorite', recipeId, userId);
+
     try {
-      // If SQLite is available and initialized, use it
-      if (this.isInitialized() && this.db) {
-        const query = `
-          INSERT OR REPLACE INTO favorites (recipeId, userId, addedAt) 
-          VALUES (?, ?, ?)
-        `;
-        await this.db.run(query, [recipeId, userId, new Date().toISOString()]);
+      // For Android emulator or if SQLite fails, use localStorage immediately
+      if (this.platform === 'android' && this.isAndroidEmulator()) {
+        this._saveFavoriteToLocalStorage(recipeId, userId);
+        console.log(`✅ Recipe ${recipeId} added to favorites via localStorage (Android emulator)`);
+        return;
       }
-      // Otherwise, always use localStorage as fallback
+
+      // If SQLite is available and initialized, use it with queue protection
+      if (this.isInitialized() && this.db) {
+        await this.executeWithQueue(async () => {
+          const query = `INSERT OR REPLACE INTO favorites (recipeId, userId, addedAt) VALUES (?, ?, ?)`;
+          await this.db!.run(query, [recipeId, userId, new Date().toISOString()]);
+        });
+        console.log(`✅ Recipe ${recipeId} added to favorites via SQLite for user ${userId}`);
+      }
+      // Otherwise, use localStorage as fallback
       else {
         this._saveFavoriteToLocalStorage(recipeId, userId);
+        console.log(`✅ Recipe ${recipeId} added to favorites via localStorage fallback`);
       }
-
-      console.log(`Recipe ${recipeId} added to favorites for user ${userId}`);
     } catch (error) {
-      console.error('Error adding favorite:', error);
-      // Use localStorage as fallback if SQLite fails
+      console.error('❌ Error adding favorite, using localStorage fallback:', error);
+      // Always fall back to localStorage on any error
       this._saveFavoriteToLocalStorage(recipeId, userId);
+      console.log(`✅ Recipe ${recipeId} added to favorites via localStorage after error`);
     }
   }
 
   /**
-   * Remove a recipe from favorites - with localStorage fallback for web
+   * Remove a recipe from favorites - with Android crash prevention
    */
   async removeFavorite(recipeId: string, userId: string): Promise<void> {
+    this.debugService.logSQLiteOperation('removeFavorite', recipeId, userId);
+
     try {
-      // If SQLite is available and initialized, use it
-      if (this.isInitialized() && this.db) {
-        const query = `DELETE FROM favorites WHERE recipeId = ? AND userId = ?`;
-        await this.db.run(query, [recipeId, userId]);
-      }
-      // Otherwise, always use localStorage as fallback
-      else {
+      // For Android emulator or if SQLite fails, use localStorage immediately
+      if (this.platform === 'android' && this.isAndroidEmulator()) {
         this._removeFavoriteFromLocalStorage(recipeId, userId);
+        console.log(`✅ Recipe ${recipeId} removed from favorites via localStorage (Android emulator)`);
+        return;
       }
 
-      console.log(`Recipe ${recipeId} removed from favorites for user ${userId}`);
+      // If SQLite is available and initialized, use it with queue protection
+      if (this.isInitialized() && this.db) {
+        await this.executeWithQueue(async () => {
+          const query = `DELETE FROM favorites WHERE recipeId = ? AND userId = ?`;
+          await this.db!.run(query, [recipeId, userId]);
+        });
+        console.log(`✅ Recipe ${recipeId} removed from favorites via SQLite for user ${userId}`);
+      }
+      // Otherwise, use localStorage as fallback
+      else {
+        this._removeFavoriteFromLocalStorage(recipeId, userId);
+        console.log(`✅ Recipe ${recipeId} removed from favorites via localStorage fallback`);
+      }
     } catch (error) {
-      console.error('Error removing favorite:', error);
-      // Use localStorage as fallback if SQLite fails
+      console.error('❌ Error removing favorite, using localStorage fallback:', error);
+      // Always fall back to localStorage on any error
       this._removeFavoriteFromLocalStorage(recipeId, userId);
+      console.log(`✅ Recipe ${recipeId} removed from favorites via localStorage after error`);
     }
   }
 
   /**
-   * Get all favorite recipe IDs for a user - with localStorage fallback for web
+   * Get all favorite recipe IDs for a user - with Android crash prevention
    */
   async getFavorites(userId: string): Promise<string[]> {
     try {
-      // If SQLite is available and initialized, use it
-      if (this.isInitialized() && this.db) {
-        const query = `SELECT recipeId FROM favorites WHERE userId = ? ORDER BY addedAt DESC`;
-        const result = await this.db.query(query, [userId]);
-        return result.values?.map((row) => row.recipeId) || [];
+      // For Android emulator, use localStorage immediately to prevent crashes
+      if (this.platform === 'android' && this.isAndroidEmulator()) {
+        return this._getFavoritesFromLocalStorage(userId);
       }
-      // Otherwise, always use localStorage as fallback
+
+      // If SQLite is available and initialized, use it with queue protection
+      if (this.isInitialized() && this.db) {
+        return await this.executeWithQueue(async () => {
+          const query = `SELECT recipeId FROM favorites WHERE userId = ? ORDER BY addedAt DESC`;
+          const result = await this.db!.query(query, [userId]);
+          return result.values?.map((row) => row.recipeId) || [];
+        });
+      }
+
+      // Fallback to localStorage
       return this._getFavoritesFromLocalStorage(userId);
     } catch (error) {
-      console.error('Error getting favorites:', error);
-      // Use localStorage as fallback if SQLite fails
+      console.error('Error getting favorites, using localStorage fallback:', error);
       return this._getFavoritesFromLocalStorage(userId);
     }
   }
 
   /**
-   * Check if a recipe is favorited by a user - with localStorage fallback for web
+   * Check if a recipe is favorited by a user - with Android crash prevention
    */
   async isFavorite(recipeId: string, userId: string): Promise<boolean> {
     try {
-      // If SQLite is available and initialized, use it
-      if (this.isInitialized() && this.db) {
-        const query = `SELECT COUNT(*) as count FROM favorites WHERE recipeId = ? AND userId = ?`;
-        const result = await this.db.query(query, [recipeId, userId]);
-        return result.values?.[0]?.count > 0;
+      // For Android emulator, use localStorage immediately to prevent crashes
+      if (this.platform === 'android' && this.isAndroidEmulator()) {
+        return this._isFavoriteInLocalStorage(recipeId, userId);
       }
-      // Otherwise, always use localStorage as fallback
+
+      // If SQLite is available and initialized, use it with queue protection
+      if (this.isInitialized() && this.db) {
+        return await this.executeWithQueue(async () => {
+          const query = `SELECT COUNT(*) as count FROM favorites WHERE recipeId = ? AND userId = ?`;
+          const result = await this.db!.query(query, [recipeId, userId]);
+          return result.values?.[0]?.count > 0;
+        });
+      }
+
+      // Fallback to localStorage
       return this._isFavoriteInLocalStorage(recipeId, userId);
     } catch (error) {
-      console.error('Error checking favorite status:', error);
-      // Use localStorage as fallback if SQLite fails
+      console.error('Error checking favorite status, using localStorage fallback:', error);
       return this._isFavoriteInLocalStorage(recipeId, userId);
     }
   }
