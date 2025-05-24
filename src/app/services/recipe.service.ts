@@ -43,33 +43,40 @@ export class RecipeService {
 
       let q = query(collection(firestore, 'recipes'));
 
-      // Apply filters
+      // For public recipes, use simpler approach to avoid composite index requirements
       if (filters.isPublic !== undefined) {
-        q = query(q, where('isPublic', '==', filters.isPublic));
+        // Order by createdAt first, then filter client-side
+        q = query(q, orderBy('createdAt', 'desc'));
+      } else {
+        // Apply other filters normally
+        if (filters.category) {
+          q = query(q, where('category', '==', filters.category));
+        }
+
+        if (filters.difficulty) {
+          q = query(q, where('difficulty', '==', filters.difficulty));
+        }
+
+        if (filters.maxCookingTime) {
+          q = query(q, where('cookingTime', '<=', filters.maxCookingTime));
+        }
+
+        if (filters.authorId) {
+          q = query(q, where('authorId', '==', filters.authorId));
+        }
+
+        if (filters.tags && filters.tags.length > 0) {
+          q = query(q, where('tags', 'array-contains-any', filters.tags));
+        }
+
+        // Default ordering by creation date
+        q = query(q, orderBy('createdAt', 'desc'));
       }
 
-      if (filters.category) {
-        q = query(q, where('category', '==', filters.category));
+      // Add pagination cursor if provided
+      if (filters.startAfterDoc) {
+        q = query(q, startAfter(filters.startAfterDoc));
       }
-
-      if (filters.difficulty) {
-        q = query(q, where('difficulty', '==', filters.difficulty));
-      }
-
-      if (filters.maxCookingTime) {
-        q = query(q, where('cookingTime', '<=', filters.maxCookingTime));
-      }
-
-      if (filters.authorId) {
-        q = query(q, where('authorId', '==', filters.authorId));
-      }
-
-      if (filters.tags && filters.tags.length > 0) {
-        q = query(q, where('tags', 'array-contains-any', filters.tags));
-      }
-
-      // Default ordering by creation date
-      q = query(q, orderBy('createdAt', 'desc'));
 
       // Apply limit
       if (filters.limit) {
@@ -77,7 +84,17 @@ export class RecipeService {
       }
 
       const snapshot = await getDocs(q);
-      const recipes = snapshot.docs.map(
+      let recipeDocs = snapshot.docs;
+
+      // Client-side filtering for public recipes if needed
+      if (filters.isPublic !== undefined) {
+        recipeDocs = recipeDocs.filter((doc) => {
+          const data = doc.data();
+          return data['isPublic'] === filters.isPublic;
+        });
+      }
+
+      const recipes = recipeDocs.map(
         (doc) =>
           ({
             id: doc.id,
@@ -89,6 +106,98 @@ export class RecipeService {
       return recipes;
     } catch (error) {
       console.error('Error loading recipes:', error);
+      this.errorSignal.set('Error cargando recetas');
+      throw error;
+    } finally {
+      this.isLoadingSignal.set(false);
+    }
+  }
+
+  /**
+   * Load recipes with pagination support (returns both recipes and last document for pagination)
+   */
+  async loadRecipesPaginated(filters: RecipeFilters = {}): Promise<{
+    recipes: Recipe[];
+    lastDoc: QueryDocumentSnapshot | null;
+    hasMore: boolean;
+  }> {
+    try {
+      this.isLoadingSignal.set(true);
+      this.errorSignal.set(null);
+
+      let q = query(collection(firestore, 'recipes'));
+
+      // For public recipes, we'll use a simpler approach to avoid composite index requirements
+      // We'll order by createdAt first, then filter client-side if needed
+      if (filters.isPublic !== undefined) {
+        // If we're specifically looking for public recipes, order by createdAt directly
+        // and filter client-side to avoid composite index requirements
+        q = query(q, orderBy('createdAt', 'desc'));
+      } else {
+        // Apply other filters normally
+        if (filters.category) {
+          q = query(q, where('category', '==', filters.category));
+        }
+
+        if (filters.difficulty) {
+          q = query(q, where('difficulty', '==', filters.difficulty));
+        }
+
+        if (filters.maxCookingTime) {
+          q = query(q, where('cookingTime', '<=', filters.maxCookingTime));
+        }
+
+        if (filters.authorId) {
+          q = query(q, where('authorId', '==', filters.authorId));
+        }
+
+        if (filters.tags && filters.tags.length > 0) {
+          q = query(q, where('tags', 'array-contains-any', filters.tags));
+        }
+
+        // Default ordering by creation date
+        q = query(q, orderBy('createdAt', 'desc'));
+      }
+
+      // Add pagination cursor if provided
+      if (filters.startAfterDoc) {
+        q = query(q, startAfter(filters.startAfterDoc));
+      }
+
+      // Apply limit (add extra to check if there are more results)
+      const pageSize = filters.limit || 20;
+      // For public recipes, load more to account for client-side filtering
+      const queryLimit = filters.isPublic ? pageSize * 2 : pageSize + 1;
+      q = query(q, limit(queryLimit));
+
+      const snapshot = await getDocs(q);
+      let allDocs = snapshot.docs;
+
+      // Client-side filtering for public recipes if needed
+      if (filters.isPublic !== undefined) {
+        allDocs = allDocs.filter((doc) => {
+          const data = doc.data();
+          return data['isPublic'] === filters.isPublic;
+        });
+      }
+
+      // Check if there are more results
+      const hasMore = allDocs.length > pageSize;
+      const recipeDocs = hasMore ? allDocs.slice(0, pageSize) : allDocs;
+
+      const recipes = recipeDocs.map(
+        (doc) =>
+          ({
+            id: doc.id,
+            ...doc.data(),
+          } as Recipe),
+      );
+
+      const lastDoc = recipeDocs.length > 0 ? recipeDocs[recipeDocs.length - 1] : null;
+
+      return { recipes, lastDoc, hasMore };
+    } catch (error) {
+      console.error('Error loading recipes with pagination:', error);
       this.errorSignal.set('Error cargando recetas');
       throw error;
     } finally {

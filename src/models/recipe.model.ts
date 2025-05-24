@@ -53,4 +53,6 @@ export interface RecipeFilters {
   authorId?: string;
   isPublic?: boolean;
   limit?: number;
+  // Pagination support
+  startAfterDoc?: any; // Firestore document snapshot for pagination
 }

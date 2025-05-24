@@ -185,18 +185,29 @@
   position: relative;
   padding-top: 70%;
   overflow: hidden;
+  background: var(--ion-color-light);
 
-  img {
+  .recipe-image {
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
     object-fit: cover;
-    transition: transform var(--transition-speed);
+    transition: transform var(--transition-speed), opacity 0.3s ease;
+    opacity: 0;
+
+    &.loaded {
+      opacity: 1;
+    }
+
+    // Prevent layout shift while loading
+    &:not(.loaded) {
+      background: var(--ion-color-light);
+    }
   }
 
-  &:hover img {
+  &:hover .recipe-image {
     transform: scale(1.05);
   }
 }
@@ -240,14 +251,24 @@
   border: none;
   cursor: pointer;
   z-index: 2;
+  transition: transform 0.2s ease, background 0.2s ease;
+
+  &:active {
+    transform: scale(0.95);
+  }
 
   ion-icon {
     font-size: 18px;
     color: #999;
+    transition: color 0.2s ease;
   }
 
-  &.is-favorite ion-icon {
-    color: var(--ion-color-danger);
+  &.is-favorite {
+    background: rgba(255, 255, 255, 0.95);
+
+    ion-icon {
+      color: var(--ion-color-danger);
+    }
   }
 }
 
@@ -423,4 +444,29 @@
   --padding-top: 12px !important;
   --padding-bottom: 12px !important;
   font-size: 14px !important;
+}
+
+// Load More Section
+.load-more-container {
+  padding: 20px 16px 32px;
+  display: flex;
+  justify-content: center;
+
+  .load-more-button {
+    --border-radius: 12px;
+    --padding-top: 12px;
+    --padding-bottom: 12px;
+    --padding-start: 24px;
+    --padding-end: 24px;
+    font-weight: 500;
+
+    ion-icon,
+    ion-spinner {
+      margin-right: 8px;
+    }
+
+    &:disabled {
+      opacity: 0.6;
+    }
+  }
 }

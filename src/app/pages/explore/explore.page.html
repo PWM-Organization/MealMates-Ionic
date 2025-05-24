@@ -96,7 +96,14 @@
   <div *ngIf="hasRecipes()" class="recipe-grid">
     <div *ngFor="let recipe of filteredRecipes(); trackBy: trackByRecipeId" class="recipe-card">
       <div class="card-image" (click)="goToRecipeDetail(recipe)">
-        <img [src]="recipe.imageUrl || 'assets/icon/recipe-placeholder.png'" [alt]="recipe.title" loading="lazy" />
+        <img
+          [src]="getOptimizedImageUrl(recipe.imageUrl)"
+          [alt]="recipe.title"
+          loading="lazy"
+          (error)="onImageError($event, recipe)"
+          (load)="onImageLoad($event)"
+          class="recipe-image"
+        />
         <div class="card-badge" [class]="getDifficultyColor(recipe.difficulty)">{{ recipe.difficulty }}</div>
         <button
           class="favorite-button"
@@ -125,5 +132,20 @@
         <p class="card-description">{{ recipe.description }}</p>
       </div>
     </div>
+  </div>
+
+  <!-- Load More Button -->
+  <div *ngIf="hasRecipes() && hasMoreRecipes()" class="load-more-container">
+    <ion-button
+      expand="block"
+      fill="outline"
+      (click)="loadMoreRecipes()"
+      [disabled]="isLoadingMore()"
+      class="load-more-button"
+    >
+      <ion-spinner *ngIf="isLoadingMore()" name="dots" slot="start"></ion-spinner>
+      <ion-icon *ngIf="!isLoadingMore()" name="chevron-down-outline" slot="start"></ion-icon>
+      {{ isLoadingMore() ? 'Cargando...' : 'Cargar más recetas' }}
+    </ion-button>
   </div>
 </ion-content>

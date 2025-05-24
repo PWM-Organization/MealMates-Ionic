@@ -14,6 +14,7 @@ import {
   RefresherCustomEvent,
   ToastController,
   IonSkeletonText,
+  IonSpinner,
 } from '@ionic/angular/standalone';
 import { AuthService } from '../../services/auth.service';
 import { RecipeService } from '../../services/recipe.service';
@@ -37,6 +38,7 @@ type RecipeCategory = 'all' | 'breakfast' | 'lunch' | 'dinner' | 'dessert' | 'sn
     IonRefresherContent,
     IonSearchbar,
     IonSkeletonText,
+    IonSpinner,
   ],
   templateUrl: './explore.page.html',
   styleUrls: ['./explore.page.scss'],
@@ -55,47 +57,64 @@ export class ExplorePage implements OnInit {
   filteredRecipes = signal<Recipe[]>([]);
   favoriteRecipeIds = signal<string[]>([]);
   isLoading = signal(true);
+  isLoadingMore = signal(false);
   hasError = signal(false);
   errorMessage = signal('');
   searchTerm = signal('');
   activeCategory = signal<RecipeCategory>('all');
   sqliteInitialized = signal(false);
 
+  // Pagination state
+  private readonly PAGE_SIZE = 12; // Smaller page size to reduce memory usage
+  private currentPage = signal(0);
+  private hasMoreData = signal(true);
+  private lastDocumentSnapshot: any = null; // Store Firestore document snapshot for pagination
+  private loadedImageUrls = new Set<string>(); // Track loaded images to prevent reloading
+
   // Derived state
   currentUser = computed(() => this.authService.currentUser());
   isSqliteAvailable = computed(() => this.sqliteService.isAvailable());
   hasRecipes = computed(() => this.filteredRecipes().length > 0);
   isEmpty = computed(() => !this.isLoading() && !this.hasRecipes());
+  hasMoreRecipes = computed(() => this.hasMoreData() && !this.isLoading());
 
   async ngOnInit() {
     await this.loadData();
   }
 
   /**
-   * Load all recipe and favorite data
+   * Load initial recipe data with pagination
    */
   async loadData() {
     try {
       this.isLoading.set(true);
       this.hasError.set(false);
       this.errorMessage.set('');
+      this.currentPage.set(0);
+      this.hasMoreData.set(true);
+      this.lastDocumentSnapshot = null;
 
-      // 1. Load all public recipes from Firestore FIRST (don't wait for SQLite)
-      const recipes = await this.recipeService.loadRecipes();
-      this.allRecipes.set(recipes);
+      // Load initial batch of public recipes with limit
+      const result = await this.recipeService.loadRecipesPaginated({
+        isPublic: true,
+        limit: this.PAGE_SIZE,
+      });
+
+      this.allRecipes.set(result.recipes);
+      this.hasMoreData.set(result.hasMore);
+      this.lastDocumentSnapshot = result.lastDoc;
       this.applyFilters();
 
-      // 2. Initialize SQLite in background (non-blocking)
+      // Initialize SQLite in background (non-blocking)
       this.initializeSQLiteInBackground();
 
-      // 3. Load favorite IDs (with fallback) - this can happen after recipes are shown
+      // Load favorite IDs (with fallback)
       const user = this.currentUser();
       if (user) {
-        // Use a short timeout to not block UI
         try {
           const favoriteIds = await Promise.race([
             this.sqliteService.getFavorites(user.uid),
-            new Promise<string[]>((resolve) => setTimeout(() => resolve([]), 1000)), // 1 second timeout
+            new Promise<string[]>((resolve) => setTimeout(() => resolve([]), 1000)),
           ]);
           this.favoriteRecipeIds.set(favoriteIds);
         } catch (error) {
@@ -110,6 +129,91 @@ export class ExplorePage implements OnInit {
       await this.showToast('Error cargando datos', 'alert-circle-outline');
     } finally {
       this.isLoading.set(false);
+    }
+  }
+
+  /**
+   * Load more recipes for pagination
+   */
+  async loadMoreRecipes() {
+    if (this.isLoadingMore() || !this.hasMoreData() || !this.lastDocumentSnapshot) {
+      return;
+    }
+
+    try {
+      this.isLoadingMore.set(true);
+
+      // Load next batch using the last document as cursor
+      const result = await this.recipeService.loadRecipesPaginated({
+        isPublic: true,
+        limit: this.PAGE_SIZE,
+        startAfterDoc: this.lastDocumentSnapshot,
+      });
+
+      if (result.recipes.length > 0) {
+        // Append new recipes to existing ones
+        const allRecipes = [...this.allRecipes(), ...result.recipes];
+        this.allRecipes.set(allRecipes);
+        this.hasMoreData.set(result.hasMore);
+        this.lastDocumentSnapshot = result.lastDoc;
+        this.applyFilters();
+      } else {
+        this.hasMoreData.set(false);
+      }
+    } catch (error) {
+      console.error('Error loading more recipes:', error);
+      await this.showToast('Error cargando más recetas', 'alert-circle-outline');
+    } finally {
+      this.isLoadingMore.set(false);
+    }
+  }
+
+  /**
+   * Get optimized image URL with fallback
+   */
+  getOptimizedImageUrl(imageUrl?: string): string {
+    if (!imageUrl) {
+      return 'assets/icon/recipe-placeholder.svg';
+    }
+
+    // If it's a Firebase Storage URL, we can add size parameters
+    if (imageUrl.includes('firebasestorage.googleapis.com')) {
+      // Add optimization parameters for Firebase Storage
+      const url = new URL(imageUrl);
+      url.searchParams.set('alt', 'media');
+      // Optimize for mobile display (max 400px width)
+      url.searchParams.set('token', url.searchParams.get('token') || '');
+      return url.toString();
+    }
+
+    return imageUrl;
+  }
+
+  /**
+   * Handle image loading errors
+   */
+  onImageError(event: Event, recipe: Recipe) {
+    const img = event.target as HTMLImageElement;
+    if (img && !img.src.includes('recipe-placeholder.svg')) {
+      console.warn(`Failed to load image for recipe ${recipe.id}:`, recipe.imageUrl);
+      img.src = 'assets/icon/recipe-placeholder.svg';
+
+      // Remove from loaded images cache if it was there
+      if (recipe.imageUrl) {
+        this.loadedImageUrls.delete(recipe.imageUrl);
+      }
+    }
+  }
+
+  /**
+   * Handle successful image loading
+   */
+  onImageLoad(event: Event) {
+    const img = event.target as HTMLImageElement;
+    if (img && img.src) {
+      this.loadedImageUrls.add(img.src);
+      // Optional: Add fade-in animation class
+      img.classList.add('loaded');
     }
   }
 
@@ -141,25 +245,15 @@ export class ExplorePage implements OnInit {
   }
 
   /**
-   * Load favorites after SQLite is initialized
-   */
-  private async loadFavoritesAfterSQLiteInit() {
-    const user = this.currentUser();
-    if (user && this.sqliteService.isInitialized()) {
-      try {
-        const favoriteIds = await this.sqliteService.getFavorites(user.uid);
-        this.favoriteRecipeIds.set(favoriteIds);
-      } catch (error) {
-        console.warn('Error loading favorites after SQLite init', error);
-      }
-    }
-  }
-
-  /**
    * Handle pull-to-refresh
    */
   async handleRefresh(event: RefresherCustomEvent) {
     try {
+      // Reset pagination state
+      this.currentPage.set(0);
+      this.hasMoreData.set(true);
+      this.lastDocumentSnapshot = null;
+      this.loadedImageUrls.clear();
       await this.loadData();
     } catch (error) {
       console.error('Error refreshing data:', error);
@@ -313,6 +407,21 @@ export class ExplorePage implements OnInit {
    */
   trackByRecipeId(index: number, recipe: Recipe): string {
     return recipe.id;
+  }
+
+  /**
+   * Load favorites after SQLite is initialized
+   */
+  private async loadFavoritesAfterSQLiteInit() {
+    const user = this.currentUser();
+    if (user && this.sqliteService.isInitialized()) {
+      try {
+        const favoriteIds = await this.sqliteService.getFavorites(user.uid);
+        this.favoriteRecipeIds.set(favoriteIds);
+      } catch (error) {
+        console.warn('Error loading favorites after SQLite init', error);
+      }
+    }
   }
 
   /**
