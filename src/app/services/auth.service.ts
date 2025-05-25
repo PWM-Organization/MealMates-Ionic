@@ -255,7 +255,18 @@ export class AuthService {
     if (!user) throw new Error('No authenticated user');
 
     const userRef = doc(firestore, 'users', user.uid);
-    const profileUpdates: Partial<User> = { ...updates };
+
+    // Create a clean updates object without undefined values
+    const profileUpdates: Record<string, any> = {};
+    Object.keys(updates).forEach((key) => {
+      const value = updates[key as keyof Partial<User>];
+      if (value !== undefined) {
+        profileUpdates[key] = value;
+      }
+    });
+
+    // Add updatedAt timestamp
+    profileUpdates['updatedAt'] = serverTimestamp();
 
     // Update Firebase Auth profile if name changes
     if (updates.firstName || updates.lastName) {
@@ -267,17 +278,14 @@ export class AuthService {
     }
 
     // Update photoURL if provided
-    if (profileUpdates.photoURL) {
+    if (profileUpdates['photoURL']) {
       await updateProfile(user, {
-        photoURL: profileUpdates.photoURL,
+        photoURL: profileUpdates['photoURL'],
       });
     }
 
     // Update Firestore document
-    await updateDoc(userRef, {
-      ...profileUpdates,
-      updatedAt: serverTimestamp(),
-    });
+    await updateDoc(userRef, profileUpdates);
 
     // Update local state
     const currentProfile = this.userProfile();
@@ -285,7 +293,8 @@ export class AuthService {
       this.userProfileSignal.set({
         ...currentProfile,
         ...profileUpdates,
-        updatedAt: Timestamp.now(),
+        // Convert serverTimestamp to regular Timestamp for local state
+        updatedAt: profileUpdates['updatedAt'] === serverTimestamp() ? Timestamp.now() : profileUpdates['updatedAt'],
       });
     }
   }

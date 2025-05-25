@@ -319,13 +319,13 @@ export class ProfilePage implements OnInit, OnDestroy {
           throw new Error('No user data available');
         }
 
-        // Prepare update data
+        // Prepare update data - use empty strings instead of undefined
         const updateData: Partial<User> = {
           firstName: formValue.firstName!,
           lastName: formValue.lastName!,
-          bio: formValue.bio || undefined,
-          phone: formValue.phone || undefined,
-          location: formValue.location || undefined,
+          bio: formValue.bio || '',
+          phone: formValue.phone || '',
+          location: formValue.location || '',
           updatedAt: new Date(),
         };
 
