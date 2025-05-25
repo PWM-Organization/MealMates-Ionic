@@ -223,14 +223,7 @@ export class SqliteService {
     this.debugService.logSQLiteOperation('addFavorite', recipeId, userId);
 
     try {
-      // For Android emulator or if SQLite fails, use localStorage immediately
-      if (this.platform === 'android' && this.isAndroidEmulator()) {
-        this._saveFavoriteToLocalStorage(recipeId, userId);
-        console.log(`✅ Recipe ${recipeId} added to favorites via localStorage (Android emulator)`);
-        return;
-      }
-
-      // If SQLite is available and initialized, use it with queue protection
+      // Si SQLite está inicializado, usarlo (incluido emulador Android)
       if (this.isInitialized() && this.db) {
         await this.executeWithQueue(async () => {
           const query = `INSERT OR REPLACE INTO favorites (recipeId, userId, addedAt) VALUES (?, ?, ?)`;
@@ -258,14 +251,7 @@ export class SqliteService {
     this.debugService.logSQLiteOperation('removeFavorite', recipeId, userId);
 
     try {
-      // For Android emulator or if SQLite fails, use localStorage immediately
-      if (this.platform === 'android' && this.isAndroidEmulator()) {
-        this._removeFavoriteFromLocalStorage(recipeId, userId);
-        console.log(`✅ Recipe ${recipeId} removed from favorites via localStorage (Android emulator)`);
-        return;
-      }
-
-      // If SQLite is available and initialized, use it with queue protection
+      // Si SQLite está inicializado, usarlo (incluido emulador Android)
       if (this.isInitialized() && this.db) {
         await this.executeWithQueue(async () => {
           const query = `DELETE FROM favorites WHERE recipeId = ? AND userId = ?`;
@@ -291,12 +277,7 @@ export class SqliteService {
    */
   async getFavorites(userId: string): Promise<string[]> {
     try {
-      // For Android emulator, use localStorage immediately to prevent crashes
-      if (this.platform === 'android' && this.isAndroidEmulator()) {
-        return this._getFavoritesFromLocalStorage(userId);
-      }
-
-      // If SQLite is available and initialized, use it with queue protection
+      // Si SQLite está inicializado, usarlo (incluido emulador Android)
       if (this.isInitialized() && this.db) {
         return await this.executeWithQueue(async () => {
           const query = `SELECT recipeId FROM favorites WHERE userId = ? ORDER BY addedAt DESC`;
@@ -318,12 +299,7 @@ export class SqliteService {
    */
   async isFavorite(recipeId: string, userId: string): Promise<boolean> {
     try {
-      // For Android emulator, use localStorage immediately to prevent crashes
-      if (this.platform === 'android' && this.isAndroidEmulator()) {
-        return this._isFavoriteInLocalStorage(recipeId, userId);
-      }
-
-      // If SQLite is available and initialized, use it with queue protection
+      // Si SQLite está inicializado, usarlo (incluido emulador Android)
       if (this.isInitialized() && this.db) {
         return await this.executeWithQueue(async () => {
           const query = `SELECT COUNT(*) as count FROM favorites WHERE recipeId = ? AND userId = ?`;

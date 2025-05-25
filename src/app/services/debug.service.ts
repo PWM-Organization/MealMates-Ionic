@@ -106,10 +106,12 @@ export class DebugService {
   shouldUseFallback(): boolean {
     const debugInfo = this.getDebugInfo();
 
-    // Use fallback for Android emulator to prevent crashes
+    // MODIFICACIÓN: No usar fallback para emulador de Android
+    // Mantenemos el log para depuración pero retornamos false
     if (debugInfo.isEmulator) {
       console.warn('🛡️ Using localStorage fallback due to Android emulator detected');
-      return true;
+      // Retornamos false en lugar de true para usar SQLite en el emulador
+      return false;
     }
 
     // Check memory pressure

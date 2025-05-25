@@ -96,10 +96,33 @@ export class FavoritesPage implements OnInit {
     }
 
     try {
-      await this.sqliteService.initializeDB();
-      this.isSqliteInitialized.set(true);
+      // Intentar inicializar SQLite con más intentos para asegurar que funcione en el emulador
+      console.log('Initializing SQLite for favorites page...');
+
+      // Intentar inicializar varias veces en caso de fallo
+      let attempts = 0;
+      const maxAttempts = 3;
+
+      while (attempts < maxAttempts) {
+        try {
+          await this.sqliteService.initializeDB();
+          this.isSqliteInitialized.set(true);
+          console.log('SQLite initialized successfully for favorites page');
+          break;
+        } catch (error) {
+          attempts++;
+          console.warn(`SQLite initialization attempt ${attempts} failed:`, error);
+
+          if (attempts >= maxAttempts) {
+            throw error;
+          }
+
+          // Esperar un poco antes de reintentar
+          await new Promise((resolve) => setTimeout(resolve, 500));
+        }
+      }
     } catch (error) {
-      console.error('Error initializing SQLite:', error);
+      console.error('Error initializing SQLite after multiple attempts:', error);
       await this.showToast('Error initializing local database', 'alert-circle-outline');
     }
 
@@ -114,12 +137,34 @@ export class FavoritesPage implements OnInit {
       const recipes = await this.recipeService.loadRecipes();
       this.allRecipes.set(recipes);
 
-      // Load favorite IDs from SQLite if initialized
-      if (this.isSqliteInitialized()) {
-        const user = this.currentUser();
-        if (user) {
+      // Load favorite IDs from SQLite
+      const user = this.currentUser();
+      if (user) {
+        try {
+          console.log('Loading favorites from SQLite...');
+          // Intentar cargar favoritos, incluso si isSqliteInitialized es false
+          // para asegurarnos de que se intente usar SQLite en el emulador
           const favoriteIds = await this.sqliteService.getFavorites(user.uid);
+          console.log(`Loaded ${favoriteIds.length} favorites from SQLite`);
           this.favoriteRecipeIds.set(favoriteIds);
+        } catch (error) {
+          console.error('Error loading favorites from SQLite:', error);
+          // Si falla, intentamos inicializar de nuevo
+          if (!this.isSqliteInitialized()) {
+            console.log('Attempting to reinitialize SQLite...');
+            try {
+              await this.sqliteService.initializeDB();
+              this.isSqliteInitialized.set(true);
+              // Intentar cargar favoritos de nuevo
+              const favoriteIds = await this.sqliteService.getFavorites(user.uid);
+              this.favoriteRecipeIds.set(favoriteIds);
+            } catch (initError) {
+              console.error('Failed to reinitialize SQLite:', initError);
+              this.favoriteRecipeIds.set([]);
+            }
+          } else {
+            this.favoriteRecipeIds.set([]);
+          }
         }
       }
     } catch (error) {
