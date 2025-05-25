@@ -1,7 +1,16 @@
 {
   "name": "MealMates-App",
   "integrations": {
-    "capacitor": {}
+    "capacitor": {
+      "android": {
+        "minSdkVersion": 21,
+        "buildOptions": {
+          "useAndroidX": true,
+          "enableJetifier": true,
+          "enableR8": true
+        }
+      }
+    }
   },
   "type": "angular"
 }
