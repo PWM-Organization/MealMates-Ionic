@@ -1,8 +1,8 @@
 {
-  "name": "MealMates-App",
+  "name": "mealmates",
   "version": "0.0.1",
-  "author": "Ionic Framework",
-  "homepage": "https://ionicframework.com/",
+  "author": "MealMates. Group 42.7",
+  "homepage": "https://mealmates.com/",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
@@ -71,5 +71,5 @@
     "tailwindcss": "^4.1.7",
     "typescript": "~5.6.3"
   },
-  "description": "An Ionic project"
+  "description": "A hybrid app for discovering and managing recipes, with Firebase in the cloud and SQLite locally"
 }
