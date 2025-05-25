@@ -1,6 +1,22 @@
-# 🍳 MealMates - Sprint 4: Firebase + SQLite Recipe App
+# 🍳 MealMates - Sprint 4: Ionic + SQLite
 
-> **Una app híbrida que conecta foodies a través de recetas, con Firebase en la nube y SQLite local** 🚀
+[![Angular Version](https://img.shields.io/badge/Angular-v19.2.6-DD0031?logo=angular)](https://angular.io/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.7+-3178C6?logo=typescript)](https://www.typescriptlang.org/)
+[![Firebase](https://img.shields.io/badge/Firebase-Platform-FFCA28?logo=firebase)](https://firebase.google.com/)
+[![Ionic Version](https://img.shields.io/badge/Ionic-v8.0.0-3880FF?logo=ionic)](https://ionicframework.com/)
+[![Capacitor Version](https://img.shields.io/badge/Capacitor-v5.0.0-1A1F36?logo=capacitor)](https://capacitorjs.com/)
+[![SQLite Version](https://img.shields.io/badge/SQLite-v3.42.0-003B57?logo=sqlite)](https://www.sqlite.org/)
+
+> **Una app híbrida pensada para planificar tus comidas semanales y gestionar recetas personalizadas de forma eficiente y visual, con Firebase en la nube y SQLite local** 🚀
+
+**📚 Asignatura:** Programación Web y Móvil  
+
+**📅 Fecha de entrega:** 25 Mayo 2025
+
+**👨‍💻 Autores:**
+- Elena Artiles Morales  
+- Pablo Monzón Toca  
+- Francisco Javier López-Dufour Morales
 
 ## 🎯 Sprint 4: Las 4 Pantallas Fundamentales
 
