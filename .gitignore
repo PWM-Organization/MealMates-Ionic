@@ -80,3 +80,6 @@ serviceAccountKey.json
 19.2.13/
 firebase.config.ts
 src/firebase.config.ts
+
+DOCS/
+android/app/google-services.json
