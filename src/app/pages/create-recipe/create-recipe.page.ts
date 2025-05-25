@@ -84,9 +84,6 @@ export class CreateRecipePage {
   private toastCtrl = inject(ToastController);
   private actionSheetCtrl = inject(ActionSheetController);
 
-  // 🛡️ Android Crash Prevention
-  private platform = Capacitor.getPlatform();
-
   isLoading = signal(false);
   isUploadingImage = signal(false);
   selectedImage = signal<string | null>(null);

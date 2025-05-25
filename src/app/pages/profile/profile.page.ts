@@ -1,4 +1,4 @@
-import { Component, OnInit, signal, inject, OnDestroy } from '@angular/core';
+import { Component, OnInit, signal, inject, OnDestroy, EffectRef, effect } from '@angular/core';
 import { FormBuilder, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { CommonModule, DatePipe } from '@angular/common';
@@ -89,6 +89,7 @@ export class ProfilePage implements OnInit, OnDestroy {
   loadError = signal<string | null>(null);
 
   private authSubscription?: Subscription;
+  private userProfileEffect?: EffectRef;
 
   profileForm = this.fb.group({
     firstName: ['', [Validators.required, Validators.minLength(2)]],
@@ -103,12 +104,19 @@ export class ProfilePage implements OnInit, OnDestroy {
     console.log('🔄 Profile page initializing...');
     await this.loadUserProfile();
 
-    // Subscribe to auth state changes for real-time updates
-    this.authSubscription = new Subscription();
+    // Set up an effect to react to user profile changes
+    this.userProfileEffect = effect(() => {
+      const user = this.authService.userProfile();
+      if (user) {
+        this.currentUser.set(user);
+        this.updateForm(user);
+      }
+    });
   }
 
   ngOnDestroy() {
     this.authSubscription?.unsubscribe();
+    this.userProfileEffect?.destroy();
   }
 
   /**
@@ -142,8 +150,8 @@ export class ProfilePage implements OnInit, OnDestroy {
           location: userData.location || '',
         });
 
-        // Cache the user data in AuthService
-        this.authService['userProfileSignal'].set(userData);
+        // Update the user profile in AuthService
+        this.authService.updateUserProfileCache(userData);
       } else {
         // If user document doesn't exist, initialize with auth data
         const initialUserData: User = {
@@ -218,8 +226,8 @@ export class ProfilePage implements OnInit, OnDestroy {
         this.currentUser.set(userData);
         this.updateForm(userData);
 
-        // Update AuthService cache
-        this.authService['userProfileSignal'].set(userData);
+        // Update AuthService cache with the refreshed user data
+        this.authService.updateUserProfileCache(userData);
       } else {
         console.warn('⚠️ User document not found in Firestore');
         this.loadError.set('Perfil no encontrado');

@@ -290,6 +290,14 @@ export class AuthService {
     }
   }
 
+  /**
+   * Update user profile cache without writing to Firestore
+   * Used when we already have fresh data from Firestore
+   */
+  updateUserProfileCache(userData: User): void {
+    this.userProfileSignal.set(userData);
+  }
+
   async resetPassword(email: string): Promise<void> {
     try {
       await sendPasswordResetEmail(auth, email);
